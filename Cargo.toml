@@ -1,0 +1,8 @@
+[package]
+name = "enneagram"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+moddef = "0.3.0"
+enum-display = "0.2.1"
