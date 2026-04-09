@@ -3,7 +3,7 @@ use crate::triad::Triad;
 /// Internal strategy for one's (meta-)suffering/"who to blame?"
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
-enum Blame
+pub enum Blame
 {
     #[display("everything is fine")]
     Positive,

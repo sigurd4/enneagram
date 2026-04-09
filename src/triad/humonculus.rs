@@ -3,7 +3,7 @@ use crate::triad::Triad;
 /// Homonculus of the self/internalization of self/frame of judgement/meta-objective/"Who am i?"
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
-enum Humonculus
+pub enum Humonculus
 {
     #[display("I am my urges, my concience hurts me")]
     Gut,

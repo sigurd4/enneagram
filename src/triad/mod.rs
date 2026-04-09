@@ -7,7 +7,7 @@ moddef::moddef!(
     }
 );
 
-trait Triad: Sized
+pub trait Triad: Sized
 {
     fn i(&self) -> &'static str;
     fn you(&self) -> &'static str;

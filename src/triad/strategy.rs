@@ -3,7 +3,7 @@ use crate::triad::Triad;
 /// External strategy towards suffering
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
-enum Strategy
+pub enum Strategy
 {
     #[display("I can change it")]
     Assertive,

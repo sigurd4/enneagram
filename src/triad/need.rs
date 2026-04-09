@@ -3,7 +3,7 @@ use crate::triad::Triad;
 /// Need/object of desire/"what hole do you have in your soul?"
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
-enum Need
+pub enum Need
 {
     #[display("I need freedom")]
     Attachment,
