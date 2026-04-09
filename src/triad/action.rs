@@ -3,7 +3,7 @@ use crate::triad::Triad;
 /// External strategy towards suffering
 #[derive(Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
-pub enum Strategy
+pub enum Action
 {
     #[display("I can change it")]
     Assertive,
@@ -13,9 +13,9 @@ pub enum Strategy
     Withdrawn
 }
 
-impl Triad for Strategy
+impl Triad for Action
 {
-    fn i(&self) -> &'static str
+    fn expression(&self) -> &'static str
     {
         match self
         {
@@ -25,7 +25,7 @@ impl Triad for Strategy
         }
     }
 
-    fn you(&self) -> &'static str
+    fn reflection(&self) -> &'static str
     {
         match self
         {

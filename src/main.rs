@@ -1,5 +1,7 @@
 moddef::moddef!(
     mod {
+        edge,
+        cotriad,
         triad
     }
 );

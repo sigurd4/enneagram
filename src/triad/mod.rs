@@ -1,14 +1,14 @@
 moddef::moddef!(
     flat(pub) mod {
-        blame,
-        humonculus,
+        fault,
+        frame,
         need,
-        strategy
+        action
     }
 );
 
 pub trait Triad: Sized
 {
-    fn i(&self) -> &'static str;
-    fn you(&self) -> &'static str;
+    fn expression(&self) -> &'static str;
+    fn reflection(&self) -> &'static str;
 }

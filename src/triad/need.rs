@@ -15,7 +15,7 @@ pub enum Need
 
 impl Triad for Need
 {
-    fn i(&self) -> &'static str
+    fn expression(&self) -> &'static str
     {
         match self
         {
@@ -25,7 +25,7 @@ impl Triad for Need
         }
     }
 
-    fn you(&self) -> &'static str
+    fn reflection(&self) -> &'static str
     {
         match self
         {
