@@ -1,4 +1,4 @@
-use core::{fmt::Debug, ops::Add};
+use core::{any::Any, fmt::Debug, ops::Add};
 
 use crate::{edge::Edge, triad::Triad};
 
@@ -43,8 +43,11 @@ pub fn all() -> [Box<dyn Domain>; 6*9]
     all
 }
 
-pub trait Domain: Debug
+pub trait Domain: Debug + Any + 'static
 {
+    fn as_any(&self) -> &dyn Any;
+    fn equals(&self, other: &dyn Domain) -> bool;
+
     fn conscious(&self) -> &dyn Triad;
     fn subconscious(&self) -> &dyn Triad;
     fn triads(&self) -> [&dyn Triad; 2]
@@ -75,12 +78,19 @@ pub trait Domain: Debug
     fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
     fn answer(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
     {
-        self.codomain().trivial(f)
+        self.reciprocal().trivial(f)
     }
 
-    fn codomain(&self) -> Box<dyn Domain>
+    fn reciprocal(&self) -> Box<dyn Domain>
     {
-        todo!()
+        // This is dumb but should work
+        let edge = self.edge();
+        let mut codomains = crate::domain::all()
+            .into_iter()
+            .filter(|domain| !self.equals(&**domain) && edge == domain.edge());
+        let codomain = codomains.next().expect("This domain has no reciprocal codomain!");
+        assert_eq!(codomains.collect::<Vec<_>>().len(), 0, "The reciprocal codomain of this domain cannot be ambiguous!");
+        codomain
     }
 }
 
@@ -131,7 +141,7 @@ mod test
         for domain in crate::domain::all()
         {
             let q = std::fmt::from_fn(|f| domain.question(f));
-            let a = std::fmt::from_fn(|f| domain.trivial(f));
+            let a = std::fmt::from_fn(|f| domain.answer(f));
             let e = domain.edge();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
@@ -144,7 +154,7 @@ mod test
         for domain in domains
         {
             let q = std::fmt::from_fn(|f| domain.question(f));
-            let a = std::fmt::from_fn(|f| domain.trivial(f));
+            let a = std::fmt::from_fn(|f| domain.answer(f));
             let e = domain.edge();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }

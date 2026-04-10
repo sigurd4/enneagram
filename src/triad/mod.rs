@@ -1,4 +1,4 @@
-use core::fmt::Debug;
+use core::{any::Any, fmt::Debug};
 
 use crate::edge::Edge;
 
@@ -37,7 +37,7 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
     all
 }
 
-pub trait Triad: Debug
+pub trait Triad: Debug + Any
 {
     fn edges(&self) -> &'static [Edge; 3];
     fn expression(&self) -> &'static str;

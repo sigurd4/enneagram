@@ -1,4 +1,4 @@
-use core::ops::Add;
+use core::{any::Any, ops::Add};
 
 use crate::{domain::Domain, triad::{Fault, Frame, Triad}};
 
@@ -50,6 +50,15 @@ impl Add<Frame> for Fault
 
 impl Domain for InternalConflict
 {
+    fn as_any(&self) -> &dyn Any
+    {
+        self
+    }
+    fn equals(&self, other: &dyn Domain) -> bool
+    {
+        other.as_any().downcast_ref().is_some_and(|other| self == other)
+    }
+    
     fn conscious(&self) -> &dyn Triad
     {
         &self.thesis
