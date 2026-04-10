@@ -148,6 +148,8 @@ I've figured out by now that the lines between each state make perfect sense. Th
 
 ## Arch-Linux
 
+This program is available as a PKGBUILD on the AUR.
+
 `yay -S enneagram`
 
 ## Others
