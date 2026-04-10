@@ -4,7 +4,7 @@ version = "1.0.0"
 edition = "2024"
 license = "GPLv3"
 description = "A digital enneagram"
-repository = "https://github.com/sigurd4/ennegram"
+repository = "https://github.com/sigurd4/enneagram"
 keywords = ["enneagram", "personality", "psychology", "occult"]
 categories = ["algorithms", "mathematics"]
 
