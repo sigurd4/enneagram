@@ -1,11 +1,11 @@
 #![feature(iter_next_chunk)]
 
-use std::io::{Read, Write};
+use std::io::Write;
 
 #[cfg(feature = "blasphemy")]
 use rand::distr::Distribution;
-
-use crate::{domain::{Behaviour, Domain, ExternalDissonance, InternalConflict}, triad::{Fault, Frame, Triad}};
+#[cfg(feature = "blasphemy")]
+use std::io::Read;
 
 moddef::moddef!(
     mod {
@@ -114,8 +114,6 @@ fn select<T>(
     else
     {
         assert_eq!(choice_str.len(), 1, "There must have been a mistake. More bytes were read than expected. We only expect one byte to be read here.");
-        //let choice_str = str::from_utf8(core::slice::from_ref(&choice_byte))
-        //    .expect("What you wrote was not valid UTF8. Please write a number corresponding to one of the choices presented to you.");
         let choice_number = choice_str.parse::<u8>()
             .expect("What you wrote could not be parsed. Please write a number corresponding to one of the choices presented to you.");
         assert!(choice_number <= numer_of_options, "You tried to select an option that doesn't exist. Your number is out of range. Please write a number corresponding to one of the choices presented to you.");

@@ -160,6 +160,7 @@ pub trait Domain: Debug + Any + 'static
         edge
     }
 
+    #[allow(unused)]
     fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
     fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
     fn answer(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
