@@ -13,7 +13,7 @@ moddef::moddef!(
 
 pub fn all() -> [Box<dyn Triad>; 4*3]
 {
-    let mut chain = core::iter::empty()
+    core::iter::empty()
         .chain(
             Fault::all()
                 .into_iter()
@@ -30,11 +30,9 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
             Strategy::all()
                 .into_iter()
                 .map(|traid| Box::new(traid) as Box<dyn Triad>)
-        );
-    let all = chain.next_chunk()
-            .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Not enough states!");
-    assert_eq!(chain.collect::<Vec<_>>().len(), 0, "The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Too many states!");
-    all
+        ).collect::<Vec<_>>()
+        .try_into()
+        .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Wrong number of states!")
 }
 
 pub trait Triad: Debug + Display + Any

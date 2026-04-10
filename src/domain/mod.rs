@@ -93,7 +93,7 @@ pub fn select() -> Box<dyn Domain>
 
 pub fn all() -> [Box<dyn Domain>; 6*9]
 {
-    let mut chain = core::iter::empty()
+    core::iter::empty()
         .chain(
             ExternalDissonance::all()
                 .into_iter()
@@ -118,11 +118,9 @@ pub fn all() -> [Box<dyn Domain>; 6*9]
             InternalDissonance::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        );
-    let all = chain.next_chunk()
-            .expect("The enneagram is defined by 54 unique domains. Not enough domains!");
-    assert_eq!(chain.collect::<Vec<_>>().len(), 0, "The enneagram is defined by 54 unique domains. Too many domains!");
-    all
+        ).collect::<Vec<_>>()
+        .try_into()
+        .expect("The enneagram is defined by 54 unique domains. Wrong number of domains!")
 }
 
 pub trait Domain: Debug + Any + 'static
