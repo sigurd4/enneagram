@@ -1,3 +1,5 @@
+use crate::triad::Triad;
+
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
@@ -21,4 +23,24 @@ pub enum Edge
     Action = 8,
     #[display("Rest/Equilibrium")]
     Rest = 9
+}
+
+impl Edge
+{
+    pub fn number(&self) -> u8
+    {
+        let number = *self as u8;
+        assert!(number >= 1 && number <= 9, "Enneagram numbers must be within the range of 1-9");
+        number
+    }
+
+    pub fn triads(&self) -> [Box<dyn Triad>; 4]
+    {
+        crate::triad::all()
+            .into_iter()
+            .filter(|traid| traid.edges().contains(&self))
+            .collect::<Vec<_>>()
+            .try_into()
+            .expect("Each personality must consist of exactly 4 triads.")
+    }
 }

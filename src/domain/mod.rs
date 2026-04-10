@@ -1,6 +1,6 @@
-use core::{any::Any, fmt::Debug};
+use core::{any::Any, fmt::Debug, ops::Add};
 
-use crate::{edge::Edge, triad::{Fault, Frame, Need, Strategy, Triad}};
+use crate::{Clause, edge::Edge, triad::{Fault, Frame, Need, Strategy, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -13,62 +13,82 @@ moddef::moddef!(
     }
 );
 
-enum Duality
-{
-    Thesis,
-    AntiThesis
-}
-
-enum Directionality
-{
-    Introverted,
-    Extroverted
-}
-
 pub fn select() -> Box<dyn Domain>
 {
-    fn select_triad<T>(all: [T; 3]) -> T
+    fn select_triad<T, N>(
+        trivial_conjunction: &str,
+        trivial: [T; 3],
+        nontrivial_conjunction: &str,
+        nontrivial: [N; 3]
+    ) -> <T as Add<N>>::Output
     where
-        T: Triad + Copy
+        T: Triad + Copy + Add<N>,
+        N: Triad + Copy
     {
-        let choices = all.map(|triad| (triad.expression(), move || triad));
+        enum Triviality<T, N>
+        {
+            Trivial(T),
+            Nontrivial(N)
+        }
+        
+        let trivial_choices = trivial.map(|triad| (triad.expression(), move || triad));
+        let nontrivial_choices = nontrivial.map(|triad| (triad.expression(), move || triad));
 
-        crate::select::<T>(
-            None,
-            &choices.each_ref()
-                .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> T))
-        )
+        let polymorphic_trivial_choices = trivial_choices.each_ref()
+            .map(|(expression, generator)| (*expression, || Triviality::Trivial(generator())));
+        let polymorphic_nontrivial_choices = nontrivial_choices.each_ref()
+            .map(|(expression, generator)| (*expression, || Triviality::Nontrivial(generator())));
+
+        let first_triad = crate::select(
+            Clause::Question,
+            &core::iter::chain(
+                polymorphic_trivial_choices.each_ref()
+                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>)),
+                polymorphic_nontrivial_choices.each_ref()
+                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>))
+            ).collect::<Vec<_>>()
+        );
+        let (trivial_triad, nontrivial_triad) = match first_triad
+        {
+            Triviality::Trivial(trivial_triad) => {
+                (
+                    trivial_triad,
+                    crate::select(
+                        Clause::Continuation(nontrivial_conjunction),
+                        &nontrivial_choices.each_ref()
+                            .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> N))
+                    )
+                )
+            },
+            Triviality::Nontrivial(nontrivial_triad) => {
+                (
+                    crate::select(
+                        Clause::Continuation(trivial_conjunction),
+                        &trivial_choices.each_ref()
+                            .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> T))
+                    ),
+                    nontrivial_triad
+                )
+            },
+        };
+        trivial_triad + nontrivial_triad
     }
 
-    crate::select(
-        Some("please select a domain"),
+    let domain = crate::select::<Box<dyn Domain>>(
+        Clause::Answer("please select a domain"),
         &[
-            (ExternalDissonance::kind(), &|| Box::new(ExternalDissonance {
-                anti_thesis: select_triad(Fault::all()),
-                thesis: select_triad(Need::all())
-            })),
-            (InternalConflict::kind(), &|| Box::new(InternalConflict {
-                thesis: select_triad(Frame::all()),
-                anti_thesis: select_triad(Fault::all())
-            })),
-            (Suffering::kind(), &|| Box::new(Suffering {
-                introverted: select_triad(Frame::all()),
-                extroverted: select_triad(Need::all())
-            })),
-            (Behaviour::kind(), &|| Box::new(Behaviour {
-                introverted: select_triad(Fault::all()),
-                extroverted: select_triad(Strategy::all())
-            })),
-            (ExternalConflict::kind(), &|| Box::new(ExternalConflict {
-                thesis: select_triad(Need::all()),
-                anti_thesis: select_triad(Strategy::all())
-            })),
-            (ExternalDissonance::kind(), &|| Box::new(ExternalDissonance {
-                anti_thesis: select_triad(Fault::all()),
-                thesis: select_triad(Need::all())
-            })),
+            (InternalDissonance::kind(), &|| Box::new(select_triad(", ", Frame::all(), ", but ", Strategy::all()))),
+            (InternalConflict::kind(), &|| Box::new(select_triad(", but ", Frame::all(), ", ", Fault::all()))),
+            (Suffering::kind(), &|| Box::new(select_triad(", ", Frame::all(), " and ", Need::all()))),
+            (Behaviour::kind(), &|| Box::new(select_triad(", ", Fault::all(), " and ", Strategy::all()))),
+            (ExternalConflict::kind(), &|| Box::new(select_triad(", but ", Need::all(), ", ", Strategy::all()))),
+            (ExternalDissonance::kind(), &|| Box::new(select_triad(", but", Need::all(), ", but ", Fault::all()))),
         ]
-    )
+    );
+    let answer = core::fmt::from_fn(|f| domain.answer(f));
+    println!("A: {answer}");
+
+    domain
 }
 
 pub fn all() -> [Box<dyn Domain>; 6*9]

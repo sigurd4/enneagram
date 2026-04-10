@@ -19,35 +19,65 @@ fn main()
 {
     let domain = domain::select();
 
-    let answer = core::fmt::from_fn(|f| domain.answer(f));
+    let enneagram_edge = domain.edge();
+    let enneagram_number = enneagram_edge.number();
+    let triads = enneagram_edge.triads();
 
-    println!("A: {answer}")
+    println!("\nEnneagram {enneagram_number} {enneagram_edge}\n");
+    for (m, triad) in triads.into_iter()
+        .enumerate()
+    {
+        let n = m.checked_add(1)
+            .and_then(|n| u8::try_from(n).ok())
+            .expect("Triad indices are always within the range of 1-9.");
+        let numbers = triad.edges()
+            .into_iter()
+            .map(|edge| edge.number())
+            .map(|number| format!("{number}"))
+            .collect::<String>();
+        println!("{n}: {triad} {numbers}");
+    }
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+enum Clause<'a>
+{
+    Question,
+    Answer(&'a str),
+    Continuation(&'a str)
+}
+ 
 fn select<T>(
-    question: Option<&str>,
+    clause: Clause<'_>,
     options: &[(&str, &dyn Fn() -> T)]
 ) -> T
 {
     assert!(options.len() > 0, "No options have been provided. Why ask a question when you provide only the illusion of choice. That's not allowed.");
     let numer_of_options = u8::try_from(options.len())
         .expect("Amount of options cannot exceed 255, due to technical limitations. Because we store the keys of each choice as a byte.");
-    if let Some(question) = question
+    match clause
     {
-        println!("Q: {question}");
+        Clause::Question => print!("\x1b[s"),
+        Clause::Answer(question) => println!("Q: {question}\x1b[s"),
+        Clause::Continuation(conjunction) => println!("\x1b[u\x1b[0J{conjunction}\x1b[s")
     }
-    println!("\x1b(pick one)"); // saves cursor position (ANSI-escape)
+    println!("(pick one)"); // saves cursor position (ANSI-escape)
     for (n, (choice, _)) in options.iter()
         .enumerate()
+        .map(|(m, option)| m.checked_add(1)
+            .and_then(|n| u8::try_from(n).ok())
+            .map(|n: u8| (n, option))
+            .expect("Choice-numbers cannot exceed 255, due to technical limitations. Because we store the keys of each choice as a byte.")
+        )
     {
         println!("\t{n}. {choice}")
     }
-    print!("[sA: ");
-    let mut choice_byte = 0;
-    let number_of_bytes_read = std::io::stdin()
-        .read(core::slice::from_mut(&mut choice_byte))
+    let mut choice_string = String::new();
+    std::io::stdin()
+        .read_line(&mut choice_string)
         .expect("We failed to read the input because of an input-output error from your operating-system.");
-    let choice = if number_of_bytes_read == 0
+    let choice_str = choice_string.trim();
+    let choice = if choice_str.is_empty()
     {
         #[cfg(feature = "blasphemy")]
         {
@@ -70,9 +100,9 @@ fn select<T>(
     }
     else
     {
-        assert_eq!(number_of_bytes_read, 1, "There must have been a mistake. More bytes were read than expected. We only expect one byte to be read here.");
-        let choice_str = str::from_utf8(core::slice::from_ref(&choice_byte))
-            .expect("What you wrote was not valid UTF8. Please write a number corresponding to one of the choices presented to you.");
+        assert_eq!(choice_str.len(), 1, "There must have been a mistake. More bytes were read than expected. We only expect one byte to be read here.");
+        //let choice_str = str::from_utf8(core::slice::from_ref(&choice_byte))
+        //    .expect("What you wrote was not valid UTF8. Please write a number corresponding to one of the choices presented to you.");
         let choice_number = choice_str.parse::<u8>()
             .expect("What you wrote could not be parsed. Please write a number corresponding to one of the choices presented to you.");
         assert!(choice_number <= numer_of_options, "You tried to select an option that doesn't exist. Your number is out of range. Please write a number corresponding to one of the choices presented to you.");
@@ -81,26 +111,13 @@ fn select<T>(
         options.get(choice_index as usize)
             .expect("Your number is out of range. Please write a number corresponding to one of the choices presented to you.")
     };
-    println!("\x1b 8\x1b[0J"); // restores cursor position, then erases following text (ANSI-escape)
-    let (answer, result) = choice;
-    if let Some(_) = question
+    print!("\x1b[u\x1b[0J"); // restores cursor position, then erases following text (ANSI-escape)
+    let (expression, result) = choice;
+    match clause
     {
-        println!("A: {answer}\n");
-    }
-    else
-    {
-        println!("Q: {answer}");
+        Clause::Question => println!("\nQ: {expression}\x1b[s"),
+        Clause::Answer(_) => println!("\nA: {expression}\x1b[s"),
+        Clause::Continuation(_) => println!("{expression}\x1b[s"),
     }
     result()
-}
-
-
-#[cfg(test)]
-mod test
-{
-    #[test]
-    fn it_works()
-    {
-        
-    }
 }

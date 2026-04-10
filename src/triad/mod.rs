@@ -1,4 +1,4 @@
-use core::{any::Any, fmt::Debug};
+use core::{any::Any, fmt::{Debug, Display}};
 
 use crate::edge::Edge;
 
@@ -17,19 +17,19 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
         .chain(
             Fault::all()
                 .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Triad>)
+                .map(|traid| Box::new(traid) as Box<dyn Triad>)
         ).chain(
             Frame::all()
                 .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Triad>)
+                .map(|traid| Box::new(traid) as Box<dyn Triad>)
         ).chain(
             Need::all()
                 .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Triad>)
+                .map(|traid| Box::new(traid) as Box<dyn Triad>)
         ).chain(
             Strategy::all()
                 .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Triad>)
+                .map(|traid| Box::new(traid) as Box<dyn Triad>)
         );
     let all = chain.next_chunk()
             .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Not enough states!");
@@ -37,7 +37,7 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
     all
 }
 
-pub trait Triad: Debug + Any
+pub trait Triad: Debug + Display + Any
 {
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Triad) -> bool;

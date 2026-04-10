@@ -57,7 +57,7 @@ impl Triad for Fault
     {
         match self
         {
-            Fault::Positive => "you delude yourself into thinking that everything is fine",
+            Fault::Positive => "you tell yourself that everything is fine",
             Fault::Competent => "you hold yourself responsible",
             Fault::Reactive => "you blame others"
         }
