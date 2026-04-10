@@ -24,18 +24,14 @@ fn main()
     let triads = enneagram_edge.triads();
 
     println!("\nEnneagram {enneagram_number} {enneagram_edge}\n");
-    for (m, triad) in triads.into_iter()
-        .enumerate()
+    for triad in triads
     {
-        let n = m.checked_add(1)
-            .and_then(|n| u8::try_from(n).ok())
-            .expect("Triad indices are always within the range of 1-9.");
         let numbers = triad.edges()
             .into_iter()
             .map(|edge| edge.number())
             .map(|number| format!("{number}"))
             .collect::<String>();
-        println!("{n}: {triad} {numbers}");
+        println!("{numbers} {triad}");
     }
 }
 
