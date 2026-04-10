@@ -21,6 +21,10 @@ pub fn all() -> [Box<dyn Domain>; 6*9]
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
+            ExternalConflict::all()
+                .into_iter()
+                .map(|domain| Box::new(domain) as Box<dyn Domain>)
+        ).chain(
             Behaviour::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
