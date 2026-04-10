@@ -1,20 +1,37 @@
-use crate::triad::Triad;
+use crate::{edge::Edge, triad::Triad};
 
 /// Homonculus of the self/internalization of self/frame of judgement/meta-objective/"Who am i?"
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
 pub enum Frame
 {
-    #[display("I am my urges, my concience hurts me")]
+    #[display("Gut/\"I am my urges, my concience hurts me\"")]
     Gut,
-    #[display("I am my thoughts, my fear hurts me")]
+    #[display("Head/\"I am my thoughts, my fear hurts me\"")]
     Head,
-    #[display("I am my emotions, my feelings hurt me")]
+    #[display("Heart/\"I am my emotions, my feelings hurt me\"")]
     Heart
+}
+
+impl Frame
+{
+    pub const fn all() -> [Self; 3]
+    {
+        [Self::Gut, Self::Head, Self::Heart]
+    }
 }
 
 impl Triad for Frame
 {
+    fn edges(&self) -> &'static [crate::edge::Edge; 3]
+    {
+        match self
+        {
+            Frame::Gut => &[Edge::Action, Edge::Rest, Edge::Recovery], // 891
+            Frame::Head => &[Edge::Catatonia, Edge::Paranoia, Edge::Disorganization], // 567
+            Frame::Heart => &[Edge::Association, Edge::Repression, Edge::Rejection], // 234
+        }
+    }
     fn expression(&self) -> &'static str
     {
         match self

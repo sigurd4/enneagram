@@ -1,20 +1,37 @@
-use crate::triad::Triad;
+use crate::{edge::Edge, triad::Triad};
 
 /// Internal strategy for one's (meta-)suffering/"who to blame?"
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
 pub enum Fault
 {
-    #[display("everything is fine")]
+    #[display("Positive/\"everything is fine\"")]
     Positive,
-    #[display("I take responsibility")]
+    #[display("Competent/\"I take responsibility\"")]
     Competent,
-    #[display("it's their fault")]
+    #[display("Reactive/\"it's their fault\"")]
     Reactive
+}
+
+impl Fault
+{
+    pub const fn all() -> [Self; 3]
+    {
+        [Self::Positive, Self::Competent, Self::Reactive]
+    }
 }
 
 impl Triad for Fault
 {
+    fn edges(&self) -> &'static [Edge; 3]
+    {
+        match self
+        {
+            Fault::Positive => &[Edge::Action, Edge::Rest, Edge::Association], // 892
+            Fault::Competent => &[Edge::Recovery, Edge::Repression, Edge::Catatonia], // 135
+            Fault::Reactive => &[Edge::Rejection, Edge::Paranoia, Edge::Action], // 468
+        }
+    }
     fn expression(&self) -> &'static str
     {
         match self

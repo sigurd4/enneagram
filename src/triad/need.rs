@@ -1,27 +1,43 @@
-use crate::triad::Triad;
+use crate::{edge::Edge, triad::Triad};
 
 /// Need/object of desire/"what hole do you have in your soul?"
-#[derive(Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
 pub enum Need
 {
-    #[display("I need freedom")]
+    #[display("Attachment/\"I need freedom\"")]
     Attachment,
-    #[display("I need control")]
+    #[display("Frustration/\"I need control\"")]
     Frustration,
-    #[display("I need affection")]
+    #[display("Rejection/\"I need love\"")]
     Rejection
+}
+impl Need
+{
+    pub const fn all() -> [Self; 3]
+    {
+        [Self::Attachment, Self::Frustration, Self::Rejection]
+    }
 }
 
 impl Triad for Need
 {
+    fn edges(&self) -> &'static [Edge; 3]
+    {
+        match self
+        {
+            Need::Attachment => &[Edge::Repression, Edge::Paranoia, Edge::Rest], // 369
+            Need::Frustration => &[Edge::Recovery, Edge::Rejection, Edge::Disorganization], // 147
+            Need::Rejection => &[Edge::Association, Edge::Catatonia, Edge::Action], // 258
+        }
+    }
     fn expression(&self) -> &'static str
     {
         match self
         {
             Need::Attachment => "I need freedom",
             Need::Frustration => "I need control",
-            Need::Rejection => "I need affection",
+            Need::Rejection => "I need love",
         }
     }
 
@@ -31,7 +47,7 @@ impl Triad for Need
         {
             Need::Attachment => "you crave freedom",
             Need::Frustration => "you crave control",
-            Need::Rejection => "you crave affection"
+            Need::Rejection => "you crave love"
         }
     }
 }
