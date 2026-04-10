@@ -21,6 +21,11 @@ impl Suffering
             Gut + Rejection, Head + Rejection, Heart + Rejection,
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "suffering"
+    }
 }
 
 impl Add<Need> for Frame

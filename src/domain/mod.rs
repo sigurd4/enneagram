@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::Debug};
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{edge::Edge, triad::{Fault, Frame, Need, Strategy, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -12,6 +12,64 @@ moddef::moddef!(
         internal_dissonance
     }
 );
+
+enum Duality
+{
+    Thesis,
+    AntiThesis
+}
+
+enum Directionality
+{
+    Introverted,
+    Extroverted
+}
+
+pub fn select() -> Box<dyn Domain>
+{
+    fn select_triad<T>(all: [T; 3]) -> T
+    where
+        T: Triad + Copy
+    {
+        let choices = all.map(|triad| (triad.expression(), move || triad));
+
+        crate::select::<T>(
+            None,
+            &choices.each_ref()
+                .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> T))
+        )
+    }
+
+    crate::select(
+        Some("please select a domain"),
+        &[
+            (ExternalDissonance::kind(), &|| Box::new(ExternalDissonance {
+                anti_thesis: select_triad(Fault::all()),
+                thesis: select_triad(Need::all())
+            })),
+            (InternalConflict::kind(), &|| Box::new(InternalConflict {
+                thesis: select_triad(Frame::all()),
+                anti_thesis: select_triad(Fault::all())
+            })),
+            (Suffering::kind(), &|| Box::new(Suffering {
+                introverted: select_triad(Frame::all()),
+                extroverted: select_triad(Need::all())
+            })),
+            (Behaviour::kind(), &|| Box::new(Behaviour {
+                introverted: select_triad(Fault::all()),
+                extroverted: select_triad(Strategy::all())
+            })),
+            (ExternalConflict::kind(), &|| Box::new(ExternalConflict {
+                thesis: select_triad(Need::all()),
+                anti_thesis: select_triad(Strategy::all())
+            })),
+            (ExternalDissonance::kind(), &|| Box::new(ExternalDissonance {
+                anti_thesis: select_triad(Fault::all()),
+                thesis: select_triad(Need::all())
+            })),
+        ]
+    )
+}
 
 pub fn all() -> [Box<dyn Domain>; 6*9]
 {

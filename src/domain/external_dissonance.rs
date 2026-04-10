@@ -21,6 +21,11 @@ impl ExternalDissonance
             Positive + Rejection, Competent + Rejection, Reactive + Rejection
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "external dissonance"
+    }
 }
 
 impl Add<Need> for Fault

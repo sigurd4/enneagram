@@ -21,6 +21,11 @@ impl Behaviour
             Positive + Withdrawn, Competent + Withdrawn, Reactive + Withdrawn
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "behaviour"
+    }
 }
 
 impl Add<Strategy> for Fault

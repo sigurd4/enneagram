@@ -21,6 +21,11 @@ impl InternalConflict
             Gut + Reactive, Head + Reactive, Heart + Reactive,
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "internal conflict"
+    }
 }
 
 impl Add<Fault> for Frame

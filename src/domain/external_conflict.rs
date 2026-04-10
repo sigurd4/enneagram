@@ -21,6 +21,11 @@ impl ExternalConflict
             Attachment + Withdrawn, Frustration + Withdrawn, Rejection + Withdrawn
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "external conflict"
+    }
 }
 
 impl Add<Strategy> for Need

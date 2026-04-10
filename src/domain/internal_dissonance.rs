@@ -21,6 +21,11 @@ impl InternalDissonance
             Gut + Withdrawn, Head + Withdrawn, Heart + Withdrawn,
         ]
     }
+
+    pub fn kind() -> &'static str
+    {
+        "internal dissonance"
+    }
 }
 
 impl Add<Strategy> for Frame
