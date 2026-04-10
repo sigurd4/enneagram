@@ -1,6 +1,6 @@
 #![feature(iter_next_chunk)]
 
-use std::io::Read;
+use std::io::{Read, Write};
 
 #[cfg(feature = "blasphemy")]
 use rand::distr::Distribution;
@@ -73,6 +73,9 @@ fn select<T>(
         println!("\t{n}. {choice}")
     }
     let mut choice_string = String::new();
+    std::io::stdout()
+        .flush()
+        .expect("Failed to flush stdout");
     std::io::stdin()
         .read_line(&mut choice_string)
         .expect("We failed to read the input because of an input-output error from your operating-system.");
@@ -81,13 +84,22 @@ fn select<T>(
     {
         #[cfg(feature = "blasphemy")]
         {
-            println!("~ You don't seem to have entered anything at all! Due to your indecisiveness, a choice will be made for you... ~");
-            println!("~ Your computer's random number generator will be used to generate a random number. What comes from it, i cannot guarantee. ~");
-            println!("~ Whether the elfs that reside in your machine are working for a righteous master, i don't know. It is out of my control. ~");
-            println!("~ Your fate is now in the hands of God. ~");
+            use std::io::Write;
+
+            println!("~ You don't seem to have entered anything at all! Due to your indecisiveness, a choice will be made for you...");
+            println!("~ Your computer's random number generator will be used to generate a random number. What comes from it, i cannot guarantee.");
+            println!("~ Whether the elfs that reside in your machine are working for a righteous master, i don't know. It is out of my control.");
+            println!("~ Your fate is now in the hands of God.");
+            print!("\n[ Press enter to continue... ]");
+            std::io::stdout()
+                .flush()
+                .expect("Failed to flush stdout");
+            let _ = std::io::stdin()
+                .read(&mut [0])
+                .expect("Failed to wait for any-key");
             // Please forgive me if this is blasphemy...
             let mut divine_intellect = rand::rng(); // We can only hope
-            let god_dice = rand::distr::Uniform::try_from(1..=options.len() as u8) // This is why gambling is a sin, because you are forcing God's hand to do evil
+            let god_dice = rand::distr::Uniform::try_from(0..options.len() as u8) // This is why gambling is a sin, because you are forcing God's hand to do evil
                 .expect("Did you not present a nonzero amount of choices to begin with? Regardless, God cannot roll his dice when the range of possibilities is unsound. Make up your mind.");
             let choice_number = god_dice.sample(&mut divine_intellect);
             options.get(choice_number as usize)
