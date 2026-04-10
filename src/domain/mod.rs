@@ -74,7 +74,11 @@ pub trait Domain: Debug + Any + 'static
             .flatten()
             .filter_map(|edge| edge);
         let edge = edges.next().expect("The conscious and the subconscious must agree on a single common personality! No overlap");
-        assert_eq!(edges.collect::<Vec<_>>(), [], "The conscious and the subconscious must agree on a single common personality! Ambiguous overlap");
+        assert_eq!({
+            let mut rest = edges.collect::<Vec<_>>();
+            rest.dedup();
+            rest
+        }, [], "The conscious and the subconscious must agree on a single common personality! Ambiguous overlap");
         edge
     }
 
