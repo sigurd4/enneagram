@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::Debug};
 
-use crate::{edge::Edge, triad::{self, Triad}};
+use crate::{edge::Edge, triad::Triad};
 
 moddef::moddef!(
     flat(pub) mod {
