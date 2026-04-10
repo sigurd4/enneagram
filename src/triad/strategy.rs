@@ -1,3 +1,5 @@
+use core::any::Any;
+
 use crate::{edge::Edge, triad::Triad};
 
 /// External strategy towards suffering
@@ -23,6 +25,15 @@ impl Strategy
 
 impl Triad for Strategy
 {
+    fn as_any(&self) -> &dyn Any
+    {
+        self
+    }
+    fn equals(&self, other: &dyn Triad) -> bool
+    {
+        other.as_any().downcast_ref().is_some_and(|other| self == other)
+    }
+
     fn edges(&self) -> &'static [Edge; 3]
     {
         match self

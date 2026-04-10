@@ -1,6 +1,6 @@
-use core::{any::Any, fmt::Debug, ops::Add};
+use core::{any::Any, fmt::Debug};
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{edge::Edge, triad::{self, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -73,7 +73,7 @@ pub trait Domain: Debug + Any + 'static
             }).into_iter()
             .flatten()
             .filter_map(|edge| edge);
-        let edge = edges.next().expect("The conscious and the subconscious must agree on a single common personality! No overlap");
+        let edge = edges.next().expect("The conscious and the subconscious must agree on a single common personality! No agreement");
         assert_eq!({
             let mut rest = edges.collect::<Vec<_>>();
             rest.dedup();
@@ -93,9 +93,15 @@ pub trait Domain: Debug + Any + 'static
     {
         // This is dumb but should work
         let edge = self.edge();
+        let triads = self.triads();
         let mut codomains = crate::domain::all()
             .into_iter()
-            .filter(|domain| !self.equals(&**domain) && edge == domain.edge());
+            .filter(|domain| !self.equals(&**domain)
+                && edge == domain.edge()
+                && !domain.triads()
+                    .into_iter()
+                    .any(|other_triad| triads.iter().any(|triad| triad.equals(other_triad)))
+            );
         let codomain = codomains.next().expect("This domain has no reciprocal codomain!");
         assert_eq!(codomains.collect::<Vec<_>>().len(), 0, "The reciprocal codomain of this domain cannot be ambiguous!");
         codomain

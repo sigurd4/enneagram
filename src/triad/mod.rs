@@ -39,6 +39,9 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
 
 pub trait Triad: Debug + Any
 {
+    fn as_any(&self) -> &dyn Any;
+    fn equals(&self, other: &dyn Triad) -> bool;
+
     fn edges(&self) -> &'static [Edge; 3];
     fn expression(&self) -> &'static str;
     fn reflection(&self) -> &'static str;

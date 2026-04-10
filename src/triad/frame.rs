@@ -1,3 +1,5 @@
+use core::any::Any;
+
 use crate::{edge::Edge, triad::Triad};
 
 /// Homonculus of the self/internalization of self/frame of judgement/meta-objective/"Who am i?"
@@ -23,6 +25,15 @@ impl Frame
 
 impl Triad for Frame
 {
+    fn as_any(&self) -> &dyn Any
+    {
+        self
+    }
+    fn equals(&self, other: &dyn Triad) -> bool
+    {
+        other.as_any().downcast_ref().is_some_and(|other| self == other)
+    }
+
     fn edges(&self) -> &'static [crate::edge::Edge; 3]
     {
         match self

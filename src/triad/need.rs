@@ -1,3 +1,5 @@
+use core::any::Any;
+
 use crate::{edge::Edge, triad::Triad};
 
 /// Need/object of desire/"what hole do you have in your soul?"
@@ -22,6 +24,15 @@ impl Need
 
 impl Triad for Need
 {
+    fn as_any(&self) -> &dyn Any
+    {
+        self
+    }
+    fn equals(&self, other: &dyn Triad) -> bool
+    {
+        other.as_any().downcast_ref().is_some_and(|other| self == other)
+    }
+
     fn edges(&self) -> &'static [Edge; 3]
     {
         match self
