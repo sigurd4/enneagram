@@ -89,6 +89,7 @@ fn select<T>(
             println!("~ You don't seem to have entered anything at all! Due to your indecisiveness, a choice will be made for you...");
             println!("~ Your computer's random number generator will be used to generate a random number. What comes from it, i cannot guarantee.");
             println!("~ Whether the elfs that reside in your machine are working for a righteous master, i don't know. It is out of my control.");
+            println!("~ If you want to disable this feature, you can compile this computer program without the `blasphemy` feature.");
             println!("~ Your fate is now in the hands of God.");
             print!("\n[ Press enter to continue... ]");
             std::io::stdout()
