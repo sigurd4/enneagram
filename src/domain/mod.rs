@@ -82,7 +82,7 @@ pub fn select() -> Box<dyn Domain>
             (Suffering::kind(), &|| Box::new(select_triad(", ", Frame::all(), " and ", Need::all()))),
             (Behaviour::kind(), &|| Box::new(select_triad(", ", Fault::all(), " and ", Strategy::all()))),
             (ExternalConflict::kind(), &|| Box::new(select_triad(", but ", Need::all(), ", ", Strategy::all()))),
-            (ExternalDissonance::kind(), &|| Box::new(select_triad(", but", Need::all(), ", but ", Fault::all()))),
+            (ExternalDissonance::kind(), &|| Box::new(select_triad(", but ", Need::all(), ", but ", Fault::all()))),
         ]
     );
     let answer = core::fmt::from_fn(|f| domain.answer(f));
