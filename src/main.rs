@@ -90,7 +90,7 @@ fn select<T>(
             println!("~ Your computer's random number generator will be used to generate a random number. What comes from it, i cannot guarantee.");
             println!("~ Whether the elfs that reside in your machine are working for a righteous master, i don't know. It is out of my control.");
             println!("~ If you want to disable this feature, you can compile this computer program without the `blasphemy` feature.");
-            println!("~ Your fate is now in the hands of God.");
+            println!("~ Your fate is now in the hands of the beyond.");
             print!("\n[ Press enter to continue... ]");
             std::io::stdout()
                 .flush()
@@ -100,11 +100,11 @@ fn select<T>(
                 .expect("Failed to wait for any-key");
             // Please forgive me if this is blasphemy...
             let mut divine_intellect = rand::rng(); // We can only hope
-            let god_dice = rand::distr::Uniform::try_from(0..options.len() as u8) // This is why gambling is a sin, because you are forcing God's hand to do evil
-                .expect("Did you not present a nonzero amount of choices to begin with? Regardless, God cannot roll his dice when the range of possibilities is unsound. Make up your mind.");
+            let god_dice = rand::distr::Uniform::try_from(0..options.len() as u8) // This is why gambling is a sin, because you are forcing God's hand to do evil, or you are letting the devil roll the dice
+                .expect("Did you not present a nonzero amount of choices to begin with? Regardless, not even God can roll his dice when the range of possibilities is unsound. Make up your mind.");
             let choice_number = god_dice.sample(&mut divine_intellect);
             options.get(choice_number as usize)
-                .expect("God's choice is infallible, but the computer programmer's hands are not. Due to unforseen events, it seems the number was out of range.")
+                .expect("Due to unforseen events, it seems the number was out of range.")
         }
         #[cfg(not(feature = "blasphemy"))]
         {
