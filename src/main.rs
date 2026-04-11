@@ -55,7 +55,8 @@ fn select<T>(
         Clause::Answer(question) => println!("Q: {question}\x1b[s\x1b 7"),
         Clause::Continuation(conjunction) => println!("\x1b[u\x1b 8\x1b[0J{conjunction}\x1b[s\x1b 7")
     }
-    println!("(pick one)"); // saves cursor position (ANSI-escape)
+    // saves cursor position (ANSI-escape)
+    println!("(pick one)");
     for (n, (choice, _)) in options.iter()
         .enumerate()
         .map(|(m, option)| m.checked_add(1)
