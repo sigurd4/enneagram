@@ -1,3 +1,5 @@
+use core::f64::consts::TAU;
+
 use crate::triad::Triad;
 
 #[repr(u8)]
@@ -42,5 +44,18 @@ impl Edge
             .collect::<Vec<_>>()
             .try_into()
             .expect("Each personality must consist of exactly 4 triads.")
+    }
+
+    pub fn angle(&self) -> f64
+    {
+        let number = self.number();
+        number as f64/10.0*TAU
+    }
+
+    pub fn position(&self) -> (f64, f64)
+    {
+        let angle = self.angle();
+        let (sine, cosine) = angle.sin_cos();
+        (sine, cosine)
     }
 }
