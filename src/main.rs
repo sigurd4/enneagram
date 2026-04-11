@@ -5,6 +5,8 @@ use rand::distr::Distribution;
 #[cfg(feature = "blasphemy")]
 use std::io::Read;
 
+use crate::edge::Edge;
+
 moddef::moddef!(
     mod {
         edge,
@@ -15,21 +17,59 @@ moddef::moddef!(
 
 fn main()
 {
-    let domain = domain::select();
+    let mut args = std::env::args();
 
-    let enneagram_edge = domain.edge();
-    let enneagram_number = enneagram_edge.number();
-    let triads = enneagram_edge.triads();
+    let executeable = args.next()
+        .unwrap_or_else(|| "enneagram".to_string());
+    assert_eq!(executeable, "enneagram", "What are you running?");
 
-    println!("\nEnneagram {enneagram_number} {enneagram_edge}\n");
-    for triad in triads
+    let mut edges = Vec::<Edge>::new();
+    loop
     {
-        let numbers = triad.edges()
-            .into_iter()
-            .map(|edge| edge.number())
-            .map(|number| format!("{number}"))
-            .collect::<String>();
-        println!("{numbers} {triad}");
+        let argument = match args.next()
+        {
+            Some(number) => number,
+            None => {
+                if edges.is_empty()
+                {
+                    let domain = domain::select();
+                    let edge = domain.edge();
+                    let edge_info = core::fmt::from_fn(|f| edge.info(f));
+                    println!("\n{edge_info}");
+                    return
+                }
+                else
+                {
+                    let edge_info = core::fmt::from_fn(|f| Edge::common_info(&edges, f));
+                    println!("{edge_info}");
+                    return
+                }
+            }
+        };
+        if let Ok(mut number) = argument.parse::<u128>()
+        {
+            let index = edges.len();
+            loop
+            {
+                let digit = (number % 10) as u8;
+                let edge = Edge::from_number(digit);
+                edges.push(edge);
+                if number >= 10
+                {
+                    number /= 10
+                }
+                else
+                {
+                    break
+                }
+            }
+            if let Some(addition) = edges.get_mut(index..)
+            {
+                addition.reverse();
+            }
+            continue;
+        }
+        panic!("Invalid arguments.")
     }
 }
 

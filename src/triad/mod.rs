@@ -11,25 +11,54 @@ moddef::moddef!(
     }
 );
 
+pub fn from_edges(edges: &[Edge; 3]) -> Box<dyn Triad>
+{
+    let [triad] = core::iter::empty()
+        .chain(
+            Fault::all()
+                .into_iter()
+                .filter(|triad| triad.edges() == edges)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+        ).chain(
+            Frame::all()
+                .into_iter()
+                .filter(|triad| triad.edges() == edges)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+        ).chain(
+            Need::all()
+                .into_iter()
+                .filter(|triad| triad.edges() == edges)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+        ).chain(
+            Strategy::all()
+                .into_iter()
+                .filter(|triad| triad.edges() == edges)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+        ).collect::<Vec<_>>()
+        .try_into()
+        .expect("Exactly one triad should match the set of three edges.");
+    triad
+}
+
 pub fn all() -> [Box<dyn Triad>; 4*3]
 {
     core::iter::empty()
         .chain(
             Fault::all()
                 .into_iter()
-                .map(|traid| Box::new(traid) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).chain(
             Frame::all()
                 .into_iter()
-                .map(|traid| Box::new(traid) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).chain(
             Need::all()
                 .into_iter()
-                .map(|traid| Box::new(traid) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).chain(
             Strategy::all()
                 .into_iter()
-                .map(|traid| Box::new(traid) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).collect::<Vec<_>>()
         .try_into()
         .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Wrong number of states!")
@@ -53,40 +82,50 @@ mod test
     #[test]
     fn test_frame()
     {
-        test_triad(Frame::all());
+        test_triads(&Frame::all());
     }
     #[test]
     fn test_strategy()
     {
-        test_triad(Strategy::all());
+        test_triads(&Strategy::all());
     }
     #[test]
     fn test_fault()
     {
-        test_triad(Fault::all());
+        test_triads(&Fault::all());
     }
     #[test]
     fn test_need()
     {
-        test_triad(Need::all());
+        test_triads(&Need::all());
     }
 
     #[test]
     fn test_all()
     {
-        for triad in crate::triad::all()
+        for triad in &crate::triad::all()
         {
-            println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
+            test_triad(&**triad);
         }
     }
 
-    fn test_triad<T>(triads: [T; 3])
+    fn test_triad<T>(triad: &T)
+    where
+        T: Triad + ?Sized
+    {
+        println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
+        let edges = triad.edges();
+        let reconstruction = crate::triad::from_edges(edges);
+        assert!(triad.equals(&*reconstruction), "Triad must match its own reconstruction!")
+    }
+
+    fn test_triads<'a, T>(triads: impl IntoIterator<Item = &'a T>)
     where
         T: Triad
     {
         for triad in triads
         {
-            println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
+            test_triad(triad);
         }
     }
 }
