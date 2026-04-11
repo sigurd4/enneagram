@@ -18,7 +18,7 @@ impl Need
 {
     pub const fn all() -> [Self; 3]
     {
-        [Self::Attachment, Self::Frustration, Self::Rejection]
+        [Need::Attachment, Need::Frustration, Need::Rejection]
     }
 }
 
@@ -51,7 +51,6 @@ impl Triad for Need
             Need::Rejection => "I need love",
         }
     }
-
     fn reflection(&self) -> &'static str
     {
         match self
@@ -59,6 +58,15 @@ impl Triad for Need
             Need::Attachment => "you crave freedom",
             Need::Frustration => "you crave control",
             Need::Rejection => "you crave love"
+        }
+    }
+    fn affirmation(&self) -> &'static str
+    {
+        match self
+        {
+            Need::Attachment => "be free",
+            Need::Frustration => "be in control",
+            Need::Rejection => "be accepted"
         }
     }
 }

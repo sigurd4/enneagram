@@ -7,11 +7,11 @@ moddef::moddef!(
         fault,
         frame,
         need,
-        strategy
+        means
     }
 );
 
-pub fn from_edges(edges: &[Edge; 3]) -> Box<dyn Triad>
+pub fn triangulate(edges: &[Edge; 3]) -> Box<dyn Triad>
 {
     let [triad] = core::iter::empty()
         .chain(
@@ -30,7 +30,7 @@ pub fn from_edges(edges: &[Edge; 3]) -> Box<dyn Triad>
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).chain(
-            Strategy::all()
+            Means::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
@@ -56,7 +56,7 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
                 .into_iter()
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).chain(
-            Strategy::all()
+            Means::all()
                 .into_iter()
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
         ).collect::<Vec<_>>()
@@ -72,12 +72,13 @@ pub trait Triad: Debug + Display + Any
     fn edges(&self) -> &'static [Edge; 3];
     fn expression(&self) -> &'static str;
     fn reflection(&self) -> &'static str;
+    fn affirmation(&self) -> &'static str;
 }
 
 #[cfg(test)]
 mod test
 {
-    use crate::triad::{Fault, Frame, Need, Strategy, Triad};
+    use crate::triad::{Fault, Frame, Need, Means, Triad};
 
     #[test]
     fn test_frame()
@@ -87,7 +88,7 @@ mod test
     #[test]
     fn test_strategy()
     {
-        test_triads(&Strategy::all());
+        test_triads(&Means::all());
     }
     #[test]
     fn test_fault()
@@ -115,7 +116,7 @@ mod test
     {
         println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
         let edges = triad.edges();
-        let reconstruction = crate::triad::from_edges(edges);
+        let reconstruction = crate::triad::triangulate(edges);
         assert!(triad.equals(&*reconstruction), "Triad must match its own reconstruction!")
     }
 

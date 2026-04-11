@@ -1,6 +1,6 @@
 use core::f64::consts::TAU;
 
-use crate::triad::Triad;
+use crate::{personality::Personality, pivot::Pivot, triad::Triad};
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -29,7 +29,7 @@ pub enum Edge
 
 impl Edge
 {
-    pub fn from_number(number: u8) -> Self
+    pub fn new(number: u8) -> Self
     {
         assert_ne!(number, 0, "There is no enneagram edge with the number 0.");
         assert!((1..=9).contains(&number), "Enneagram numbers must be within the range of 1-9.");
@@ -68,6 +68,15 @@ impl Edge
         Self::common_triads(core::slice::from_ref(self))
             .try_into()
             .expect("Each personality must consist of exactly 4 triads.")
+    }
+
+    pub fn personality(&self) -> Personality
+    {
+        Personality::from_triads(
+            self.triads()
+                .each_ref()
+                .map(|triad| &**triad)
+        )
     }
 
     pub fn angle(&self) -> f64
@@ -111,7 +120,6 @@ impl Edge
             writeln!(f, "Enneagram {number} {edge}")?;
         }
 
-
         for triad in Self::common_triads(edges)
         {
             let numbers = triad.edges()
@@ -122,6 +130,17 @@ impl Edge
             write!(f, "\n{numbers} {triad}")?;
         }
         Ok(())
+    }
+
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result
+    {
+        self.personality()
+            .affirmation(f)
+    }
+
+    pub fn pivot(&self) -> Pivot
+    {
+        Pivot::new(*self)
     }
 }
 

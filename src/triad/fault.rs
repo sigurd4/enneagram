@@ -19,7 +19,7 @@ impl Fault
 {
     pub const fn all() -> [Self; 3]
     {
-        [Self::Positive, Self::Competent, Self::Reactive]
+        [Fault::Positive, Fault::Competent, Fault::Reactive]
     }
 }
 
@@ -52,7 +52,6 @@ impl Triad for Fault
             Fault::Reactive => "it's their fault",
         }
     }
-
     fn reflection(&self) -> &'static str
     {
         match self
@@ -60,6 +59,15 @@ impl Triad for Fault
             Fault::Positive => "you tell yourself that everything is fine",
             Fault::Competent => "you hold yourself responsible",
             Fault::Reactive => "you blame others"
+        }
+    }
+    fn affirmation(&self) -> &'static str
+    {
+        match self
+        {
+            Fault::Positive => "stay positive",
+            Fault::Competent => "take responsibility",
+            Fault::Reactive => "blame others"
         }
     }
 }

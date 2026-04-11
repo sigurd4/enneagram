@@ -1,19 +1,19 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Strategy, Need, Triad}};
+use crate::{domain::Domain, triad::{Means, Need, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternalConflict
 {
     pub thesis: Need,
-    pub anti_thesis: Strategy
+    pub anti_thesis: Means
 }
 
 impl ExternalConflict
 {
     pub fn all() -> [ExternalConflict; 9]
     {
-        use {Need::*, Strategy::*};
+        use {Need::*, Means::*};
 
         [
             Attachment + Assertive, Frustration + Assertive, Rejection + Assertive,
@@ -28,11 +28,11 @@ impl ExternalConflict
     }
 }
 
-impl Add<Strategy> for Need
+impl Add<Means> for Need
 {
     type Output = ExternalConflict;
 
-    fn add(self, rhs: Strategy) -> Self::Output
+    fn add(self, rhs: Means) -> Self::Output
     {
         ExternalConflict {
             thesis: self,
@@ -40,7 +40,7 @@ impl Add<Strategy> for Need
         }
     }
 }
-impl Add<Need> for Strategy
+impl Add<Need> for Means
 {
     type Output = ExternalConflict;
 

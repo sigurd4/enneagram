@@ -11,7 +11,9 @@ moddef::moddef!(
     mod {
         edge,
         domain,
-        triad
+        triad,
+        personality,
+        pivot
     }
 );
 
@@ -19,9 +21,8 @@ fn main()
 {
     let mut args = std::env::args();
 
-    let executeable = args.next()
+    let _executeable = args.next()
         .unwrap_or_else(|| "enneagram".to_string());
-    assert_eq!(executeable, "enneagram", "What are you running?");
 
     let mut edges = Vec::<Vec<Edge>>::new();
     loop
@@ -33,9 +34,25 @@ fn main()
                 if edges.is_empty()
                 {
                     let domain = domain::select();
-                    let edge = domain.edge();
+                    let mut edge = domain.edge();
+
                     let edge_info = core::fmt::from_fn(|f| edge.info(f));
                     println!("\n{edge_info}");
+
+                    loop
+                    {
+                        println!();
+                        let pivot = edge.pivot();
+                        let origin = core::mem::replace(&mut edge, pivot.select());
+                        if edge == origin
+                        {
+                            break
+                        }
+
+                        let edge_info = core::fmt::from_fn(|f| edge.info(f));
+                        println!("\n{edge_info}");
+                    }
+
                     return
                 }
                 else
@@ -64,7 +81,7 @@ fn main()
                         }
                         Some(digit)
                     })
-                    .map(|digit| Edge::from_number(digit))
+                    .map(|digit| Edge::new(digit))
                     .collect::<Vec<_>>()
                     .into_iter()
                     .rev()

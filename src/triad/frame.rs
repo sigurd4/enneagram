@@ -19,7 +19,7 @@ impl Frame
 {
     pub const fn all() -> [Self; 3]
     {
-        [Self::Gut, Self::Head, Self::Heart]
+        [Frame::Gut, Frame::Head, Frame::Heart]
     }
 }
 
@@ -47,19 +47,27 @@ impl Triad for Frame
     {
         match self
         {
-            Self::Gut => "I am my urges, my concience hurts me",
-            Self::Head => "I am my thoughts, my fear hurts me",
-            Self::Heart => "I am my emotions, my feelings hurt me"
+            Frame::Gut => "I am my urges, my concience hurts me",
+            Frame::Head => "I am my thoughts, my fear hurts me",
+            Frame::Heart => "I am my emotions, my feelings hurt me"
         }
     }
-
     fn reflection(&self) -> &'static str
     {
         match self
         {
-            Self::Gut => "you have become your urges, your conscience hurts you",
-            Self::Head => "you have become your thoughts, your fear hurts you",
-            Self::Heart => "you have become your emotions, your feelings hurt you"
+            Frame::Gut => "you have become your urges, your conscience hurts you",
+            Frame::Head => "you have become your thoughts, your fear hurts you",
+            Frame::Heart => "you have become your emotions, your feelings hurt you"
+        }
+    }
+    fn affirmation(&self) -> &'static str
+    {
+        match self
+        {
+            Frame::Gut => "follow my gut",
+            Frame::Head => "use my head",
+            Frame::Heart => "follow my heart",
         }
     }
 }

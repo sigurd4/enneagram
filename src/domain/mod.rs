@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::Debug, ops::Add};
 
-use crate::{Clause, edge::Edge, triad::{Fault, Frame, Need, Strategy, Triad}};
+use crate::{Clause, edge::Edge, triad::{Fault, Frame, Need, Means, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -88,11 +88,11 @@ pub fn select() -> Box<dyn Domain>
     let domain = crate::select::<Box<dyn Domain>>(
         Clause::Answer("please select a domain"),
         &[
-            (InternalDissonance::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Strategy::all()))),
+            (InternalDissonance::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Means::all()))),
             (InternalConflict::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all()))),
             (Suffering::kind(), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all()))),
-            (Behaviour::kind(), &|| Box::new(select_triads(", ", Fault::all(), " and ", Strategy::all()))),
-            (ExternalConflict::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", ", Strategy::all()))),
+            (Behaviour::kind(), &|| Box::new(select_triads(", ", Fault::all(), " and ", Means::all()))),
+            (ExternalConflict::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", ", Means::all()))),
             (ExternalDissonance::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all()))),
         ]
     );

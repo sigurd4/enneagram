@@ -1,19 +1,19 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Strategy, Fault, Triad}};
+use crate::{domain::Domain, triad::{Means, Fault, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Behaviour
 {
     pub introverted: Fault,
-    pub extroverted: Strategy,
+    pub extroverted: Means,
 }
 
 impl Behaviour
 {
     pub fn all() -> [Behaviour; 9]
     {
-        use {Fault::*, Strategy::*};
+        use {Fault::*, Means::*};
 
         [
             Positive + Assertive, Competent + Assertive, Reactive + Assertive,
@@ -28,11 +28,11 @@ impl Behaviour
     }
 }
 
-impl Add<Strategy> for Fault
+impl Add<Means> for Fault
 {
     type Output = Behaviour;
 
-    fn add(self, rhs: Strategy) -> Self::Output
+    fn add(self, rhs: Means) -> Self::Output
     {
         Behaviour {
             introverted: self,
@@ -40,7 +40,7 @@ impl Add<Strategy> for Fault
         }
     }
 }
-impl Add<Fault> for Strategy
+impl Add<Fault> for Means
 {
     type Output = Behaviour;
 

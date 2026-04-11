@@ -1,19 +1,19 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Strategy, Frame, Triad}};
+use crate::{domain::Domain, triad::{Means, Frame, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InternalDissonance
 {
     pub thesis: Frame,
-    pub anti_thesis: Strategy
+    pub anti_thesis: Means
 }
 
 impl InternalDissonance
 {
     pub fn all() -> [InternalDissonance; 9]
     {
-        use {Frame::*, Strategy::*};
+        use {Frame::*, Means::*};
 
         [
             Gut + Assertive, Head + Assertive, Heart + Assertive,
@@ -28,11 +28,11 @@ impl InternalDissonance
     }
 }
 
-impl Add<Strategy> for Frame
+impl Add<Means> for Frame
 {
     type Output = InternalDissonance;
 
-    fn add(self, rhs: Strategy) -> Self::Output
+    fn add(self, rhs: Means) -> Self::Output
     {
         InternalDissonance {
             thesis: self,
@@ -40,7 +40,7 @@ impl Add<Strategy> for Frame
         }
     }
 }
-impl Add<Frame> for Strategy
+impl Add<Frame> for Means
 {
     type Output = InternalDissonance;
 
