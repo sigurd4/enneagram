@@ -23,7 +23,7 @@ fn main()
         .unwrap_or_else(|| "enneagram".to_string());
     assert_eq!(executeable, "enneagram", "What are you running?");
 
-    let mut edges = Vec::<Edge>::new();
+    let mut edges = Vec::<Vec<Edge>>::new();
     loop
     {
         let argument = match args.next()
@@ -40,33 +40,36 @@ fn main()
                 }
                 else
                 {
-                    let edge_info = core::fmt::from_fn(|f| Edge::common_info(&edges, f));
-                    println!("{edge_info}");
+                    let mut sep = "";
+                    for edges in edges
+                    {
+                        let edge_info = core::fmt::from_fn(|f| Edge::common_info(&edges, f));
+                        println!("{sep}{edge_info}");
+                        sep = "\n"
+                    }
                     return
                 }
             }
         };
-        if let Ok(mut number) = argument.parse::<u128>()
+        if let Ok(mut number) = argument.parse::<u128>().map(Some)
         {
-            let index = edges.len();
-            loop
-            {
-                let digit = (number % 10) as u8;
-                let edge = Edge::from_number(digit);
-                edges.push(edge);
-                if number >= 10
-                {
-                    number /= 10
-                }
-                else
-                {
-                    break
-                }
-            }
-            if let Some(addition) = edges.get_mut(index..)
-            {
-                addition.reverse();
-            }
+            edges.push(
+                core::iter::repeat(())
+                    .map_while(|()| {
+                        let n = number.take()?;
+                        let digit = (n % 10) as u8;
+                        if n >= 10
+                        {
+                            number = Some(n/10)
+                        }
+                        Some(digit)
+                    })
+                    .map(|digit| Edge::from_number(digit))
+                    .collect::<Vec<_>>()
+                    .into_iter()
+                    .rev()
+                    .collect()
+            );
             continue;
         }
         panic!("Invalid arguments.")
