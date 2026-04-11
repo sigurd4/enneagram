@@ -15,14 +15,14 @@ moddef::moddef!(
 
 pub fn select() -> Box<dyn Domain>
 {
-    fn select_triad<T, N>(
+    fn select_triads<T, N>(
         trivial_conjunction: &str,
         trivial: [T; 3],
         nontrivial_conjunction: &str,
         nontrivial: [N; 3]
     ) -> <T as Add<N>>::Output
     where
-        T: Triad + Copy + Add<N>,
+        T: Triad + Copy + Add<N, Output: Domain>,
         N: Triad + Copy
     {
         enum Triviality<T, N>
@@ -33,6 +33,15 @@ pub fn select() -> Box<dyn Domain>
         
         let trivial_choices = trivial.map(|triad| (triad.expression(), move || triad));
         let nontrivial_choices = nontrivial.map(|triad| (triad.expression(), move || triad));
+
+        let (domain_kind, codomain_kind) = {
+            let [(_, lhs), ..] = trivial_choices;
+            let [(_, rhs), ..] = nontrivial_choices;
+            let domain = lhs() + rhs();
+            (domain.kind(), domain.reciprocal().kind())
+        };
+
+        println!("\x1b[u\x1b 8 -> {codomain_kind}");
 
         let polymorphic_trivial_choices = trivial_choices.each_ref()
             .map(|(expression, generator)| (*expression, || Triviality::Trivial(generator())));
@@ -71,18 +80,20 @@ pub fn select() -> Box<dyn Domain>
                 )
             },
         };
-        trivial_triad + nontrivial_triad
+        let domain = trivial_triad + nontrivial_triad;
+        assert_eq!(domain.kind(), domain_kind, "Domain-kind must be invariant! (it isn't)");
+        domain
     }
 
     let domain = crate::select::<Box<dyn Domain>>(
         Clause::Answer("please select a domain"),
         &[
-            (InternalDissonance::kind(), &|| Box::new(select_triad(", ", Frame::all(), ", but ", Strategy::all()))),
-            (InternalConflict::kind(), &|| Box::new(select_triad(", but ", Frame::all(), ", ", Fault::all()))),
-            (Suffering::kind(), &|| Box::new(select_triad(", ", Frame::all(), " and ", Need::all()))),
-            (Behaviour::kind(), &|| Box::new(select_triad(", ", Fault::all(), " and ", Strategy::all()))),
-            (ExternalConflict::kind(), &|| Box::new(select_triad(", but ", Need::all(), ", ", Strategy::all()))),
-            (ExternalDissonance::kind(), &|| Box::new(select_triad(", but ", Need::all(), ", but ", Fault::all()))),
+            (InternalDissonance::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Strategy::all()))),
+            (InternalConflict::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all()))),
+            (Suffering::kind(), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all()))),
+            (Behaviour::kind(), &|| Box::new(select_triads(", ", Fault::all(), " and ", Strategy::all()))),
+            (ExternalConflict::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", ", Strategy::all()))),
+            (ExternalDissonance::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all()))),
         ]
     );
     let answer = core::fmt::from_fn(|f| domain.answer(f));
@@ -128,6 +139,7 @@ pub trait Domain: Debug + Any + 'static
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Domain) -> bool;
 
+    fn kind(&self) -> &'static str;
     fn conscious(&self) -> &dyn Triad;
     fn subconscious(&self) -> &dyn Triad;
     fn triads(&self) -> [&dyn Triad; 2]

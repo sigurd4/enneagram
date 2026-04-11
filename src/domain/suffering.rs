@@ -64,6 +64,10 @@ impl Domain for Suffering
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
+    fn kind(&self) -> &'static str
+    {
+        Self::kind()
+    }
     fn conscious(&self) -> &dyn Triad
     {
         &self.introverted

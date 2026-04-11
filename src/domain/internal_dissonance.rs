@@ -64,6 +64,10 @@ impl Domain for InternalDissonance
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
+    fn kind(&self) -> &'static str
+    {
+        Self::kind()
+    }
     fn conscious(&self) -> &dyn Triad
     {
         &self.thesis
@@ -78,6 +82,6 @@ impl Domain for InternalDissonance
     }
     fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, so {}", self.thesis.reflection(), self.anti_thesis.reflection())
+        write!(f, "{}, but {}", self.thesis.reflection(), self.anti_thesis.reflection())
     }
 }

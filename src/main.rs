@@ -51,9 +51,9 @@ fn select<T>(
         .expect("Amount of options cannot exceed 255, due to technical limitations. Because we store the keys of each choice as a byte.");
     match clause
     {
-        Clause::Question => print!("\x1b[s"),
-        Clause::Answer(question) => println!("Q: {question}\x1b[s"),
-        Clause::Continuation(conjunction) => println!("\x1b[u\x1b[0J{conjunction}\x1b[s")
+        Clause::Question => print!("\x1b[s\x1b 7"),
+        Clause::Answer(question) => println!("Q: {question}\x1b[s\x1b 7"),
+        Clause::Continuation(conjunction) => println!("\x1b[u\x1b 8\x1b[0J{conjunction}\x1b[s\x1b 7")
     }
     println!("(pick one)"); // saves cursor position (ANSI-escape)
     for (n, (choice, _)) in options.iter()
@@ -116,13 +116,13 @@ fn select<T>(
         options.get(choice_index as usize)
             .expect("Your number is out of range. Please write a number corresponding to one of the choices presented to you.")
     };
-    print!("\x1b[u\x1b[0J"); // restores cursor position, then erases following text (ANSI-escape)
+    print!("\x1b[u\x1b 8\x1b[0J"); // restores cursor position, then erases following text (ANSI-escape)
     let (expression, result) = choice;
     match clause
     {
-        Clause::Question => println!("\nQ: {expression}\x1b[s"),
-        Clause::Answer(_) => println!("\nA: {expression}\x1b[s"),
-        Clause::Continuation(_) => println!("{expression}\x1b[s"),
+        Clause::Question => println!("\nQ: {expression}\x1b[s\x1b 7"),
+        Clause::Answer(_) => println!("\nA: {expression}\x1b[s\x1b 7"),
+        Clause::Continuation(_) => println!("{expression}\x1b[s\x1b 7"),
     }
     result()
 }
