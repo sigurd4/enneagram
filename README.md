@@ -4,7 +4,7 @@ I am not a specialist in this field. This project is highly speculative and requ
 
 # Introduction to the enneagram
 
-Although you can often find it in fiction, i don't think i've ever met a real person in my life who is persistantly found at one of the arms of the nonagon at all times. We all move around in it from day to day or hour to hour. I would imagine that you'd agree to some extent. You mentioned several times how it can be repurposed as a lens to view momentary motivations or strategies in your other videos. I think I'm starting to see what you're getting at now so i'll write down a few notes. The whole thing seems like an emergant combinatoric pattern that takes form when one takes personality and describe it as the composition of [internal suffering/frame] + [external means/action] + [internal means/fault] + [external suffering/need], and define the system as consisting of two free variables where each variable (dependent or independent) has three possible states.
+Although you can often find it in fiction, i don't think i've ever met a real person in my life who is persistantly found at one of the arms of the nonagon at all times. We all move around in it from day to day or hour to hour. I would imagine that you'd agree to some extent. You mentioned several times how it can be repurposed as a lens to view momentary motivations or strategies. The whole thing seems like an emergant combinatoric pattern that takes form when one takes personality and describe it as the composition of [internal suffering/frame] + [external means/action] + [internal means/fault] + [external suffering/need], and define the system as consisting of two free variables where each variable (dependent or independent) has three possible states.
 
 Schopenhauer would say that all experience is derivative of suffering (right or not).
 
@@ -124,11 +124,11 @@ N = I need freedom
 
 # Enneagram, the computer program
 
-I'm writing a computer program that's essentially like a magic 8 ball but with basis on the enneagram/schizogram inspired by your observations
+I'm writing a computer program that's essentially like a magic 8 ball but with basis on the enneagram/schizogram.
 
-The combinatorics of it all makes it possible to determine one's placement on the enneagram if a pair of triads are given. The two other triads are then dependent. Looking at all the combinations, i've come to find that this combinstoric dependence between the triads (two degrees of freedom) makes emergent sense. It's interesting how the supposed answers for each question (consisting of two triads) results in a mostly reasonable assumption about someone's inner and outer spiritual conflict. A pair of triads can be referred to as either a cause or an effect. The other pair, i.e. cause can be determined from any effect and vice versa. Each cause/effect consists of a pair of triads of the enneagram.
+The combinatorics of it all makes it possible to determine one's placement on the enneagram if a pair of triads are given. The two other triads are then dependent. Looking at all the combinations, i've come to find that this combinatoric dependence between the triads (two degrees of freedom) makes emergent sense. It's interesting how the supposed answers for each question (consisting of two triads) results in a mostly reasonable assumption about someone's inner and outer spiritual conflict. A pair of triads can be referred to as either: a cause, or an effect. The other cause, consisting of another pair, can be determined from any effect and vice versa. Both pairs are dependent variables. If you have defined one pair, the other is pre-determined. Each cause/effect consists of a pair of triads of the enneagram.
 
-So by having a computer program ask three questions you can get a reasonably useful answer from it:
+So by having a computer program ask three questions, you can, (surprisingly enough!) get a reasonably useful answer from it:
 1. Which kind of inferrence will we make?
 - Internal dissonance (humonculus + external strategy)
 - internal conflict (humonculus + internal strategy)
@@ -138,11 +138,13 @@ So by having a computer program ask three questions you can get a reasonably use
 - external dissonance (internal strategy + need)
 2. Select first triad
 3. Select second triad
-Voilla: an answer will be produced! That's the idea at least
+Voilla: an answer will be produced! That's the idea at least.
 
-The conflicts are congruant while the dissonances are incongruant. Often two triads reside in the conscious and the two others reside in the subconscious, so maybe this approach can serve as a useful tool.
+The conflicts are congruant while the dissonances are incongruant. Often, two triads reside in the conscious and the other two reside in the subconscious.
 
-I've figured out by now that the lines between each state make perfect sense. They'd point to the other state you would get if you were to change one of the two known triads. I could allow the user to make a choice after their placement has been determined, to change one triad and thereby move between the enneagram's edges
+# Interconnections
+
+I've figured out by now that the lines between each state make perfect sense. They'd point to the other state you would get if you were to change one of the two known triads. I could allow the user to make a choice after their placement has been determined, to change one triad and thereby move between the enneagram's edges.
 
 # Installation
 
