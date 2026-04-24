@@ -24,6 +24,7 @@ fn main()
     let _executeable = args.next()
         .unwrap_or_else(|| "enneagram".to_string());
 
+    let mut enable_pivot = true;
     let mut edges = Vec::<Vec<Edge>>::new();
     loop
     {
@@ -39,18 +40,21 @@ fn main()
                     let edge_info = core::fmt::from_fn(|f| edge.info(f));
                     println!("\n{edge_info}");
 
-                    loop
+                    if enable_pivot
                     {
-                        println!();
-                        let pivot = edge.pivot();
-                        let origin = core::mem::replace(&mut edge, pivot.select());
-                        if edge == origin
+                        loop
                         {
-                            break
-                        }
+                            println!();
+                            let pivot = edge.pivot();
+                            let origin = core::mem::replace(&mut edge, pivot.select());
+                            if edge == origin
+                            {
+                                break
+                            }
 
-                        let edge_info = core::fmt::from_fn(|f| edge.info(f));
-                        println!("\n{edge_info}");
+                            let edge_info = core::fmt::from_fn(|f| edge.info(f));
+                            println!("\n{edge_info}");
+                        }
                     }
 
                     return
@@ -68,7 +72,72 @@ fn main()
                 }
             }
         };
-        if let Ok(mut number) = argument.parse::<u128>().map(Some)
+
+        enum Flag
+        {
+            Pivot
+        }
+
+        let mut take_flag = |flag, invert| {
+            match flag
+            {
+                Flag::Pivot => match (enable_pivot, invert)
+                {
+                    (true, true) => enable_pivot = false,
+                    (true, false) => panic!("Pivot is already enabled"),
+                    (false, true) => panic!("Pivot is already disabled"),
+                    (false, false) => enable_pivot = true
+                }
+            }
+        };
+        let mut invert = false;
+        if argument.starts_with("--")
+        {
+            let mut flag_str = &argument["--".len()..];
+            while flag_str.starts_with("!")
+            {
+                flag_str = &flag_str["!".len()..];
+                invert = !invert
+            }
+            if flag_str.is_empty()
+            {
+                panic!("Expected flag")
+            }
+            take_flag(
+                match flag_str
+                {
+                    "pivot" => Flag::Pivot,
+                    _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
+                },
+                std::mem::replace(&mut invert, false)
+            );
+            continue
+        }
+        else if argument.starts_with("-")
+        {
+            for flag_char in argument["-".len()..].chars()
+            {
+                let flag = match flag_char
+                {
+                    '!' => {
+                        invert = !invert;
+                        continue
+                    }
+                    'p' => Flag::Pivot,
+                    _ => panic!("Invalid argument: Unrecognized single-character flag '{flag_char}'")
+                };
+                take_flag(
+                    flag,
+                    std::mem::replace(&mut invert, false)
+                );
+            }
+            if invert
+            {
+                panic!("Expected flag")
+            }
+            continue
+        }
+        else if let Ok(mut number) = argument.parse::<u128>().map(Some)
         {
             edges.push(
                 core::iter::repeat(())
@@ -87,7 +156,7 @@ fn main()
                     .rev()
                     .collect()
             );
-            continue;
+            continue
         }
         panic!("Invalid arguments.")
     }
