@@ -32,7 +32,7 @@ fn main()
     #[cfg(feature = "pivot")]
     let mut enable_pivot = true;
     #[cfg(feature = "artwork")]
-    let mut enable_artwork = true;
+    let mut enable_artwork = false;
     let mut enneagram = Enneagram {
         edges: Vec::new(),
         show_path_lines: true,
