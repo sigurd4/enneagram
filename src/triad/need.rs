@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{enneatype::Enneatype, triad::Triad};
 
 /// Need/object of desire/"what hole do you have in your soul?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -33,13 +33,13 @@ impl Triad for Need
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
 
-    fn edges(&self) -> &'static [Edge; 3]
+    fn edges(&self) -> &'static [Enneatype; 3]
     {
         match self
         {
-            Need::Attachment => &[Edge::Repression, Edge::Paranoia, Edge::Rest], // 369
-            Need::Frustration => &[Edge::Recovery, Edge::Rejection, Edge::Disorganization], // 147
-            Need::Rejection => &[Edge::Association, Edge::Catatonia, Edge::Action], // 258
+            Need::Attachment => &[Enneatype::Repression, Enneatype::Paranoia, Enneatype::Rest], // 369
+            Need::Frustration => &[Enneatype::Recovery, Enneatype::Rejection, Enneatype::Disorganization], // 147
+            Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action], // 258
         }
     }
     fn expression(&self) -> &'static str

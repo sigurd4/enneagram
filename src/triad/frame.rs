@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{enneatype::Enneatype, triad::Triad};
 
 /// Homonculus of the self/internalization of self/frame of judgement/meta-objective/"Who am i?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,13 +34,13 @@ impl Triad for Frame
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
 
-    fn edges(&self) -> &'static [crate::edge::Edge; 3]
+    fn edges(&self) -> &'static [crate::enneatype::Enneatype; 3]
     {
         match self
         {
-            Frame::Gut => &[Edge::Action, Edge::Rest, Edge::Recovery], // 891
-            Frame::Head => &[Edge::Catatonia, Edge::Paranoia, Edge::Disorganization], // 567
-            Frame::Heart => &[Edge::Association, Edge::Repression, Edge::Rejection], // 234
+            Frame::Gut => &[Enneatype::Action, Enneatype::Rest, Enneatype::Recovery], // 891
+            Frame::Head => &[Enneatype::Catatonia, Enneatype::Paranoia, Enneatype::Disorganization], // 567
+            Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection], // 234
         }
     }
     fn expression(&self) -> &'static str

@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{enneatype::Enneatype, triad::Triad};
 
 /// Internal strategy for one's (meta-)suffering/"who to blame?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,13 +34,13 @@ impl Triad for Fault
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn edges(&self) -> &'static [Edge; 3]
+    fn edges(&self) -> &'static [Enneatype; 3]
     {
         match self
         {
-            Fault::Positive => &[Edge::Disorganization, Edge::Rest, Edge::Association], // 792
-            Fault::Competent => &[Edge::Recovery, Edge::Repression, Edge::Catatonia], // 135
-            Fault::Reactive => &[Edge::Rejection, Edge::Paranoia, Edge::Action], // 468
+            Fault::Positive => &[Enneatype::Disorganization, Enneatype::Rest, Enneatype::Association], // 792
+            Fault::Competent => &[Enneatype::Recovery, Enneatype::Repression, Enneatype::Catatonia], // 135
+            Fault::Reactive => &[Enneatype::Rejection, Enneatype::Paranoia, Enneatype::Action], // 468
         }
     }
     fn expression(&self) -> &'static str

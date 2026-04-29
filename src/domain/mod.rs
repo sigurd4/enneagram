@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::Debug, ops::Add};
 
-use crate::{Clause, edge::Edge, triad::{Fault, Frame, Need, Means, Triad}};
+use crate::{Clause, enneatype::Enneatype, triad::{Fault, Frame, Need, Means, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -146,7 +146,7 @@ pub trait Domain: Debug + Any + 'static
     {
         [self.conscious(), self.subconscious()]
     }
-    fn edge(&self) -> Edge
+    fn edge(&self) -> Enneatype
     {
         let triads = self.triads();
         let mut edges = triads.into_iter()

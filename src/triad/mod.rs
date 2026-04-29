@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::{Debug, Display}};
 
-use crate::edge::Edge;
+use crate::enneatype::Enneatype;
 
 moddef::moddef!(
     flat(pub) mod {
@@ -11,7 +11,7 @@ moddef::moddef!(
     }
 );
 
-pub fn triangulate(edges: &[Edge; 3]) -> Box<dyn Triad>
+pub fn triangulate(edges: &[Enneatype; 3]) -> Box<dyn Triad>
 {
     let [triad] = core::iter::empty()
         .chain(
@@ -69,10 +69,16 @@ pub trait Triad: Debug + Display + Any
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Triad) -> bool;
 
-    fn edges(&self) -> &'static [Edge; 3];
+    fn edges(&self) -> &'static [Enneatype; 3];
     fn expression(&self) -> &'static str;
     fn reflection(&self) -> &'static str;
     fn affirmation(&self) -> &'static str;
+
+    fn lines(&self) -> [[Enneatype; 2]; 3]
+    {
+        let edges @ &[.., mut prev] = self.edges();
+        edges.map(|edge| [core::mem::replace(&mut prev, edge), edge])
+    }
 }
 
 #[cfg(test)]

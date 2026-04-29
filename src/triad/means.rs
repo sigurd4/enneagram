@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{edge::Edge, triad::Triad};
+use crate::{enneatype::Enneatype, triad::Triad};
 
 /// External strategy towards suffering / means
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -34,13 +34,13 @@ impl Triad for Means
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
 
-    fn edges(&self) -> &'static [Edge; 3]
+    fn edges(&self) -> &'static [Enneatype; 3]
     {
         match self
         {
-            Means::Assertive => &[Edge::Repression, Edge::Disorganization, Edge::Action], // 378
-            Means::Compliant => &[Edge::Paranoia, Edge::Recovery, Edge::Association], // 612
-            Means::Withdrawn => &[Edge::Rest, Edge::Rejection, Edge::Catatonia], // 945
+            Means::Assertive => &[Enneatype::Repression, Enneatype::Disorganization, Enneatype::Action], // 378
+            Means::Compliant => &[Enneatype::Paranoia, Enneatype::Recovery, Enneatype::Association], // 612
+            Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia], // 945
         }
     }
     fn expression(&self) -> &'static str

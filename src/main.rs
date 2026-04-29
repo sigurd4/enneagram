@@ -5,15 +5,20 @@ use rand::distr::Distribution;
 #[cfg(feature = "blasphemy")]
 use std::io::Read;
 
-use crate::edge::Edge;
+use crate::{enneagram::Enneagram, enneatype::Enneatype};
 
 moddef::moddef!(
     mod {
-        edge,
+        artwork for cfg(feature = "artwork"),
+        wireframe,
+        enneatype,
+        line,
+        enneagram,
         domain,
         triad,
         personality,
-        pivot
+        pivot,
+        path
     }
 );
 
@@ -24,15 +29,37 @@ fn main()
     let _executeable = args.next()
         .unwrap_or_else(|| "enneagram".to_string());
 
+    #[cfg(feature = "pivot")]
     let mut enable_pivot = true;
-    let mut edges = Vec::<Vec<Edge>>::new();
+    #[cfg(feature = "artwork")]
+    let mut enable_artwork = true;
+    let mut enneagram = Enneagram {
+        edges: Vec::new(),
+        show_path_lines: true,
+        show_boundary_lines: true,
+        show_pivot_lines: true,
+        show_triad_lines: true
+    };
     loop
     {
         let argument = match args.next()
         {
             Some(number) => number,
             None => {
-                if edges.is_empty()
+                #[cfg(feature = "artwork")]
+                if enable_artwork
+                {
+                    let mut terminal = ratatui::init();
+
+                    use crate::artwork::Artwork;
+
+                    Artwork {
+                        enneagram
+                    }.draw(&mut terminal);
+
+                    return
+                }
+                if enneagram.edges.is_empty()
                 {
                     let domain = domain::select();
                     let mut edge = domain.edge();
@@ -40,6 +67,7 @@ fn main()
                     let edge_info = core::fmt::from_fn(|f| edge.info(f));
                     println!("\n{edge_info}");
 
+                    #[cfg(feature = "pivot")]
                     if enable_pivot
                     {
                         loop
@@ -62,9 +90,9 @@ fn main()
                 else
                 {
                     let mut sep = "";
-                    for edges in edges
+                    for edges in enneagram.edges
                     {
-                        let edge_info = core::fmt::from_fn(|f| Edge::common_info(&edges, f));
+                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f));
                         println!("{sep}{edge_info}");
                         sep = "\n"
                     }
@@ -75,18 +103,30 @@ fn main()
 
         enum Flag
         {
-            Pivot
+            #[cfg(feature = "pivot")]
+            Pivot,
+            #[cfg(feature = "artwork")]
+            Artwork
         }
 
         let mut take_flag = |flag, invert| {
             match flag
             {
+                #[cfg(feature = "pivot")]
                 Flag::Pivot => match (enable_pivot, invert)
                 {
                     (true, true) => enable_pivot = false,
                     (true, false) => panic!("Pivot is already enabled"),
                     (false, true) => panic!("Pivot is already disabled"),
                     (false, false) => enable_pivot = true
+                },
+                #[cfg(feature = "artwork")]
+                Flag::Artwork => match (enable_artwork, invert)
+                {
+                    (true, true) => enable_artwork = false,
+                    (true, false) => panic!("Artwork is already enabled"),
+                    (false, true) => panic!("Artwork is already disabled"),
+                    (false, false) => enable_artwork = true
                 }
             }
         };
@@ -101,14 +141,18 @@ fn main()
             }
             if flag_str.is_empty()
             {
-                panic!("Expected flag")
+                panic!("Invalid argument: Expected flag")
             }
+            let flag = match flag_str
+            {
+                #[cfg(feature = "pivot")]
+                "pivot" => Flag::Pivot,
+                #[cfg(feature = "artwork")]
+                "artwork" => Flag::Artwork,
+                _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
+            };
             take_flag(
-                match flag_str
-                {
-                    "pivot" => Flag::Pivot,
-                    _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
-                },
+                flag,
                 std::mem::replace(&mut invert, false)
             );
             continue
@@ -123,7 +167,10 @@ fn main()
                         invert = !invert;
                         continue
                     }
+                    #[cfg(feature = "pivot")]
                     'p' => Flag::Pivot,
+                    #[cfg(feature = "artwork")]
+                    'a' => Flag::Artwork,
                     _ => panic!("Invalid argument: Unrecognized single-character flag '{flag_char}'")
                 };
                 take_flag(
@@ -133,13 +180,13 @@ fn main()
             }
             if invert
             {
-                panic!("Expected flag")
+                panic!("Invalid argument: Expected flag")
             }
             continue
         }
         else if let Ok(mut number) = argument.parse::<u128>().map(Some)
         {
-            edges.push(
+            enneagram.edges.push(
                 core::iter::repeat(())
                     .map_while(|()| {
                         let n = number.take()?;
@@ -150,7 +197,7 @@ fn main()
                         }
                         Some(digit)
                     })
-                    .map(|digit| Edge::new(digit))
+                    .map(|digit| Enneatype::new(digit))
                     .collect::<Vec<_>>()
                     .into_iter()
                     .rev()
