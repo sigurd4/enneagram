@@ -54,7 +54,7 @@ fn main()
                     use crate::artwork::Artwork;
 
                     Artwork {
-                        enneagram
+                        enneagram: &enneagram
                     }.draw(&mut terminal);
 
                     return
@@ -299,7 +299,7 @@ fn select<T>(
     {
         Clause::Question => println!("\nQ: {expression}\x1b[s\x1b 7"),
         Clause::Answer(_) => println!("\nA: {expression}\x1b[s\x1b 7"),
-        Clause::Continuation(_) => println!("{expression}\x1b[s\x1b 7"),
+        Clause::Continuation(_) => println!("{expression}\x1b[s\x1b 7")
     }
     result()
 }

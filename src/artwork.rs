@@ -5,12 +5,12 @@ use ratatui_3d::{Light, Material, Mesh, Rgb, Scene, SceneObject, Transform, View
 
 use crate::{enneagram::Enneagram, enneatype::Enneatype, wireframe::Wireframe};
 
-pub struct Artwork
+pub struct Artwork<'a>
 {
-    pub enneagram: Enneagram
+    pub enneagram: &'a Enneagram
 }
 
-impl Artwork
+impl Artwork<'_>
 {
     pub fn draw(&self, terminal: &mut Terminal<impl Backend>)
     {
@@ -135,7 +135,7 @@ mod test
     fn test_graphics()
     {
         let artwork = Artwork {
-            enneagram: Enneagram::all(&Enneagram {
+            enneagram: &Enneagram::all(&Enneagram {
                 edges: vec![],
                 show_path_lines: false,
                 show_boundary_lines: false,
