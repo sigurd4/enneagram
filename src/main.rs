@@ -57,7 +57,7 @@ fn main()
                         enneagram: &enneagram
                     }.draw(&mut terminal);
 
-                    return
+                    //return
                 }
                 if enneagram.edges.is_empty()
                 {

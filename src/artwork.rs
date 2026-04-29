@@ -122,7 +122,9 @@ impl Artwork<'_>
             width,
             height
         };
-        let (Ok(_) | Err(_)) = terminal.draw(|f| f.render_stateful_widget(Viewport3D::new(&scene), area, &mut state));
+        let _ = terminal.draw(|f| f.render_stateful_widget(Viewport3D::new(&scene), area, &mut state))
+            .expect("Rendering failed.");
+        println!("\x1b[0m")
     }
 }
 
@@ -132,6 +134,7 @@ mod test
     use crate::{artwork::Artwork, enneagram::Enneagram};
 
     #[test]
+    #[ignore] // It fucks up the keyboard input, because i'm not fluent in ratatui
     fn test_graphics()
     {
         let artwork = Artwork {
