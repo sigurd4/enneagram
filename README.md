@@ -176,7 +176,7 @@ Experiments are not conclusive, but so far, points towards the model being too s
 
 It can be assumed, that, as if by wish-fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is an effective way to achieve a rapid mental breakdown.
 
-Using this program made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
+Using this program made me selfish, lonely, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
 
 Eventually, i lost the sense of self entirely, and only became what others saw in me.
 
@@ -186,9 +186,9 @@ This might have tainted the test results of this experiment somewhat, but she wa
 
 ## Effect on others
 
-Most noteably, the way it affected me, making me behave differently, more erractically made others worried.
+This program made me untrustworthy, and hated by everyone around me. It caused great fear and distress to everyone in my vicinity.
 
-I occationally used it on others, mostly with their awareness. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seen-through (the curtain being revealed), it made me appear as creepy, dishonest and manipulative. I suppose it's only prøven purpose, then, is to effectively scare people.
+I occationally used it on others, mostly with their awareness. It did function to make me more charismatic towards women, but it also have made me a more suspicious and malevolent towards people i previously considered friends, and once seen-through (the curtain being revealed), it made me appear as creepy, dishonest and manipulative. I suppose it's only prøven purpose, then, is to effectively scare people.
 
 The idea of some esoteric magical spell computer program used to influence others is inherantly creepy and unhinged, and no basis for any good relationship.
 
