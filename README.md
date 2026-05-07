@@ -1,3 +1,7 @@
+# Warning
+
+This program can make you go mad. Use with caution.
+
 # Disclaimer
 
 I am not a specialist in this field. This project is highly speculative and requires magical thinking/suspension of belief in order to function. It is not intended to be a serious tool for psychology, only a curiousity. I've found the mathematical coherence of the enneagram to be somewhat fascinating, and therefore conceptualized this absurd piece of software.
