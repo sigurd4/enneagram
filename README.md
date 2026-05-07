@@ -172,9 +172,9 @@ If used on others, this has the unfortunate unintended side-effect that emotiona
 
 Experiments are not conclusive, but so far, points towards the model being too simplistic, taking each archetype to the extreme, without accounding for neuances, and often being axiomatically wrong, which has grave consequenses.
 
-It can be assumed, that, as if by wish fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is a way to achieve a rapid mental breakdown.
-
 ## Effect on the self
+
+It can be assumed, that, as if by wish fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is an effective way to achieve a rapid mental breakdown.
 
 Using this program made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
 
@@ -188,9 +188,9 @@ This might have tainted the test results of this experiment somewhat, but she wa
 
 Most noteably, the way it affected me, making me behave differently, more erractically made others worried.
 
-I occationally used it on others. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seem through, it made me appear as creepy, dishonest and manipulative.
+I occationally used it on others, mostly with their awareness. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seem through, it made me appear as creepy, dishonest and manipulative.
 
-The idea of some esoteric magical spell computer program used to influence others is inherantly creepy and unhinged.
+The idea of some esoteric magical spell computer program used to influence others is inherantly creepy and unhinged, and no basis for any good relationship.
 
 Due to the inherant design flaw of being based on the axiom of emotional suffering, clearly it creates a need for that precondition to be in place to begin with. One therefore becomes desiring of that very precondition in others, subconciously guiding the caster of the program to want that very precondition to occur, in order to effectively use their tool of desire-reaching.
 
