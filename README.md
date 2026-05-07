@@ -162,7 +162,7 @@ It can be assumed, that, as if by wish fulfillment, one becomes more as one desc
 
 ## Effect on the self
 
-Using this enneagram made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
+Using this program made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
 
 Eventually, i lost the sense of self entirely, and only became what others saw in me.
 
