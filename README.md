@@ -154,7 +154,7 @@ I've figured out by now that the lines between each state make perfect sense. Th
 
 # The zeroth enmeatype
 
-What i dub the zeroth enneatype, due to its parallel counterpart with the zeroth numagram-type, is the precondition itself. The axiom, so to speak, from which all the other types emerge from. In this case, it was Arthur Schopenhauer's statement of all experience stemming from suffering (as far as i can remember, from reading 'On Pessimism').
+What i dub the zeroth enneatype, due to its parallel counterpart with the zeroth numagram-type, is the precondition itself. The axiom, so to speak, from which all the other types emerge from. In this case, it was Schopenhauer's statement of all experience stemming from suffering (as far as i can remember, from reading 'On Pessimism').
 
 Turns out this assumption may not always be correct. If incorrect, it has the unfortunate consequence of creating a desire to make said precondition correct.
 
