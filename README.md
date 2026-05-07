@@ -150,6 +150,42 @@ I've figured out by now that the lines between each state make perfect sense. Th
 
 I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a lot in that movie as a symbol. There are interesting connections between the characters' plot points across the movie and the enneagram. The movie mainly focuses on sin, and how to conquer it in order to climb The Holy Mountain. I might have to read The Bible to understand fully the intricacies. I'll admit, i haven't done that yet...
 
+# Experimental results
+
+I tried to use the enneagram program for self-evaluation for a month or so, and only occationally using it on others to better understand their inner turmoil. Turns out, with the current setup, it only works given the axiom that emotional turmoil is present to begin with.
+
+If used on others, this has the unfortunate unintended side-effect that emotional turmoil is wished on others in order to be able to understand them through the enneagram. A truly mischevious consequence, whose ramifications i realized far too late for my own good.
+
+Experiments are not conclusive, but so far, points towards the model being too simplistic, taking each archetype to the extreme, without accounding for neuances, or being axiomatically wrong.
+
+It can be assumed, that, as if by wish fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is a way to achieve a rapid mental breakdown.
+
+## Effect on the self
+
+Using this enneagram made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
+
+Eventually, i lost the sense of self entirely, and only became what others saw in me.
+
+This may have been affected by the fact that i was going through a breakup at the time, from a semi-imaginary relationship in my head with a woman who is by far more troubled than i am. She recommended me a book, which i will read in order to better figure out how to live with our disorder, which we share. Delueze and Guitarri's Qnti-Oedipus was her recomendation to me. Turns out she was right all along, and i didn't listen, because i was stubborn. But that's no use, because i now see after finally getting to read said book that being in love with her affects me negatively, because i become whoever people want from me, and she wants me to leave her alone. If i have to be destroyed in order to leave her alone, then, in her mind; so be it. I cannot help her, and i need to stop deluding myself into thinking that i'm doing anything but making it worse for the both of us.
+
+This might have tainted the test results of this experiment somewhat, but she was the one who gave me the idea to make this program, after all, so in a way, this software is a monument to the relationship we had.
+
+## Effect on others
+
+Most noteably, the way it affected me, making me behave differently, more erractically made others worried.
+
+I occationally used it on others. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seem through, it made me appear as creepy, dishonest and manipulative.
+
+The idea of some esoteric magical spell computer program used to influence others is inherantly creepy and unhinged.
+
+Due to the inherant design flaw of being based on the axiom of emotional suffering, clearly it creates a need for that precondition to be in place to begin with. One therefore becomes desiring of that very precondition in others, subconciously guiding the caster of the program to want that very precondition to occur, in order to effectively use their tool of desire-reaching.
+
+Clearly there is an urgent need for the use of multiple enneagrams. The one i made, which was created at a very strange time of my life, was not ideal and caused grief in others.
+
+## Written apology
+
+To those i've caused distress, i'm deeply sorry.
+
 # Installation on Arch-Linux
 
 This program is available as a PKGBUILD on the AUR.
