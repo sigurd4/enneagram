@@ -168,7 +168,7 @@ I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a
 
 I tried to use this enneagram program for self-evaluation for a month or so, and only occationally using it on others to better understand their inner turmoil. Turns out, with the current setup, it only works given the axiom that emotional turmoil is present to begin with.
 
-If used on others, this has the unfortunate unintended side-effect that emotional turmoil is wished on others in order to be able to understand them through the enneagram. A truly mischevious consequence, whose ramifications i realized far too late for my own good.
+If used on other people, this has the unfortunate unintended side-effect that emotional turmoil is wished on others in order to be able to understand them through the enneagram. A truly mischevious consequence, whose ramifications i realized far too late for my own good.
 
 Experiments are not conclusive, but so far, points towards the model being too simplistic, taking each archetype to the extreme, without accounding for neuances, and often being axiomatically wrong, which has grave consequenses.
 
