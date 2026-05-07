@@ -188,6 +188,8 @@ The idea of some esoteric magical spell computer program used to influence other
 
 Due to the inherant design flaw of being based on the axiom of emotional suffering, clearly it creates a need for that precondition to be in place to begin with. One therefore becomes desiring of that very precondition in others, subconciously guiding the caster of the program to want that very precondition to occur, in order to effectively use their tool of desire-reaching.
 
+Therefore, it made me subconsciously become distressfull, so that everyone who were to be studied using the enneagram were caused distress.
+
 Clearly there is an urgent need for the use of multiple enneagrams. The one i made, which was created at a very strange time of my life, was not ideal and caused grief in others.
 
 ## Written apology
