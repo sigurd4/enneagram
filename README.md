@@ -170,7 +170,7 @@ I tried to use the enneagram program for self-evaluation for a month or so, and 
 
 If used on others, this has the unfortunate unintended side-effect that emotional turmoil is wished on others in order to be able to understand them through the enneagram. A truly mischevious consequence, whose ramifications i realized far too late for my own good.
 
-Experiments are not conclusive, but so far, points towards the model being too simplistic, taking each archetype to the extreme, without accounding for neuances, or being axiomatically wrong.
+Experiments are not conclusive, but so far, points towards the model being too simplistic, taking each archetype to the extreme, without accounding for neuances, and often being axiomatically wrong, which has grave consequenses.
 
 It can be assumed, that, as if by wish fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is a way to achieve a rapid mental breakdown.
 
