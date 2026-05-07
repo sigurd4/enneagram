@@ -144,7 +144,7 @@ The conflicts are congruant while the dissonances are incongruant. Often, two tr
 
 # Interconnections
 
-I've figured out by now that the lines between each state make perfect sense. They'd point to the other state you would get if you were to change one of the two known triads. I could allow the user to make a choice after their placement has been determined, to change one triad and thereby move between the enneagram's edges.
+I've figured out by now that the lines between each state make perfect sense. They'd point to the other state you would get if you were to change one of the two known triads. I could allow the user/caster to make a choice after their placement has been determined, to change one triad and thereby move between the enneagram's edges.
 
 # The zeroth enmeatype
 
