@@ -166,7 +166,7 @@ I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a
 
 # Experimental results
 
-I tried to use the enneagram program for self-evaluation for a month or so, and only occationally using it on others to better understand their inner turmoil. Turns out, with the current setup, it only works given the axiom that emotional turmoil is present to begin with.
+I tried to use this enneagram program for self-evaluation for a month or so, and only occationally using it on others to better understand their inner turmoil. Turns out, with the current setup, it only works given the axiom that emotional turmoil is present to begin with.
 
 If used on others, this has the unfortunate unintended side-effect that emotional turmoil is wished on others in order to be able to understand them through the enneagram. A truly mischevious consequence, whose ramifications i realized far too late for my own good.
 
@@ -174,7 +174,7 @@ Experiments are not conclusive, but so far, points towards the model being too s
 
 ## Effect on the self
 
-It can be assumed, that, as if by wish fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is an effective way to achieve a rapid mental breakdown.
+It can be assumed, that, as if by wish-fulfillment, one becomes more as one described onself when making the enneagram, except only a simplistic charicature of the logical extremes of each archetype. This is an effective way to achieve a rapid mental breakdown.
 
 Using this program made me selfish, destructive, highly-emotional (turns out it created disregulation, not regulation.) and unable to think in neuances.
 
@@ -200,7 +200,7 @@ Clearly there is an urgent need for the use of multiple enneagrams. The one i ma
 
 ## Written apology
 
-To those i've caused distress, i'm deeply sorry.
+To those i've caused distress, i'm deeply sorry. I didn't know what i was doing.
 
 # Installation on Arch-Linux
 
