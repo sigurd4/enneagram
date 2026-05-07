@@ -146,6 +146,14 @@ The conflicts are congruant while the dissonances are incongruant. Often, two tr
 
 I've figured out by now that the lines between each state make perfect sense. They'd point to the other state you would get if you were to change one of the two known triads. I could allow the user to make a choice after their placement has been determined, to change one triad and thereby move between the enneagram's edges.
 
+# The zeroth enmeatype
+
+What i dub the zeroth enneatype, due to its parallel counterpart with the zeroth numagram-type, is the precondition itself. The axiom, so to speak, from which all the other types emerge from. In this case, it was Arthur Schopenhauer's statement of all experience stemming from suffering (as far as i can remember, from reading 'On Pessimism').
+
+Turns out this assumption may not always be correct. If incorrect, it has the unfortunate consequence of creating a desire to make said precondition correct.
+
+In a way, the zeroth becomes the price which you pay for each use of the program, inflicted upon the subject which it is used on if not already present.
+
 # On The Holy Mountain
 
 I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a lot in that movie as a symbol. There are interesting connections between the characters' plot points across the movie and the enneagram. The movie mainly focuses on sin, and how to conquer it in order to climb The Holy Mountain. I might have to read The Bible to understand fully the intricacies. I'll admit, i haven't done that yet...
