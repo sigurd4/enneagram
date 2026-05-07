@@ -188,7 +188,7 @@ This might have tainted the test results of this experiment somewhat, but she wa
 
 Most noteably, the way it affected me, making me behave differently, more erractically made others worried.
 
-I occationally used it on others, mostly with their awareness. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seem through, it made me appear as creepy, dishonest and manipulative.
+I occationally used it on others, mostly with their awareness. It did function to make me more charismatic towards women, but it also have made me a lot more suspicious and malevolent towards people i previously considered friends, and once seen-through (the curtain being revealed), it made me appear as creepy, dishonest and manipulative. I suppose it's only prøven purpose, then, is to effectively scare people.
 
 The idea of some esoteric magical spell computer program used to influence others is inherantly creepy and unhinged, and no basis for any good relationship.
 
