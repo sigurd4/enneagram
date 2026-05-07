@@ -156,7 +156,7 @@ In a way, the zeroth becomes the price which you pay for each use of the program
 
 # On The Holy Mountain
 
-I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a lot in that movie as a symbol. There are interesting connections between the characters' plot points across the movie and the enneagram. The movie mainly focuses on sin, and how to conquer it in order to climb The Holy Mountain. I might have to read The Bible to understand fully the intricacies. I'll admit, i haven't done that yet...
+I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a lot in that movie as a symbol. There are interesting connections between the characters' plot points across the movie and the enneagram. The movie mainly focuses on sin, and how to conquer it in order to climb The Holy Mountain.
 
 # Experimental results
 
