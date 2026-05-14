@@ -41,7 +41,7 @@ pub fn select() -> Box<dyn Domain>
             (domain.kind(), domain.reciprocal().kind())
         };
 
-        println!("\x1b[u\x1b 8 -> {codomain_kind}");
+        println!("\x1b[u -> {codomain_kind}");
 
         let polymorphic_trivial_choices = trivial_choices.each_ref()
             .map(|(expression, generator)| (*expression, || Triviality::Trivial(generator())));
