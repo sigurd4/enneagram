@@ -1,0 +1,21 @@
+[package]
+name = "schizogram"
+version = "1.0.0"
+edition = "2024"
+license = "GPL-3.0"
+description = "A digital enneagram"
+repository = "https://github.com/sigurd4/enneagram"
+keywords = ["enneagram", "personality", "psychology", "occult", "enneatype"]
+categories = ["algorithms", "mathematics"]
+
+[features]
+default = ["artwork", "pivot"]
+blasphemy = ["enneagram/blasphemy"]
+pivot = ["enneagram/pivot"]
+artwork = ["enneagram/artwork"]
+
+[dependencies]
+moddef = { workspace = true }
+enum-display = { workspace = true }
+num = { workspace = true }
+enneagram = { path = "../enneagram" }

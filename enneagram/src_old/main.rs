@@ -15,9 +15,9 @@ moddef::moddef!(
         line,
         enneagram,
         domain,
-        triad,
         personality,
         pivot,
+        r#type,
         path
     }
 );

@@ -1,24 +1,45 @@
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{enneatype::Enneatype, triad::ITriad};
+
+#[derive(Clone)]
+struct TriadDefinition
+{
+    expression: String,
+    reflection: String,
+    affirmation: String
+}
+
+#[derive(Clone)]
+struct TriadTripleDefinition
+{
+    description: String,
+    traids: [TriadDefinition; 3]
+}
 
 pub struct Enneagram
 {
-    pub edges: Vec<Vec<Enneatype>>,
-    pub show_path_lines: bool,
-    pub show_boundary_lines: bool,
-    pub show_pivot_lines: bool,
-    pub show_triad_lines: bool,
+    edges: Vec<Vec<Enneatype>>,
+    show_path_lines: bool,
+    show_boundary_lines: bool,
+    show_pivot_lines: bool,
+    show_triad_lines: bool,
+    triad_definition: Option<[TriadTripleDefinition; 4]>
 }
 
 impl Enneagram
 {
-    pub fn all(original: &Enneagram) -> Self
+    pub fn parse(file: std::fs::File) -> Self
+    {
+        
+    }
+
+    pub fn all(original: Enneagram) -> Self
     {
         Self {
             edges: vec![
                 Enneatype::all()
                     .to_vec()
             ],
-            ..*original
+            ..original
         }
     }
     
@@ -93,7 +114,7 @@ impl Enneagram
             .flat_map(|triad| triad.lines())
     }
 
-    pub fn triads(&self) -> impl Iterator<Item = Box<dyn Triad>>
+    pub fn triads(&self) -> impl Iterator<Item = Box<dyn ITriad>>
     {
         crate::triad::all()
             .into_iter()

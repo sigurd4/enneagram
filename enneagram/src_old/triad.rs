@@ -11,63 +11,62 @@ moddef::moddef!(
     }
 );
 
-pub fn triangulate(edges: &[Enneatype; 3]) -> Box<dyn Triad>
+pub fn triangulate(edges: &[Enneatype; 3]) -> Triad
 {
     let [triad] = core::iter::empty()
         .chain(
             Fault::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(Into::into)
         ).chain(
             Frame::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(Into::into)
         ).chain(
             Need::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(Into::into)
         ).chain(
             Means::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(Into::into)
         ).collect::<Vec<_>>()
         .try_into()
         .expect("Exactly one triad should match the set of three edges.");
     triad
 }
 
-pub fn all() -> [Box<dyn Triad>; 4*3]
+pub fn all() -> [Box<dyn ITriad>; 4*3]
 {
     core::iter::empty()
         .chain(
             Fault::all()
                 .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn ITriad>)
         ).chain(
             Frame::all()
                 .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn ITriad>)
         ).chain(
             Need::all()
                 .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn ITriad>)
         ).chain(
             Means::all()
                 .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
+                .map(|triad| Box::new(triad) as Box<dyn ITriad>)
         ).collect::<Vec<_>>()
         .try_into()
         .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Wrong number of states!")
 }
 
-pub trait Triad: Debug + Display + Any
+pub trait ITriad: Debug + Display + Any + Into<Triad>
 {
-    fn as_any(&self) -> &dyn Any;
-    fn equals(&self, other: &dyn Triad) -> bool;
+    fn all() -> [Self; 3];
 
     fn edges(&self) -> &'static [Enneatype; 3];
     fn expression(&self) -> &'static str;
@@ -84,7 +83,7 @@ pub trait Triad: Debug + Display + Any
 #[cfg(test)]
 mod test
 {
-    use crate::triad::{Fault, Frame, Need, Means, Triad};
+    use crate::triad::{Fault, Frame, Need, Means, ITriad};
 
     #[test]
     fn test_frame()
@@ -118,7 +117,7 @@ mod test
 
     fn test_triad<T>(triad: &T)
     where
-        T: Triad + ?Sized
+        T: ITriad + ?Sized
     {
         println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
         let edges = triad.edges();
@@ -128,7 +127,7 @@ mod test
 
     fn test_triads<'a, T>(triads: impl IntoIterator<Item = &'a T>)
     where
-        T: Triad
+        T: ITriad
     {
         for triad in triads
         {

@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{enneatype::Enneatype, triad::ITriad};
 
 /// External strategy towards suffering / means
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -23,13 +23,13 @@ impl Means
     }
 }
 
-impl Triad for Means
+impl ITriad for Means
 {
     fn as_any(&self) -> &dyn Any
     {
         self
     }
-    fn equals(&self, other: &dyn Triad) -> bool
+    fn equals(&self, other: &dyn ITriad) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }

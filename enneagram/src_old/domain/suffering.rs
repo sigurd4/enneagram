@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Frame, Need, Triad}};
+use crate::{domain::Domain, triad::{Frame, Need, ITriad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Suffering
@@ -68,11 +68,11 @@ impl Domain for Suffering
     {
         Self::kind()
     }
-    fn conscious(&self) -> &dyn Triad
+    fn conscious(&self) -> &dyn ITriad
     {
         &self.introverted
     }
-    fn subconscious(&self) -> &dyn Triad
+    fn subconscious(&self) -> &dyn ITriad
     {
         &self.extroverted
     }

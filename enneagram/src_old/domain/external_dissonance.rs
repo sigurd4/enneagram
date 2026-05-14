@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Fault, Need, Triad}};
+use crate::{domain::Domain, triad::{Fault, Need, ITriad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternalDissonance
@@ -68,11 +68,11 @@ impl Domain for ExternalDissonance
     {
         Self::kind()
     }
-    fn conscious(&self) -> &dyn Triad
+    fn conscious(&self) -> &dyn ITriad
     {
         &self.anti_thesis
     }
-    fn subconscious(&self) -> &dyn Triad
+    fn subconscious(&self) -> &dyn ITriad
     {
         &self.thesis
     }

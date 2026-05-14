@@ -1,6 +1,6 @@
 use core::{any::Any, fmt::Debug, ops::Add};
 
-use crate::{Clause, enneatype::Enneatype, triad::{Fault, Frame, Need, Means, Triad}};
+use crate::{Clause, enneatype::Enneatype, triad::{Fault, Frame, Need, Means, ITriad}};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -22,8 +22,8 @@ pub fn select() -> Box<dyn Domain>
         nontrivial: [N; 3]
     ) -> <T as Add<N>>::Output
     where
-        T: Triad + Copy + Add<N, Output: Domain>,
-        N: Triad + Copy
+        T: ITriad + Copy + Add<N, Output: Domain>,
+        N: ITriad + Copy
     {
         enum Triviality<T, N>
         {
@@ -140,9 +140,9 @@ pub trait Domain: Debug + Any + 'static
     fn equals(&self, other: &dyn Domain) -> bool;
 
     fn kind(&self) -> &'static str;
-    fn conscious(&self) -> &dyn Triad;
-    fn subconscious(&self) -> &dyn Triad;
-    fn triads(&self) -> [&dyn Triad; 2]
+    fn conscious(&self) -> &dyn ITriad;
+    fn subconscious(&self) -> &dyn ITriad;
+    fn triads(&self) -> [&dyn ITriad; 2]
     {
         [self.conscious(), self.subconscious()]
     }

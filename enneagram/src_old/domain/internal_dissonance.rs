@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Means, Frame, Triad}};
+use crate::{domain::Domain, triad::{Means, Frame, ITriad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InternalDissonance
@@ -68,11 +68,11 @@ impl Domain for InternalDissonance
     {
         Self::kind()
     }
-    fn conscious(&self) -> &dyn Triad
+    fn conscious(&self) -> &dyn ITriad
     {
         &self.thesis
     }
-    fn subconscious(&self) -> &dyn Triad
+    fn subconscious(&self) -> &dyn ITriad
     {
         &self.anti_thesis
     }

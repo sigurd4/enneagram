@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Means, Need, Triad}};
+use crate::{domain::Domain, triad::{Means, Need, ITriad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternalConflict
@@ -68,11 +68,11 @@ impl Domain for ExternalConflict
     {
         Self::kind()
     }
-    fn conscious(&self) -> &dyn Triad
+    fn conscious(&self) -> &dyn ITriad
     {
         &self.anti_thesis
     }
-    fn subconscious(&self) -> &dyn Triad
+    fn subconscious(&self) -> &dyn ITriad
     {
         &self.thesis
     }

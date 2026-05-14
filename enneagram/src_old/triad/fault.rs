@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{enneatype::Enneatype, triad::{Triad, ITriad}};
 
 /// Internal strategy for one's (meta-)suffering/"who to blame?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -15,23 +15,19 @@ pub enum Fault
     Reactive
 }
 
-impl Fault
+impl From<Fault> for Triad
 {
-    pub const fn all() -> [Self; 3]
+    fn from(fault: Fault) -> Self
     {
-        [Fault::Positive, Fault::Competent, Fault::Reactive]
+        Self::Fault(fault)
     }
 }
 
-impl Triad for Fault
+impl ITriad for Fault
 {
-    fn as_any(&self) -> &dyn Any
+    fn all() -> [Self; 3]
     {
-        self
-    }
-    fn equals(&self, other: &dyn Triad) -> bool
-    {
-        other.as_any().downcast_ref().is_some_and(|other| self == other)
+        [Fault::Positive, Fault::Competent, Fault::Reactive]
     }
     
     fn edges(&self) -> &'static [Enneatype; 3]

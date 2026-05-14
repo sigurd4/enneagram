@@ -3,46 +3,11 @@ use core::f64::consts::TAU;
 #[cfg(feature = "artwork")]
 use ratatui_3d::{Mesh, Vertex};
 
-use crate::{personality::Personality, pivot::Pivot, triad::Triad};
+use crate::{personality::Personality, pivot::Pivot, triad::ITriad};
 
-#[repr(u8)]
-#[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-#[derive(enum_display::EnumDisplay)]
-pub enum Enneatype
-{
-    #[display("Recovery/Gradient")]
-    Recovery = 1,
-    #[display("Association/Superego")]
-    Association = 2,
-    #[display("Repression/Ego")]
-    Repression = 3,
-    #[display("Rejection/Id")]
-    Rejection = 4,
-    #[display("Catatonia")]
-    Catatonia = 5,
-    #[display("Paranoia")]
-    Paranoia = 6,
-    #[display("Disorganization")]
-    Disorganization = 7,
-    #[display("Action/Flow")]
-    Action = 8,
-    #[display("Rest/Equilibrium")]
-    Rest = 9
-}
 
 impl Enneatype
 {
-    pub fn new(number: u8) -> Self
-    {
-        assert_ne!(number, 0, "There is no enneatype with the number 0.");
-        assert!((1..=9).contains(&number), "Enneagram numbers must be within the range of 1-9.");
-        number.checked_sub(1)
-            .and_then(|i| Self::all()
-                .get(i as usize)
-                .copied()
-            ).expect("Enneagram numbers must be within the range of 1-9.")
-    }
-
     pub const fn all() -> [Self; 9]
     {
         [Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
@@ -77,7 +42,7 @@ impl Enneatype
             .expect("Enneagram numbers must start at 1.") as usize
     }
 
-    pub fn common_triads(edges: &[Enneatype]) -> Vec<Box<dyn Triad>>
+    pub fn common_triads(edges: &[Enneatype]) -> Vec<Box<dyn ITriad>>
     {
         crate::triad::all()
             .into_iter()
@@ -88,7 +53,7 @@ impl Enneatype
             }).collect::<Vec<_>>()
     }
 
-    pub fn triads(&self) -> [Box<dyn Triad>; 4]
+    pub fn triads(&self) -> [Box<dyn ITriad>; 4]
     {
         Self::common_triads(core::slice::from_ref(self))
             .try_into()

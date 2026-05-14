@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Means, Fault, Triad}};
+use crate::{domain::Domain, triad::{Means, Fault, ITriad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct Behaviour
@@ -68,11 +68,11 @@ impl Domain for Behaviour
     {
         Self::kind()
     }
-    fn conscious(&self) -> &dyn Triad
+    fn conscious(&self) -> &dyn ITriad
     {
         &self.extroverted
     }
-    fn subconscious(&self) -> &dyn Triad
+    fn subconscious(&self) -> &dyn ITriad
     {
         &self.introverted
     }

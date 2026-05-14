@@ -1,4 +1,4 @@
-use crate::triad::{Fault, Frame, Need, Means, Triad};
+use crate::triad::{Fault, Frame, Need, Means, ITriad};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Personality
@@ -20,7 +20,7 @@ impl Personality
         )
     }
 
-    pub fn from_triads(triads: [&dyn Triad; 4]) -> Self
+    pub fn from_triads(triads: [&dyn ITriad; 4]) -> Self
     {
         let (frame, strategy, fault, need) = triads.into_iter()
             .map(|triad| {

@@ -1,6 +1,6 @@
 use core::any::Any;
 
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{enneatype::Enneatype, triad::ITriad};
 
 /// Need/object of desire/"what hole do you have in your soul?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -22,13 +22,13 @@ impl Need
     }
 }
 
-impl Triad for Need
+impl ITriad for Need
 {
     fn as_any(&self) -> &dyn Any
     {
         self
     }
-    fn equals(&self, other: &dyn Triad) -> bool
+    fn equals(&self, other: &dyn ITriad) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
