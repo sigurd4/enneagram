@@ -1,6 +1,4 @@
-use core::num::{NonZero, NonZeroU8};
-
-use enneagram::{Enneatype, Ngram, error::EnneatypeOutOfRange};
+use enneagram::{Edge, Enneatype, Ngram, error::EnneatypeOutOfRange};
 
 use crate::Schizogram;
 
@@ -27,6 +25,21 @@ pub enum Schizotype
     Action = 8,
     #[display("Rest/Equilibrium")]
     Rest = 9
+}
+
+impl TryFrom<u8> for Schizotype
+{
+    type Error = EnneatypeOutOfRange;
+
+    fn try_from(number: u8) -> Result<Self, Self::Error>
+    {
+        enneagram::util::enneatype_try_from(number, Schizogram::all_edges())
+    }
+}
+
+impl Edge<Schizogram> for Schizotype
+{
+    
 }
 
 impl Enneatype<Schizogram> for Schizotype
