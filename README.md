@@ -202,9 +202,9 @@ Clearly there is an urgent need for the use of multiple enneagrams. The one i ma
 
 To those i've caused distress, i'm deeply sorry. I didn't know what i was doing.
 
-# Thanks to:
+# Acknowledgements
 
-- CyberYamu for her informative videos on the enneagram.
+Thanks to [CyberYamu](https://www.youtube.com/@CyberYamu) for her informative videos on the enneagram.
 
 # Installation on Arch-Linux
 
