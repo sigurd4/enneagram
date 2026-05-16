@@ -202,6 +202,10 @@ Clearly there is an urgent need for the use of multiple enneagrams. The one i ma
 
 To those i've caused distress, i'm deeply sorry. I didn't know what i was doing.
 
+# Acknowledgements
+
+Thanks to [CyberYamu](https://www.youtube.com/@CyberYamu) for her informative videos on the enneagram.
+
 # Installation on Arch-Linux
 
 This program is available as a PKGBUILD on the AUR.
