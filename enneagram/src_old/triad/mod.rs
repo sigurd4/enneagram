@@ -1,4 +1,5 @@
 
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 #[derive(enum_display::EnumDisplay)]
 pub enum Triad
