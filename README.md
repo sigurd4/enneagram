@@ -202,6 +202,18 @@ Clearly there is an urgent need for the use of multiple enneagrams. The one i ma
 
 To those i've caused distress, i'm deeply sorry. I didn't know what i was doing.
 
+# Seven deadly sins.
+
+Could there be a connection between the 7 deadly sins of the bible and the enneagram? They appear as characters in the movie "the holy mountain", and each carry with theim their own enneagram type (or "enneatype"). TODO: look into the seven deadly biblical sins.
+
+# The ten commandments
+
+Could there be a connection between the enneagram and the ten commandments? What kind of suffering does each commandment attempt to alleviate? Does the resulting reasoned-forth anti-thesis to the schizogram's thesis (i.e. problem) become the christ enneagram? TODO: look into the ten commandments
+
+# The christ enneagram
+
+Is the christ enneagram derived from being the anti-thesis (ten commandments) of the sinneagram (seven sins), derived from the sufferings (suffrogram, modified schizogram)?
+
 # Acknowledgements
 
 Thanks to [CyberYamu](https://www.youtube.com/@CyberYamu) for her informative videos on the enneagram.
