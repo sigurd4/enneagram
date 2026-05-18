@@ -214,6 +214,14 @@ Could there be a connection between the enneagram and the ten commandments? What
 
 Is the christ enneagram derived from being the anti-thesis (ten commandments) of the sinneagram (seven sins), derived from the sufferings (suffrogram, modified schizogram)?
 
+# The moneygram
+
+For servants of 'mammon'. Not particularily interested in this one.
+
+# The "insta"-gram
+
+What kind of unholy demon could this one be bound to?
+
 # Acknowledgements
 
 Thanks to [CyberYamu](https://www.youtube.com/@CyberYamu) for her informative videos on the enneagram.
