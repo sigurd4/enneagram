@@ -1,38 +1,34 @@
-use core::fmt::Debug;
+#![feature(f16)]
+#![feature(f128)]
+#![feature(option_into_flat_iter)]
 
-use array_trait::Array;
-
-use crate::error::EdgeOutOfRangeError;
-
-pub trait Ngram: Sized
-{
-    type Edge: Edge<Self>;
-    type Edges: Array<Elem = Self::Edge>;
-    type EdgeOutOfRangeError: EdgeOutOfRangeError;
-
-    fn all_edges() -> &'static Self::Edges;
-}
-
-pub trait Edge<G>: Sized
-    + Debug
-    + Clone
-    + Copy
-    + Ord
-    + TryFrom<u8, Error = G::EdgeOutOfRangeError>
-where
-    G: Ngram<Edge = Self>
-{
-    
-}
+moddef::moddef!(
+    flat(pub) mod {
+        corner,
+        edge,
+        line,
+        ngram,
+        point,
+        points
+    }
+);
 
 pub mod error
 {
     use core::error::Error;
 
+use crate::{Line, Point};
+
     pub trait EdgeOutOfRangeError: Error + Clone + Copy
     {
 
     }
+
+    #[derive(Clone, Copy, Debug, thiserror::Error)]
+    #[error("Lines do not meet!")]
+    pub struct LinesDoNotMeet<P>(pub(crate) Line<P>, pub(crate) Line<P>)
+    where
+        P: Point;
 }
 
 pub mod util
