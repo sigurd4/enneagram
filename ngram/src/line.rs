@@ -1,4 +1,4 @@
-use crate::{Corner, Point, Points};
+use crate::{Corner, Point};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Line<P>(pub P, pub P)
@@ -19,7 +19,7 @@ where
     pub fn distance(self) -> P::Distance
     {
         let Self(a, b) = self;
-        a.distance(b)
+        a.distance_to(b)
     }
 
     pub fn square_magnitude(self) -> <P::Distance as Point>::Magnitude
@@ -49,20 +49,32 @@ where
     }
 }
 
-pub fn equals<P>(l1: &[P; 2], l2: &[P; 2]) -> bool
-where
-    P: PartialEq
+#[cfg(test)]
+mod test
 {
-    match (l1, l2)
-    {
-        ([a1, b1], [a2, b2] | [b2, a2]) if a1 == a2 && b1 == b2 => true,
-        _ => false
-    }
-}
+    use core::{fmt::Debug, ops::{Add, Neg}};
 
-pub fn length(l: [[f64; 2]; 2]) -> f64
-{
-    let [[ax, ay], [bx, by]] = l;
-    let [dx, dy] = [bx - ax, by - ay];
-    (dx*dx + dy*dy).sqrt()
+use num::{One, Zero};
+
+use crate::{Magnitude, Point};
+
+    #[test]
+    fn test_line()
+    {
+        fn test_line<P, D, M>()
+        where
+            P: One + Zero,
+            D: One + Zero + Neg<Output = D> + PartialEq + Point<Distance = D, Dimension = D, Magnitude = M> + Default,
+            M: One + Add<Output = M> + Debug + PartialEq + Magnitude,
+            [P; 2]: Point<Distance = [D; 2], Magnitude = M>
+        {
+            let line = [P::one(), P::zero()].line([P::zero(), P::one()]);
+
+            assert_eq!(line.distance(), [-D::one(), D::one()]);
+            assert_eq!(line.square_magnitude(), M::one() + M::one());
+            assert_eq!(line.magnitude(), (M::one() + M::one()).approx_sqrt())
+        }
+
+        test_line::<u8, _, _>()
+    }
 }
