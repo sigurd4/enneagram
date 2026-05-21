@@ -94,6 +94,10 @@ mod test
 
         assert_eq!(c, Corner::new(2, 1, 3));
 
+        let p = c.lines();
+
+        assert_eq!(p, [Line(2, 1), Line(1, 3)]);
+
         println!("{c:?}")
     }
 }
