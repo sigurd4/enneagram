@@ -25,26 +25,18 @@ where
 
     pub fn left(self) -> P
     {
-        self.points()
-            .into_iter()
-            .next()
-            .unwrap()
+        let Points([l, _, _]) = self.0;
+        l
     }
     pub fn center(self) -> P
     {
-        self.points()
-            .into_iter()
-            .skip(1)
-            .next()
-            .unwrap()
+        let Points([_, c, _]) = self.0;
+        c
     }
     pub fn right(self) -> P
     {
-        self.points()
-            .into_iter()
-            .skip(2)
-            .next()
-            .unwrap()
+        let Points([_, _, r]) = self.0;
+        r
     }
 
     pub fn points(self) -> Points<[P; 3]>

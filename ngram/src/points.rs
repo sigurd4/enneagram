@@ -1,7 +1,7 @@
 use crate::{Line, Point};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub struct Points<P>(P)
+pub struct Points<P>(pub P)
 where
     P: IntoIterator<Item: Point>;
 
