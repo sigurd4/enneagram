@@ -1,4 +1,4 @@
-use core::{fmt::Debug, iter::Sum, ops::{Add, Neg, Sub}};
+use core::{fmt::Debug, iter::Sum, ops::{Add, Neg}};
 
 use crate::Line;
 
