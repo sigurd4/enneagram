@@ -158,8 +158,8 @@ impl_magnitude!(
             {
                 Some(yy) => y = yy.try_into().unwrap(),
                 None => {
-                    y = rhs.try_into().unwrap();
-                    y = core::mem::replace(&mut y, lhs.try_into().unwrap()) - y
+                    y = lhs.try_into().unwrap();
+                    y = core::mem::replace(&mut y, rhs.try_into().unwrap()) - y
                 }
             };
             y

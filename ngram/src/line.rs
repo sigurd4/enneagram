@@ -75,6 +75,15 @@ use crate::{Magnitude, Point};
             assert_eq!(line.magnitude(), (M::one() + M::one()).approx_sqrt())
         }
 
-        test_line::<u8, _, _>()
+        test_line::<u8, _, _>();
+        test_line::<i8, _, _>();
+        test_line::<u16, _, _>();
+        test_line::<i16, _, _>();
+        test_line::<u32, _, _>();
+        test_line::<i32, _, _>();
+        test_line::<u64, _, _>();
+        test_line::<i64, _, _>();
+        test_line::<u128, _, _>();
+        test_line::<i128, _, _>();
     }
 }
