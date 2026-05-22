@@ -1,17 +1,13 @@
 use core::any::Any;
 
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
 
 /// Need/object of desire/"what hole do you have in your soul?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(enum_display::EnumDisplay)]
 pub enum Need
 {
-    #[display("Attachment/\"I need freedom\"")]
     Attachment,
-    #[display("Frustration/\"I need control\"")]
     Frustration,
-    #[display("Rejection/\"I need love\"")]
     Rejection
 }
 impl Need
@@ -42,31 +38,13 @@ impl Triad for Need
             Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action], // 258
         }
     }
-    fn expression(&self) -> &'static str
+    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
     {
         match self
         {
-            Need::Attachment => "I need freedom",
-            Need::Frustration => "I need control",
-            Need::Rejection => "I need love",
-        }
-    }
-    fn reflection(&self) -> &'static str
-    {
-        match self
-        {
-            Need::Attachment => "you crave freedom",
-            Need::Frustration => "you crave control",
-            Need::Rejection => "you crave love"
-        }
-    }
-    fn affirmation(&self) -> &'static str
-    {
-        match self
-        {
-            Need::Attachment => "be free",
-            Need::Frustration => "be in control",
-            Need::Rejection => "be accepted"
+            Need::Attachment => config.attachment,
+            Need::Frustration => config.frustration,
+            Need::Rejection => config.rejection
         }
     }
 }

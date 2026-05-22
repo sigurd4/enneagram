@@ -1,6 +1,6 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Means, Frame, Triad}};
+use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Frame, Means, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct InternalDissonance
@@ -22,9 +22,9 @@ impl InternalDissonance
         ]
     }
 
-    pub fn kind() -> &'static str
+    pub fn kind<'a>(config: DomainConfig<'a>) -> &'a str
     {
-        "internal dissonance"
+        config.introverted_dissonance
     }
 }
 
@@ -64,9 +64,9 @@ impl Domain for InternalDissonance
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind(&self) -> &'static str
+    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str
     {
-        Self::kind()
+        Self::kind(config)
     }
     fn conscious(&self) -> &dyn Triad
     {
@@ -76,12 +76,12 @@ impl Domain for InternalDissonance
     {
         &self.anti_thesis
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, but {}", self.thesis.expression(), self.anti_thesis.expression())
+        write!(f, "{}, but {}", self.thesis.config(config).expression, self.anti_thesis.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, but {}", self.thesis.reflection(), self.anti_thesis.reflection())
+        write!(f, "{}, but {}", self.thesis.config(config).reflection, self.anti_thesis.config(config).reflection)
     }
 }

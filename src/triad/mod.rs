@@ -1,6 +1,6 @@
-use core::{any::Any, fmt::{Debug, Display}};
+use core::{any::Any, fmt::Debug};
 
-use crate::enneatype::Enneatype;
+use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -64,15 +64,13 @@ pub fn all() -> [Box<dyn Triad>; 4*3]
         .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Wrong number of states!")
 }
 
-pub trait Triad: Debug + Display + Any
+pub trait Triad: Debug + Any
 {
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Triad) -> bool;
 
     fn edges(&self) -> &'static [Enneatype; 3];
-    fn expression(&self) -> &'static str;
-    fn reflection(&self) -> &'static str;
-    fn affirmation(&self) -> &'static str;
+    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>;
 
     fn lines(&self) -> [[Enneatype; 2]; 3]
     {
@@ -120,7 +118,8 @@ mod test
     where
         T: Triad + ?Sized
     {
-        println!("Q: {}\nA: {}\n", triad.expression(), triad.reflection());
+        let conf = triad.config(Default::default());
+        println!("Q: {}\nA: {}\n", conf.expression, conf.reflection);
         let edges = triad.edges();
         let reconstruction = crate::triad::triangulate(edges);
         assert!(triad.equals(&*reconstruction), "Triad must match its own reconstruction!")

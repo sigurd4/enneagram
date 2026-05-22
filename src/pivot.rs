@@ -1,4 +1,4 @@
-use crate::{Clause, enneatype::Enneatype};
+use crate::{Clause, config::EnneagramConfig, enneatype::Enneatype};
 
 #[derive(Debug, Clone, Copy)]
 pub struct Pivot
@@ -45,13 +45,13 @@ impl Pivot
         self.extroverted == edge || self.introverted == edge
     }
 
-    pub fn select(self) -> Enneatype
+    pub fn select(self, config: EnneagramConfig<'_>) -> Enneatype
     {
         crate::select(
             Clause::Answer(self.question),
             &[self.extroverted, self.homeostatis, self.introverted]
                 .map(|edge| {
-                    let affirmation = core::fmt::from_fn(|f| edge.affirmation(f));
+                    let affirmation = core::fmt::from_fn(|f| edge.affirmation(f, config));
                     (format!("{affirmation}"), move || edge)
                 }).each_ref()
                 .map(|(affirmation, generator)| (&**affirmation, generator as &dyn Fn() -> Enneatype))

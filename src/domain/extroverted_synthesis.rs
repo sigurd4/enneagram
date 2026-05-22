@@ -1,17 +1,17 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Means, Need, Triad}};
+use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Means, Need, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct ExternalConflict
+pub struct ExternalSynthesis
 {
     pub thesis: Need,
     pub anti_thesis: Means
 }
 
-impl ExternalConflict
+impl ExternalSynthesis
 {
-    pub fn all() -> [ExternalConflict; 9]
+    pub fn all() -> [ExternalSynthesis; 9]
     {
         use {Need::*, Means::*};
 
@@ -22,19 +22,19 @@ impl ExternalConflict
         ]
     }
 
-    pub fn kind() -> &'static str
+    pub fn kind<'a>(config: DomainConfig<'a>) -> &'a str
     {
-        "external conflict"
+        config.extroverted_synthesis
     }
 }
 
 impl Add<Means> for Need
 {
-    type Output = ExternalConflict;
+    type Output = ExternalSynthesis;
 
     fn add(self, rhs: Means) -> Self::Output
     {
-        ExternalConflict {
+        ExternalSynthesis {
             thesis: self,
             anti_thesis: rhs
         }
@@ -42,18 +42,18 @@ impl Add<Means> for Need
 }
 impl Add<Need> for Means
 {
-    type Output = ExternalConflict;
+    type Output = ExternalSynthesis;
 
     fn add(self, rhs: Need) -> Self::Output
     {
-        ExternalConflict {
+        ExternalSynthesis {
             thesis: rhs,
             anti_thesis: self
         }
     }
 }
 
-impl Domain for ExternalConflict
+impl Domain for ExternalSynthesis
 {
     fn as_any(&self) -> &dyn Any
     {
@@ -64,9 +64,9 @@ impl Domain for ExternalConflict
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind(&self) -> &'static str
+    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str
     {
-        Self::kind()
+        Self::kind(config)
     }
     fn conscious(&self) -> &dyn Triad
     {
@@ -76,12 +76,12 @@ impl Domain for ExternalConflict
     {
         &self.thesis
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, but {}", self.anti_thesis.expression(), self.thesis.expression())
+        write!(f, "{}, but {}", self.anti_thesis.config(config).expression, self.thesis.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, because {}", self.anti_thesis.reflection(), self.thesis.reflection())
+        write!(f, "{}, because {}", self.anti_thesis.config(config).reflection, self.thesis.config(config).reflection)
     }
 }

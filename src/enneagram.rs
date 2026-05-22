@@ -1,24 +1,21 @@
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{config::Config, enneatype::Enneatype, triad::Triad};
 
-pub struct Enneagram
+#[derive(Clone)]
+pub struct Enneagram<'a>
 {
     pub edges: Vec<Vec<Enneatype>>,
-    pub show_path_lines: bool,
-    pub show_boundary_lines: bool,
-    pub show_pivot_lines: bool,
-    pub show_triad_lines: bool,
+    pub config: Config<'a>
 }
 
-impl Enneagram
+impl<'a> Enneagram<'a>
 {
-    pub fn all(original: &Enneagram) -> Self
+    pub fn all(original: Enneagram<'a>) -> Self
     {
         Self {
             edges: vec![
-                Enneatype::all()
-                    .to_vec()
+                Enneatype::all().to_vec()
             ],
-            ..*original
+            ..original
         }
     }
     
@@ -49,10 +46,10 @@ impl Enneagram
     pub fn lines(&self) -> Vec<[Enneatype; 2]>
     {
         let mut lines = core::iter::empty()
-            .chain(if self.show_path_lines {Some(self.path_lines())} else {None}.into_iter().flatten())
-            .chain(if self.show_boundary_lines {Some(self.boundary_lines())} else {None}.into_iter().flatten())
-            .chain(if self.show_pivot_lines {Some(self.pivot_lines())} else {None}.into_iter().flatten())
-            .chain(if self.show_triad_lines {Some(self.triad_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show.path_lines {Some(self.path_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show.boundary_lines {Some(self.boundary_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show.pivot_lines {Some(self.pivot_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show.triad_lines {Some(self.triad_lines())} else {None}.into_iter().flatten())
             .collect::<Vec<_>>();
         lines.dedup_by(|a, b| crate::line::equals(a, b));
         lines
@@ -67,7 +64,7 @@ impl Enneagram
 
     pub fn boundary_lines(&self) -> impl Iterator<Item = [Enneatype; 2]>
     {
-        crate::path::lines(Enneatype::all())
+        crate::path::lines(*Enneatype::all())
             .filter(|line| self.edges.iter()
                 .any(|bucket| line.iter()
                     .all(|link| bucket.contains(link))
@@ -116,12 +113,9 @@ mod test
     #[test]
     fn test_paths()
     {
-        let paths = Enneagram::all(&Enneagram {
+        let paths = Enneagram::all(Enneagram {
             edges: vec![],
-            show_path_lines: false,
-            show_boundary_lines: false,
-            show_pivot_lines: false,
-            show_triad_lines: false
+            config: Default::default()
         }).paths();
         println!("{paths:?}")
     }

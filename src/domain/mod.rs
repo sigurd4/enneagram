@@ -1,25 +1,26 @@
 use core::{any::Any, fmt::Debug, ops::Add};
 
-use crate::{Clause, enneatype::Enneatype, triad::{Fault, Frame, Need, Means, Triad}};
+use crate::{Clause, config::{DomainConfig, EnneagramConfig, TriadsConfig}, enneatype::Enneatype, triad::{Fault, Frame, Means, Need, Triad}};
 
 moddef::moddef!(
     flat(pub) mod {
-        external_dissonance,
-        external_conflict,
-        behaviour,
-        suffering,
-        internal_conflict,
-        internal_dissonance
+        extroverted_dissonance,
+        extroverted_synthesis,
+        body_without_organs,
+        desire_machine,
+        introverted_synthesis,
+        introverted_dissonance
     }
 );
 
-pub fn select() -> Box<dyn Domain>
+pub fn select(config: EnneagramConfig<'_>) -> Box<dyn Domain>
 {
     fn select_triads<T, N>(
         trivial_conjunction: &str,
         trivial: [T; 3],
         nontrivial_conjunction: &str,
-        nontrivial: [N; 3]
+        nontrivial: [N; 3],
+        config: EnneagramConfig<'_>
     ) -> <T as Add<N>>::Output
     where
         T: Triad + Copy + Add<N, Output: Domain>,
@@ -31,14 +32,14 @@ pub fn select() -> Box<dyn Domain>
             Nontrivial(N)
         }
         
-        let trivial_choices = trivial.map(|triad| (triad.expression(), move || triad));
-        let nontrivial_choices = nontrivial.map(|triad| (triad.expression(), move || triad));
+        let trivial_choices = trivial.map(|triad| (triad.config(config.triads).expression, move || triad));
+        let nontrivial_choices = nontrivial.map(|triad| (triad.config(config.triads).expression, move || triad));
 
         let (domain_kind, codomain_kind) = {
             let [(_, lhs), ..] = trivial_choices;
             let [(_, rhs), ..] = nontrivial_choices;
             let domain = lhs() + rhs();
-            (domain.kind(), domain.reciprocal().kind())
+            (domain.kind(config.domains), domain.reciprocal().kind(config.domains))
         };
 
         println!("\x1b[u -> {codomain_kind}");
@@ -81,22 +82,22 @@ pub fn select() -> Box<dyn Domain>
             },
         };
         let domain = trivial_triad + nontrivial_triad;
-        assert_eq!(domain.kind(), domain_kind, "Domain-kind must be invariant! (it isn't)");
+        assert_eq!(domain.kind(config.domains), domain_kind, "Domain-kind must be invariant! (it isn't)");
         domain
     }
 
     let domain = crate::select::<Box<dyn Domain>>(
         Clause::Answer("please select a domain"),
         &[
-            (InternalDissonance::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Means::all()))),
-            (InternalConflict::kind(), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all()))),
-            (Suffering::kind(), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all()))),
-            (Behaviour::kind(), &|| Box::new(select_triads(", ", Fault::all(), " and ", Means::all()))),
-            (ExternalConflict::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", ", Means::all()))),
-            (ExternalDissonance::kind(), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all()))),
+            (InternalDissonance::kind(config.domains), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Means::all(), config))),
+            (InternalSynthesis::kind(config.domains), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all(), config))),
+            (DesireMachine::kind(config.domains), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all(), config))),
+            (BodyWithoutOrgans::kind(config.domains), &|| Box::new(select_triads(", ", Fault::all(), " and ", Means::all(), config))),
+            (ExternalSynthesis::kind(config.domains), &|| Box::new(select_triads(", but ", Need::all(), ", ", Means::all(), config))),
+            (ExternalDissonance::kind(config.domains), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all(), config))),
         ]
     );
-    let answer = core::fmt::from_fn(|f| domain.answer(f));
+    let answer = core::fmt::from_fn(|f| domain.answer(f, config.triads));
     println!("A: {answer}");
 
     domain
@@ -110,19 +111,19 @@ pub fn all() -> [Box<dyn Domain>; 6*9]
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
-            ExternalConflict::all()
+            ExternalSynthesis::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
-            Behaviour::all()
+            BodyWithoutOrgans::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
-            Suffering::all()
+            DesireMachine::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
-            InternalConflict::all()
+            InternalSynthesis::all()
                 .into_iter()
                 .map(|domain| Box::new(domain) as Box<dyn Domain>)
         ).chain(
@@ -139,7 +140,7 @@ pub trait Domain: Debug + Any + 'static
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Domain) -> bool;
 
-    fn kind(&self) -> &'static str;
+    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str;
     fn conscious(&self) -> &dyn Triad;
     fn subconscious(&self) -> &dyn Triad;
     fn triads(&self) -> [&dyn Triad; 2]
@@ -171,11 +172,11 @@ pub trait Domain: Debug + Any + 'static
     }
 
     #[allow(unused)]
-    fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result;
-    fn answer(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result;
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result;
+    fn answer(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        self.reciprocal().trivial(f)
+        self.reciprocal().trivial(f, config)
     }
 
     fn reciprocal(&self) -> Box<dyn Domain>
@@ -200,7 +201,7 @@ pub trait Domain: Debug + Any + 'static
 #[cfg(test)]
 mod test
 {
-    use crate::domain::{Behaviour, Domain, ExternalConflict, ExternalDissonance, InternalConflict, InternalDissonance, Suffering};
+    use crate::{config::EnneagramConfig, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}};
 
     #[test]
     fn test_external_dissonance()
@@ -211,25 +212,25 @@ mod test
     #[test]
     fn test_external_conflict()
     {
-        test_domain(ExternalConflict::all());
+        test_domain(ExternalSynthesis::all());
     }
     
     #[test]
     fn test_behaviour()
     {
-        test_domain(Behaviour::all());
+        test_domain(BodyWithoutOrgans::all());
     }
 
     #[test]
     fn test_suffering()
     {
-        test_domain(Suffering::all());
+        test_domain(DesireMachine::all());
     }
     
     #[test]
     fn test_internal_conflict()
     {
-        test_domain(InternalConflict::all());
+        test_domain(InternalSynthesis::all());
     }
 
     #[test]
@@ -241,11 +242,13 @@ mod test
     #[test]
     fn test_all()
     {
+        let config = EnneagramConfig::default();
+
         for domain in crate::domain::all()
         {
-            let q = std::fmt::from_fn(|f| domain.question(f));
-            let a = std::fmt::from_fn(|f| domain.answer(f));
-            let e = domain.edge();
+            let q = std::fmt::from_fn(|f| domain.question(f, config.triads));
+            let a = std::fmt::from_fn(|f| domain.answer(f, config.triads));
+            let e = domain.edge().config(config.edges).name;
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }
@@ -254,11 +257,13 @@ mod test
     where
         T: Domain
     {
+        let config = EnneagramConfig::default();
+
         for domain in domains
         {
-            let q = std::fmt::from_fn(|f| domain.question(f));
-            let a = std::fmt::from_fn(|f| domain.answer(f));
-            let e = domain.edge();
+            let q = std::fmt::from_fn(|f| domain.question(f, config.triads));
+            let a = std::fmt::from_fn(|f| domain.answer(f, config.triads));
+            let e = domain.edge().config(config.edges).name;
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }

@@ -1,17 +1,13 @@
 use core::any::Any;
 
-use crate::{enneatype::Enneatype, triad::Triad};
+use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
 
 /// External strategy towards suffering / means
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-#[derive(enum_display::EnumDisplay)]
 pub enum Means
 {
-    #[display("Assertive/\"I can change it\"")]
     Assertive,
-    #[display("Compliant/\"I can tolerate it\"")]
     Compliant,
-    #[display("Withdrawn/\"I can avoid it\"")]
     Withdrawn
 }
 
@@ -43,31 +39,13 @@ impl Triad for Means
             Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia], // 945
         }
     }
-    fn expression(&self) -> &'static str
+    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
     {
         match self
         {
-            Means::Assertive => "I can change it",
-            Means::Compliant => "I can tolerate it",
-            Means::Withdrawn => "I can avoid it"
-        }
-    }
-    fn reflection(&self) -> &'static str
-    {
-        match self
-        {
-            Means::Assertive => "you believe you can change it",
-            Means::Compliant => "you believe you can tolerate it",
-            Means::Withdrawn => "you believe you can avoid it"
-        }
-    }
-    fn affirmation(&self) -> &'static str
-    {
-        match self
-        {
-            Means::Assertive => "change it",
-            Means::Compliant => "tolerate it",
-            Means::Withdrawn => "avoid it"
+            Means::Assertive => config.assertive,
+            Means::Compliant => config.compliant,
+            Means::Withdrawn => config.withdrawn
         }
     }
 }

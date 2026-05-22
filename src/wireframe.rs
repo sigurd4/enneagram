@@ -208,12 +208,6 @@ impl Wireframe<[f64; 2]>
         self.map(|[x, y]| [x, y, z + (1.0 - x*x - y*y).sqrt()])
     }
 
-    pub fn fragmented(mut self) -> Self
-    {
-        self.fragment();
-        self
-    }
-
     pub fn fragment(&mut self) -> bool
     {
         let mut changed = false;

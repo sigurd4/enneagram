@@ -1,17 +1,17 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Fault, Frame, Triad}};
+use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Fault, Frame, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct InternalConflict
+pub struct InternalSynthesis
 {
     pub thesis: Frame,
     pub anti_thesis: Fault
 }
 
-impl InternalConflict
+impl InternalSynthesis
 {
-    pub fn all() -> [InternalConflict; 9]
+    pub fn all() -> [InternalSynthesis; 9]
     {
         use {Frame::*, Fault::*};
 
@@ -22,19 +22,19 @@ impl InternalConflict
         ]
     }
 
-    pub fn kind() -> &'static str
+    pub fn kind<'a>(config: DomainConfig<'a>) -> &'a str
     {
-        "internal conflict"
+        config.introverted_synthesis
     }
 }
 
 impl Add<Fault> for Frame
 {
-    type Output = InternalConflict;
+    type Output = InternalSynthesis;
 
     fn add(self, rhs: Fault) -> Self::Output
     {
-        InternalConflict {
+        InternalSynthesis {
             thesis: self,
             anti_thesis: rhs
         }
@@ -42,18 +42,18 @@ impl Add<Fault> for Frame
 }
 impl Add<Frame> for Fault
 {
-    type Output = InternalConflict;
+    type Output = InternalSynthesis;
 
     fn add(self, rhs: Frame) -> Self::Output
     {
-        InternalConflict {
+        InternalSynthesis {
             thesis: rhs,
             anti_thesis: self
         }
     }
 }
 
-impl Domain for InternalConflict
+impl Domain for InternalSynthesis
 {
     fn as_any(&self) -> &dyn Any
     {
@@ -64,9 +64,9 @@ impl Domain for InternalConflict
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind(&self) -> &'static str
+    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str
     {
-        Self::kind()
+        Self::kind(config)
     }
     fn conscious(&self) -> &dyn Triad
     {
@@ -76,12 +76,12 @@ impl Domain for InternalConflict
     {
         &self.anti_thesis
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, but {}", self.thesis.expression(), self.anti_thesis.expression())
+        write!(f, "{}, but {}", self.thesis.config(config).expression, self.anti_thesis.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{}, so {}", self.thesis.reflection(), self.anti_thesis.reflection())
+        write!(f, "{}, so {}", self.thesis.config(config).reflection, self.anti_thesis.config(config).reflection)
     }
 }

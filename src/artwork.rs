@@ -1,13 +1,13 @@
 use core::f32::consts::PI;
 
 use ratatui::{Terminal, layout::Rect, prelude::Backend};
-use ratatui_3d::{Light, Material, Mesh, Rgb, Scene, SceneObject, Transform, Viewport3D, Viewport3DState, math::{Quat, Vec3}};
+use ratatui_3d::{Light, Material, Rgb, Scene, SceneObject, Transform, Viewport3D, Viewport3DState, math::{Quat, Vec3}};
 
-use crate::{enneagram::Enneagram, enneatype::Enneatype, wireframe::Wireframe};
+use crate::{enneagram::Enneagram, wireframe::Wireframe};
 
 pub struct Artwork<'a>
 {
-    pub enneagram: &'a Enneagram
+    pub enneagram: Enneagram<'a>
 }
 
 impl Artwork<'_>
@@ -28,14 +28,15 @@ impl Artwork<'_>
             scale: Vec3 { x: RADIUS, y: RADIUS, z: RADIUS },
             position: Vec3 { x: 0.0, y: -0.15, z: -0.0 }
         };
-        let all = Enneagram::all(&self.enneagram);
+        let all = Enneagram::all(self.enneagram.clone());
 
         for edge in all.edges.iter().flatten()
         {
             let [x, y] = edge.position()
                 .map(|p| p*DIGIT_RADIUS);
             for line in crate::path::lines_disconnected(
-                    edge.digit()
+                    edge.config(self.enneagram.config.enneagram.edges)
+                        .digit
                         .into_iter()
                         .copied()
                         .map(|pos| pos.map(|u| u as f64*DIGIT_PIXEL_SIZE))
@@ -50,11 +51,11 @@ impl Artwork<'_>
                     )
                     .with_material(Material::default().with_color(if self.enneagram.edges.iter().flatten().any(|e| e == edge)
                     {
-                        Rgb(255, 255, 255/2)
+                        self.enneagram.config.color.dyed
                     }
                     else
                     {
-                        Rgb(255, 0, 0)
+                        self.enneagram.config.color.wire
                     }))
                     .with_transform(transform),
                 );
@@ -80,11 +81,11 @@ impl Artwork<'_>
                 .with_material(Material::default().with_color(if dyed_lines.iter()
                         .any(|dyed_line| crate::line::equals(dyed_line, &line))
                     {
-                        Rgb(255, 255, 255/2)
+                        self.enneagram.config.color.dyed
                     }
                     else
                     {
-                        Rgb(255, 0, 0)
+                        self.enneagram.config.color.wire
                     }))
                 .with_transform(transform),
             );
@@ -97,12 +98,12 @@ impl Artwork<'_>
                     .extrude(-1.0)
                     .mesh()
             )
-            .with_material(Material::default().with_color(Rgb(255, 255, 255)))
+            .with_material(Material::default().with_color(self.enneagram.config.color.surface))
             .with_transform(transform),
         );
         
-        scene.add_light(Light::ambient(Rgb(255, 255, 255), 1.0));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), Rgb(255, 255, 255)));
+        scene.add_light(Light::ambient(self.enneagram.config.color.glare, 1.0));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), self.enneagram.config.color.sun));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();
@@ -138,12 +139,9 @@ mod test
     fn test_graphics()
     {
         let artwork = Artwork {
-            enneagram: &Enneagram::all(&Enneagram {
+            enneagram: Enneagram::all(Enneagram {
                 edges: vec![],
-                show_path_lines: false,
-                show_boundary_lines: false,
-                show_pivot_lines: false,
-                show_triad_lines: false
+                config: Default::default()
             })
         };
 

@@ -1,4 +1,4 @@
-use crate::triad::{Fault, Frame, Need, Means, Triad};
+use crate::{config::EnneagramConfig, triad::{Fault, Frame, Means, Need, Triad}};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Personality
@@ -11,13 +11,20 @@ pub struct Personality
 
 impl Personality
 {
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "i will {}, {}, and {}.",
-            self.frame.affirmation(),
-            self.fault.affirmation(),
-            self.strategy.affirmation()
-        )
+        let mut affirmation = config.affirmation.to_string();
+
+        for substr in [
+            self.frame.config(config.triads).affirmation,
+            self.fault.config(config.triads).affirmation,
+            self.strategy.config(config.triads).affirmation
+        ]
+        {
+            affirmation = affirmation.replacen("{}", substr, 1);
+        }
+
+        write!(f, "{}", affirmation)
     }
 
     pub fn from_triads(triads: [&dyn Triad; 4]) -> Self

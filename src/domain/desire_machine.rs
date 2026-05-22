@@ -1,17 +1,17 @@
 use core::{any::Any, ops::Add};
 
-use crate::{domain::Domain, triad::{Frame, Need, Triad}};
+use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Frame, Need, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-pub struct Suffering
+pub struct DesireMachine
 {
     pub introverted: Frame,
     pub extroverted: Need
 }
 
-impl Suffering
+impl DesireMachine
 {
-    pub fn all() -> [Suffering; 9]
+    pub fn all() -> [DesireMachine; 9]
     {
         use {Frame::*, Need::*};
 
@@ -22,19 +22,19 @@ impl Suffering
         ]
     }
 
-    pub fn kind() -> &'static str
+    pub fn kind<'a>(config: DomainConfig<'a>) -> &'a str
     {
-        "suffering"
+        config.desire_machine
     }
 }
 
 impl Add<Need> for Frame
 {
-    type Output = Suffering;
+    type Output = DesireMachine;
 
     fn add(self, rhs: Need) -> Self::Output
     {
-        Suffering {
+        DesireMachine {
             introverted: self,
             extroverted: rhs
         }
@@ -42,18 +42,18 @@ impl Add<Need> for Frame
 }
 impl Add<Frame> for Need
 {
-    type Output = Suffering;
+    type Output = DesireMachine;
 
     fn add(self, rhs: Frame) -> Self::Output
     {
-        Suffering {
+        DesireMachine {
             introverted: rhs,
             extroverted: self
         }
     }
 }
 
-impl Domain for Suffering
+impl Domain for DesireMachine
 {
     fn as_any(&self) -> &dyn Any
     {
@@ -64,9 +64,9 @@ impl Domain for Suffering
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind(&self) -> &'static str
+    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str
     {
-        Self::kind()
+        Self::kind(config)
     }
     fn conscious(&self) -> &dyn Triad
     {
@@ -76,12 +76,12 @@ impl Domain for Suffering
     {
         &self.extroverted
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{} and {}", self.introverted.expression(), self.extroverted.expression())
+        write!(f, "{} and {}", self.introverted.config(config).expression, self.extroverted.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
     {
-        write!(f, "{} and {}", self.introverted.reflection(), self.extroverted.reflection())
+        write!(f, "{} and {}", self.introverted.config(config).reflection, self.extroverted.config(config).reflection)
     }
 }

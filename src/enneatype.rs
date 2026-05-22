@@ -1,32 +1,19 @@
 use core::f64::consts::TAU;
 
-#[cfg(feature = "artwork")]
-use ratatui_3d::{Mesh, Vertex};
-
-use crate::{personality::Personality, pivot::Pivot, triad::Triad};
+use crate::{config::{EdgeConfig, EdgesConfig, EnneagramConfig}, personality::Personality, pivot::Pivot, triad::Triad};
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
-#[derive(enum_display::EnumDisplay)]
 pub enum Enneatype
 {
-    #[display("Recovery/Gradient")]
     Recovery = 1,
-    #[display("Association/Superego")]
     Association = 2,
-    #[display("Repression/Ego")]
     Repression = 3,
-    #[display("Rejection/Id")]
     Rejection = 4,
-    #[display("Catatonia")]
     Catatonia = 5,
-    #[display("Paranoia")]
     Paranoia = 6,
-    #[display("Disorganization")]
     Disorganization = 7,
-    #[display("Action/Flow")]
     Action = 8,
-    #[display("Rest/Equilibrium")]
     Rest = 9
 }
 
@@ -43,24 +30,24 @@ impl Enneatype
             ).expect("Enneagram numbers must be within the range of 1-9.")
     }
 
-    pub const fn all() -> [Self; 9]
+    pub const fn all() -> &'static [Self; 9]
     {
-        [Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
+        &[Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
     }
 
-    pub fn digit(&self) -> &'static [[i8; 2]]
+    pub fn config<'a>(&self, config: EdgesConfig<'a>) -> EdgeConfig<'a>
     {
         match self
         {
-            Enneatype::Recovery => &[[-1, 3], [0, 4], [0, -4], [-1, -4], [1, -4]],
-            Enneatype::Association => &[[-3, 3], [-2, 4], [2, 4], [3, 3], [3, 0], [-3, -4], [3, -4], [3, -3]],
-            Enneatype::Repression => &[[-3, 3], [-2, 4], [2, 4], [3, 3], [3, 1], [1, 0], [3, -1], [3, -3], [2, -4], [-2, -4], [-3, -3]],
-            Enneatype::Rejection => &[[3, 1], [-3, 1], [1, 4], [1, -4]],
-            Enneatype::Catatonia => &[[3, 4], [-3, 4], [-3, 1], [2, 1], [3, 0], [3, -3], [2, -4], [-3, -4]],
-            Enneatype::Paranoia => &[[3, 4], [0, 4], [-3, -1], [-2, 0], [2, 0], [3, -1], [3, -3], [2, -4], [-2, -4], [-3, -3], [-3, -1]],
-            Enneatype::Disorganization => &[[-3, 4], [3, 4], [-3, -4]],
-            Enneatype::Action => &[[1, 0], [3, 1], [3, 3], [2, 4], [-2, 4], [-3, 3], [-3, 1], [-1, 0], [-3, -1], [-3, -3], [-2, -4], [2, -4], [3, -3], [3, -1], [1, 0], [-1, 0]],
-            Enneatype::Rest => &[[3, 1], [2, 0], [-2, 0], [-3, 1], [-3, 3], [-2, 4], [2, 4], [3, 3], [3, 1], [-3, -4]],
+            Enneatype::Recovery => config.recovery,
+            Enneatype::Association => config.association,
+            Enneatype::Repression => config.repression,
+            Enneatype::Rejection => config.rejection,
+            Enneatype::Catatonia => config.catatonia,
+            Enneatype::Paranoia => config.paranoia,
+            Enneatype::Disorganization => config.disorganization,
+            Enneatype::Action => config.action,
+            Enneatype::Rest => config.rest,
         }
     }
 
@@ -160,17 +147,18 @@ impl Enneatype
             .expect("There must be exactly 8 neighbouring edges!")
     }
 
-    pub fn info(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result
+    pub fn info(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
     {
-        Self::common_info(core::slice::from_ref(self), f)
+        Self::common_info(core::slice::from_ref(self), f, config)
     }
 
-    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter) -> core::fmt::Result
+    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
     {
         for edge in edges
         {
             let number = edge.number();
-            writeln!(f, "Enneagram {number} {edge}")?;
+            let config = edge.config(config.edges);
+            writeln!(f, "Enneagram {number} {}", config.name)?;
         }
 
         for triad in Self::common_triads(edges)
@@ -180,15 +168,16 @@ impl Enneatype
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();
-            write!(f, "\n{numbers} {triad}")?;
+            let config = triad.config(config.triads);
+            write!(f, "\n{numbers} {}", config.description)?;
         }
         Ok(())
     }
 
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
     {
         self.personality()
-            .affirmation(f)
+            .affirmation(f, config)
     }
 
     pub fn pivot(&self) -> Pivot
@@ -200,7 +189,7 @@ impl Enneatype
 #[cfg(test)]
 mod test
 {
-    use crate::enneatype::Enneatype;
+    use crate::{config::EdgesConfig, enneatype::Enneatype};
 
     #[test]
     fn test_pos()
@@ -212,18 +201,22 @@ mod test
     #[test]
     fn test_path1()
     {
+        let config = EdgesConfig::default();
+
         for edge in Enneatype::Action.path()
         {
-            println!("{edge}")
+            println!("{}", edge.config(config).name)
         }
     }
 
     #[test]
     fn test_path2()
     {
+        let config = EdgesConfig::default();
+
         for edge in Enneatype::Repression.path()
         {
-            println!("{edge}")
+            println!("{}", edge.config(config).name)
         }
     }
 

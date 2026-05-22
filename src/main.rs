@@ -10,6 +10,7 @@ use crate::{enneagram::Enneagram, enneatype::Enneatype};
 moddef::moddef!(
     mod {
         artwork for cfg(feature = "artwork"),
+        config,
         wireframe,
         enneatype,
         line,
@@ -35,11 +36,9 @@ fn main()
     let mut enable_artwork = false;
     let mut enneagram = Enneagram {
         edges: Vec::new(),
-        show_path_lines: true,
-        show_boundary_lines: true,
-        show_pivot_lines: true,
-        show_triad_lines: true
+        config: Default::default()
     };
+
     loop
     {
         let argument = match args.next()
@@ -54,17 +53,17 @@ fn main()
                     use crate::artwork::Artwork;
 
                     Artwork {
-                        enneagram: &enneagram
+                        enneagram
                     }.draw(&mut terminal);
 
                     return
                 }
                 if enneagram.edges.is_empty()
                 {
-                    let domain = domain::select();
+                    let domain = domain::select(enneagram.config.enneagram);
                     let mut edge = domain.edge();
 
-                    let edge_info = core::fmt::from_fn(|f| edge.info(f));
+                    let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config.enneagram));
                     println!("\n{edge_info}");
 
                     #[cfg(feature = "pivot")]
@@ -74,13 +73,13 @@ fn main()
                         {
                             println!();
                             let pivot = edge.pivot();
-                            let origin = core::mem::replace(&mut edge, pivot.select());
+                            let origin = core::mem::replace(&mut edge, pivot.select(enneagram.config.enneagram));
                             if edge == origin
                             {
                                 break
                             }
 
-                            let edge_info = core::fmt::from_fn(|f| edge.info(f));
+                            let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config.enneagram));
                             println!("\n{edge_info}");
                         }
                     }
@@ -92,7 +91,7 @@ fn main()
                     let mut sep = "";
                     for edges in enneagram.edges
                     {
-                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f));
+                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, enneagram.config.enneagram));
                         println!("{sep}{edge_info}");
                         sep = "\n"
                     }
