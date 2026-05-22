@@ -1,7 +1,7 @@
 use ratatui_3d::Rgb;
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ShowConfig
 {
     pub path_lines: bool,
@@ -40,7 +40,7 @@ where
     Ok(Rgb(r, g, b))
 }
 
-#[derive(Clone, Copy, Serialize, Deserialize)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct ColorConfig
 {
     #[serde(serialize_with = "serialize_rgb", deserialize_with = "deserialize_rgb")]
@@ -69,14 +69,43 @@ impl Default for ColorConfig
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+fn serialize_digit<S>(value: &Box<[[i8; 2]]>, serializer: S) -> Result<S::Ok, S::Error>
+where
+    S: Serializer
+{
+    value.iter()
+        .map(|[x, y]| format!("{x},{y}"))
+        .collect::<Vec<_>>()
+        .join(" ")
+        .serialize(serializer)
+}
+fn deserialize_digit<'de, D>(deserializer: D) -> Result<Box<[[i8; 2]]>, D::Error>
+where
+    D: Deserializer<'de>
+{
+    Ok(
+        String::deserialize(deserializer)?
+            .split(" ")
+            .map(|xy| xy.split(",")
+                .map(|e| i8::from_str_radix(e, 10).expect("Failed parsing 8-bit int coordinate of digit."))
+                .collect::<Vec<_>>()
+                .try_into()
+                .expect("Each point of the digit must contain exactly two coordinates.")
+            ).collect::<Vec<_>>()
+            .into()
+    )
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EdgeConfig
 {
     pub name: String,
+    pub pivot: String,
+    #[serde(serialize_with = "serialize_digit", deserialize_with = "deserialize_digit")]
     pub digit: Box<[[i8; 2]]>
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EdgesConfig
 {
     pub recovery: EdgeConfig,
@@ -97,45 +126,54 @@ impl Default for EdgesConfig
         Self {
             recovery: EdgeConfig {
                 name: "Recovery".into(),
+                pivot: "how will you manage your frustration?".into(),
                 digit: [[-1, 3], [0, 4], [0, -4], [-1, -4], [1, -4]].into()
             },
             association: EdgeConfig {
                 name: "Association".into(),
+                pivot: "how will you gain any worth?".into(),
                 digit: [[-3, 3], [-2, 4], [2, 4], [3, 3], [3, 0], [-3, -4], [3, -4], [3, -3]].into()
             },
             repression: EdgeConfig {
                 name: "Repression".into(),
+                pivot: "how will you repress your shame?".into(),
                 digit: [[-3, 3], [-2, 4], [2, 4], [3, 3], [3, 1], [1, 0], [3, -1], [3, -3], [2, -4], [-2, -4], [-3, -3]].into()
             },
             rejection: EdgeConfig {
                 name: "Rejection".into(),
+                pivot: "how will you deal with your longing?".into(),
                 digit: [[3, 1], [-3, 1], [1, 4], [1, -4]].into()
             },
             catatonia: EdgeConfig {
                 name: "Catatonia".into(),
+                pivot: "how will you gain any security?".into(),
                 digit: [[3, 4], [-3, 4], [-3, 1], [2, 1], [3, 0], [3, -3], [2, -4], [-3, -4]].into()
             },
             paranoia: EdgeConfig {
                 name: "Paranoia".into(),
+                pivot: "how will you deal with your insecurity?".into(),
                 digit: [[3, 4], [0, 4], [-3, -1], [-2, 0], [2, 0], [3, -1], [3, -3], [2, -4], [-2, -4], [-3, -3], [-3, -1]].into()
             },
             disorganization: EdgeConfig {
                 name: "Disorganization".into(),
+                pivot: "how will you handle your fear?".into(),
                 digit: [[-3, 4], [3, 4], [-3, -4]].into()
             },
             action: EdgeConfig {
                 name: "Action".into(),
+                pivot: "how will you gain any control?".into(),
                 digit: [[1, 0], [3, 1], [3, 3], [2, 4], [-2, 4], [-3, 3], [-3, 1], [-1, 0], [-3, -1], [-3, -3], [-2, -4], [2, -4], [3, -3], [3, -1], [1, 0], [-1, 0]].into()
             },
             rest: EdgeConfig {
                 name: "Rest".into(),
+                pivot: "how will you suppress your anger?".into(),
                 digit: [[3, 1], [2, 0], [-2, 0], [-3, 1], [-3, 3], [-2, 4], [2, 4], [3, 3], [3, 1], [-3, -4]].into()
             }
         }
     }
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TriadConfig
 {
     pub description: String,
@@ -144,7 +182,7 @@ pub struct TriadConfig
     pub affirmation: String
 }
 
-#[derive(Clone, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TriadsConfig
 {
     pub positive: TriadConfig,
@@ -242,7 +280,7 @@ impl Default for TriadsConfig
     }
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct DomainConfig
 {
     pub introverted_dissonance: String,
@@ -253,7 +291,22 @@ pub struct DomainConfig
     pub extroverted_dissonance: String
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+impl Default for DomainConfig
+{
+    fn default() -> Self
+    {
+        Self {
+            introverted_dissonance: "introverted dissonance".into(),
+            introverted_synthesis: "introverted synthesis".into(),
+            desire_machine: "desire-machine".into(),
+            body_without_organs: "body without organs".into(),
+            extroverted_synthesis: "extroverted synthesis".into(),
+            extroverted_dissonance: "extroverted dissonance".into()
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 pub struct EnneagramConfig
 {
     pub triads: TriadsConfig,
@@ -262,10 +315,43 @@ pub struct EnneagramConfig
     pub affirmation: String
 }
 
-#[derive(Clone, Default, Serialize, Deserialize)]
+impl Default for EnneagramConfig
+{
+    fn default() -> Self
+    {
+        Self {
+            triads: Default::default(),
+            edges: Default::default(),
+            domains: Default::default(),
+            affirmation: "i will {}, {}, and {}.".into()
+        }
+    }
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub struct Config
 {
     pub show: ShowConfig,
     pub color: ColorConfig,
     pub enneagram: EnneagramConfig
+}
+
+#[cfg(test)]
+mod test
+{
+    use crate::config::Config;
+
+    #[test]
+    fn it_works()
+    {
+        let config = Config::default();
+
+        let yaml = serde_saphyr::to_string(&config).expect("Serialization failed.");
+
+        println!("{yaml}");
+
+        let config2 = serde_saphyr::from_str(&yaml).expect("Deserialization failed.");
+
+        assert_eq!(config, config2, "Serialized then deserialized config differ from original.")
+    }
 }
