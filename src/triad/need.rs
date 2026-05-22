@@ -38,13 +38,13 @@ impl Triad for Need
             Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action], // 258
         }
     }
-    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
+    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
     {
         match self
         {
-            Need::Attachment => config.attachment,
-            Need::Frustration => config.frustration,
-            Need::Rejection => config.rejection
+            Need::Attachment => &config.attachment,
+            Need::Frustration => &config.frustration,
+            Need::Rejection => &config.rejection
         }
     }
 }

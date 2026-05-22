@@ -45,7 +45,7 @@ impl Pivot
         self.extroverted == edge || self.introverted == edge
     }
 
-    pub fn select(self, config: EnneagramConfig<'_>) -> Enneatype
+    pub fn select(self, config: &EnneagramConfig) -> Enneatype
     {
         crate::select(
             Clause::Answer(self.question),

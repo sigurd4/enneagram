@@ -5,12 +5,12 @@ use ratatui_3d::{Light, Material, Rgb, Scene, SceneObject, Transform, Viewport3D
 
 use crate::{enneagram::Enneagram, wireframe::Wireframe};
 
-pub struct Artwork<'a>
+pub struct Artwork
 {
-    pub enneagram: Enneagram<'a>
+    pub enneagram: Enneagram
 }
 
-impl Artwork<'_>
+impl Artwork
 {
     pub fn draw(&self, terminal: &mut Terminal<impl Backend>)
     {
@@ -35,9 +35,9 @@ impl Artwork<'_>
             let [x, y] = edge.position()
                 .map(|p| p*DIGIT_RADIUS);
             for line in crate::path::lines_disconnected(
-                    edge.config(self.enneagram.config.enneagram.edges)
+                    edge.config(&self.enneagram.config.enneagram.edges)
                         .digit
-                        .into_iter()
+                        .iter()
                         .copied()
                         .map(|pos| pos.map(|u| u as f64*DIGIT_PIXEL_SIZE))
                         .map(|[px, py]| [px + x, py + y])

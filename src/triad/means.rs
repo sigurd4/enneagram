@@ -39,13 +39,13 @@ impl Triad for Means
             Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia], // 945
         }
     }
-    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
+    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
     {
         match self
         {
-            Means::Assertive => config.assertive,
-            Means::Compliant => config.compliant,
-            Means::Withdrawn => config.withdrawn
+            Means::Assertive => &config.assertive,
+            Means::Compliant => &config.compliant,
+            Means::Withdrawn => &config.withdrawn
         }
     }
 }

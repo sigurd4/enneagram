@@ -35,19 +35,19 @@ impl Enneatype
         &[Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
     }
 
-    pub fn config<'a>(&self, config: EdgesConfig<'a>) -> EdgeConfig<'a>
+    pub fn config<'a>(&self, config: &'a EdgesConfig) -> &'a EdgeConfig
     {
         match self
         {
-            Enneatype::Recovery => config.recovery,
-            Enneatype::Association => config.association,
-            Enneatype::Repression => config.repression,
-            Enneatype::Rejection => config.rejection,
-            Enneatype::Catatonia => config.catatonia,
-            Enneatype::Paranoia => config.paranoia,
-            Enneatype::Disorganization => config.disorganization,
-            Enneatype::Action => config.action,
-            Enneatype::Rest => config.rest,
+            Enneatype::Recovery => &config.recovery,
+            Enneatype::Association => &config.association,
+            Enneatype::Repression => &config.repression,
+            Enneatype::Rejection => &config.rejection,
+            Enneatype::Catatonia => &config.catatonia,
+            Enneatype::Paranoia => &config.paranoia,
+            Enneatype::Disorganization => &config.disorganization,
+            Enneatype::Action => &config.action,
+            Enneatype::Rest => &config.rest,
         }
     }
 
@@ -147,17 +147,17 @@ impl Enneatype
             .expect("There must be exactly 8 neighbouring edges!")
     }
 
-    pub fn info(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
+    pub fn info(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
-        Self::common_info(core::slice::from_ref(self), f, config)
+        Self::common_info(core::slice::from_ref(self), f, &config)
     }
 
-    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
+    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
         for edge in edges
         {
             let number = edge.number();
-            let config = edge.config(config.edges);
+            let config = edge.config(&config.edges);
             writeln!(f, "Enneagram {number} {}", config.name)?;
         }
 
@@ -168,13 +168,13 @@ impl Enneatype
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();
-            let config = triad.config(config.triads);
+            let config = triad.config(&config.triads);
             write!(f, "\n{numbers} {}", config.description)?;
         }
         Ok(())
     }
 
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
         self.personality()
             .affirmation(f, config)
@@ -205,7 +205,7 @@ mod test
 
         for edge in Enneatype::Action.path()
         {
-            println!("{}", edge.config(config).name)
+            println!("{}", edge.config(&config).name)
         }
     }
 
@@ -216,7 +216,7 @@ mod test
 
         for edge in Enneatype::Repression.path()
         {
-            println!("{}", edge.config(config).name)
+            println!("{}", edge.config(&config).name)
         }
     }
 

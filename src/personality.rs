@@ -11,14 +11,14 @@ pub struct Personality
 
 impl Personality
 {
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: EnneagramConfig<'_>) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
         let mut affirmation = config.affirmation.to_string();
 
         for substr in [
-            self.frame.config(config.triads).affirmation,
-            self.fault.config(config.triads).affirmation,
-            self.strategy.config(config.triads).affirmation
+            self.frame.config(&config.triads).affirmation.as_str(),
+            self.fault.config(&config.triads).affirmation.as_str(),
+            self.strategy.config(&config.triads).affirmation.as_str()
         ]
         {
             affirmation = affirmation.replacen("{}", substr, 1);

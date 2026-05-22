@@ -1,15 +1,15 @@
 use crate::{config::Config, enneatype::Enneatype, triad::Triad};
 
 #[derive(Clone)]
-pub struct Enneagram<'a>
+pub struct Enneagram
 {
     pub edges: Vec<Vec<Enneatype>>,
-    pub config: Config<'a>
+    pub config: Config
 }
 
-impl<'a> Enneagram<'a>
+impl Enneagram
 {
-    pub fn all(original: Enneagram<'a>) -> Self
+    pub fn all(original: Enneagram) -> Self
     {
         Self {
             edges: vec![

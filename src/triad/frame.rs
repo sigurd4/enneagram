@@ -39,13 +39,13 @@ impl Triad for Frame
             Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection], // 234
         }
     }
-    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
+    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
     {
         match self
         {
-            Frame::Gut => config.gut,
-            Frame::Head => config.head,
-            Frame::Heart => config.heart
+            Frame::Gut => &config.gut,
+            Frame::Head => &config.head,
+            Frame::Heart => &config.heart
         }
     }
 }

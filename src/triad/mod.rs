@@ -70,7 +70,7 @@ pub trait Triad: Debug + Any
     fn equals(&self, other: &dyn Triad) -> bool;
 
     fn edges(&self) -> &'static [Enneatype; 3];
-    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>;
+    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig;
 
     fn lines(&self) -> [[Enneatype; 2]; 3]
     {
@@ -118,7 +118,8 @@ mod test
     where
         T: Triad + ?Sized
     {
-        let conf = triad.config(Default::default());
+        let config = Default::default();
+        let conf = triad.config(&config);
         println!("Q: {}\nA: {}\n", conf.expression, conf.reflection);
         let edges = triad.edges();
         let reconstruction = crate::triad::triangulate(edges);

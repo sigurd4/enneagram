@@ -22,9 +22,9 @@ impl ExternalSynthesis
         ]
     }
 
-    pub fn kind<'a>(config: DomainConfig<'a>) -> &'a str
+    pub fn kind<'a>(config: &'a DomainConfig) -> &'a str
     {
-        config.extroverted_synthesis
+        config.extroverted_synthesis.as_str()
     }
 }
 
@@ -64,7 +64,7 @@ impl Domain for ExternalSynthesis
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind<'a>(&self, config: DomainConfig<'a>) -> &'a str
+    fn kind<'a>(&self, config: &'a DomainConfig) -> &'a str
     {
         Self::kind(config)
     }
@@ -76,11 +76,11 @@ impl Domain for ExternalSynthesis
     {
         &self.thesis
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &TriadsConfig) -> core::fmt::Result
     {
         write!(f, "{}, but {}", self.anti_thesis.config(config).expression, self.thesis.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: TriadsConfig<'_>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &TriadsConfig) -> core::fmt::Result
     {
         write!(f, "{}, because {}", self.anti_thesis.config(config).reflection, self.thesis.config(config).reflection)
     }

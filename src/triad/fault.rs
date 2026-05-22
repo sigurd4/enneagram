@@ -39,13 +39,13 @@ impl Triad for Fault
             Fault::Reactive => &[Enneatype::Rejection, Enneatype::Paranoia, Enneatype::Action], // 468
         }
     }
-    fn config<'a>(&self, config: TriadsConfig<'a>) -> TriadConfig<'a>
+    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
     {
         match self
         {
-            Fault::Positive => config.positive,
-            Fault::Competent => config.competent,
-            Fault::Reactive => config.reactive,
+            Fault::Positive => &config.positive,
+            Fault::Competent => &config.competent,
+            Fault::Reactive => &config.reactive,
         }
     }
 }
