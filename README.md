@@ -44,6 +44,20 @@ Need/object of desire/"what hole do you have in your soul?"
 
 There's a few things that are still a bit unclear to me. Are there combinations of the above that are not covered by the enneagram's 9 personality types? (could there in fact be 27 in total?)  What's the deal with the interconnections/lines? Do they describe structural or dynamic pathways or relations between the types?
 
+# Mathematical soundness
+
+Count of causalities $c_c$, where $c_g$ is the group count, and $k_g$ is the amount of groups to be picked:
+
+```latex
+c_c = \binom{c_g}{k_g}
+```
+
+Size $s_g$ of each group, given causality count $c_c$ and edge count $c_e$:
+
+```latex
+s_g = \frac{c_e}{c_c}
+```
+
 # On causality
 
 Enneagram triad pairs:
