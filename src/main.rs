@@ -36,7 +36,7 @@ fn main()
     let mut enable_artwork = false;
     let mut enneagram = Enneagram {
         edges: Vec::new(),
-        config: Default::default()
+        config: Config::read_default()
     };
 
     let mut configs = vec![];
@@ -47,6 +47,25 @@ fn main()
         {
             Some(number) => number,
             None => {
+                match configs.len()
+                {
+                    0 => (),
+                    1 => [(_, enneagram.config)] = configs.try_into()
+                        .expect("Config should now be unambiguous."),
+                    2.. => {
+                        let options = configs.into_iter()
+                            .map(|config| (config.0, move || config.1.clone()))
+                            .collect::<Vec<(String, _)>>();
+
+                        enneagram.config = crate::select(
+                            Clause::Answer("please select one config"),
+                            &options.iter()
+                                .map(|config| (config.0.as_str(), &config.1 as &dyn Fn() -> _))
+                                .collect::<Vec<_>>()
+                        );
+                    }
+                }
+
                 #[cfg(feature = "artwork")]
                 if enable_artwork
                 {
@@ -136,9 +155,10 @@ fn main()
                 {
                     configs.clear()
                 }
-                else if let Some(config) = args.next()
+                else if let Some(config_arg) = args.next()
                 {
-                    configs.push(Config::read_config(&config))
+                    let config = Config::read_config(&config_arg);
+                    configs.push((config_arg, config))
                 }
                 else
                 {

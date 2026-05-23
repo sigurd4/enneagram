@@ -158,18 +158,17 @@ pub struct DomainConfig
     pub extroverted_dissonance: String
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct EnneagramConfig
 {
     pub triads: TriadsConfig,
     pub edges: EdgesConfig,
-    pub domains: DomainConfig,
-    pub affirmation: String
+    pub domains: DomainConfig
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(default, deny_unknown_fields)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(default = "Config::read_default", deny_unknown_fields)]
 pub struct Config
 {
     pub show: ShowConfig,
@@ -216,7 +215,7 @@ impl Default for EdgesConfig
             },
             association: EdgeConfig {
                 name: "Association".into(),
-                pivot: "how will you gain any worth?".into(),
+                pivot: "how will you gain worth?".into(),
                 digit: [[-3, 3], [-2, 4], [2, 4], [3, 3], [3, 0], [-3, -4], [3, -4], [3, -3]].into()
             },
             repression: EdgeConfig {
@@ -231,7 +230,7 @@ impl Default for EdgesConfig
             },
             catatonia: EdgeConfig {
                 name: "Catatonia".into(),
-                pivot: "how will you gain any security?".into(),
+                pivot: "how will you gain security?".into(),
                 digit: [[3, 4], [-3, 4], [-3, 1], [2, 1], [3, 0], [3, -3], [2, -4], [-3, -4]].into()
             },
             paranoia: EdgeConfig {
@@ -246,7 +245,7 @@ impl Default for EdgesConfig
             },
             action: EdgeConfig {
                 name: "Action".into(),
-                pivot: "how will you gain any control?".into(),
+                pivot: "how will you gain control?".into(),
                 digit: [[1, 0], [3, 1], [3, 3], [2, 4], [-2, 4], [-3, 3], [-3, 1], [-1, 0], [-3, -1], [-3, -3], [-2, -4], [2, -4], [3, -3], [3, -1], [1, 0], [-1, 0]].into()
             },
             rest: EdgeConfig {
@@ -354,40 +353,18 @@ impl Default for DomainConfig
     }
 }
 
-impl Default for EnneagramConfig
+impl Config
 {
-    fn default() -> Self
-    {
-        Self {
-            triads: Default::default(),
-            edges: Default::default(),
-            domains: Default::default(),
-            affirmation: "i will {}, {}, and {}.".into()
-        }
-    }
-}
-
-impl Default for Config
-{
-    fn default() -> Self
+    pub fn read_default() -> Self
     {
         let default_config_path = Self::config_path("default.yaml");
         if !default_config_path.exists()
         {
-            let default_default_config = Config {
-                show: Default::default(),
-                color: Default::default(),
-                enneagram: Default::default()
-            };
-            default_default_config.write_config_path(&default_config_path);
-            return default_default_config
+            Config::default().write_config_path(&default_config_path);
         }
         Self::read_config_path(&default_config_path)
     }
-}
 
-impl Config
-{
     pub fn config_dir() -> PathBuf
     {
         let xdg_config_home = std::env::var("XDG_CONFIG_HOME")

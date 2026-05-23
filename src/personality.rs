@@ -13,18 +13,11 @@ impl Personality
 {
     pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
-        let mut affirmation = config.affirmation.to_string();
+        let frame = self.frame.config(&config.triads).affirmation.as_str();
+        let fault = self.fault.config(&config.triads).affirmation.as_str();
+        let strategy = self.strategy.config(&config.triads).affirmation.as_str();
 
-        for substr in [
-            self.frame.config(&config.triads).affirmation.as_str(),
-            self.fault.config(&config.triads).affirmation.as_str(),
-            self.strategy.config(&config.triads).affirmation.as_str()
-        ]
-        {
-            affirmation = affirmation.replacen("{}", substr, 1);
-        }
-
-        write!(f, "{}", affirmation)
+        write!(f, "i will {frame}, {fault}, and {strategy}.")
     }
 
     pub fn from_triads(triads: [&dyn Triad; 4]) -> Self
