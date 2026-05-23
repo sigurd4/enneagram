@@ -222,11 +222,11 @@ impl Default for ColorConfig
     fn default() -> Self
     {
         Self {
-            surface: Rgb(255, 255, 255),
-            wire: Rgb(255, 0, 0),
-            dyed: Rgb(255, 255, 255/2),
-            glare: Rgb(255, 255, 255),
-            sun: Rgb(255, 255, 255)
+            surface: Rgb(0xF0, 0xFF, 0xFF),
+            wire: Rgb(0xFF, 0x00, 0x00),
+            dyed: Rgb(0xFF, 0xC0, 0x40),
+            glare: Rgb(0xFF, 0xFF, 0xFF),
+            sun: Rgb(0xFF, 0xFF, 0xFF)
         }
     }
 }
