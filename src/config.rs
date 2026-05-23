@@ -1,8 +1,8 @@
-use core::str::FromStr;
-use std::{borrow::Cow, path::{Path, PathBuf}};
+use core::{ops::Deref, str::FromStr};
+use std::{borrow::Cow, fs::File, path::{Path, PathBuf}};
 
 use ratatui_3d::Rgb;
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+use serde::{Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
 
 fn rgb_to_string(value: &Rgb) -> String
 {
@@ -168,12 +168,40 @@ pub struct EnneagramConfig
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[serde(default = "Config::read_default", deny_unknown_fields)]
-pub struct Config
+#[serde(deny_unknown_fields)]
+pub struct ConfigData
 {
     pub show: ShowConfig,
     pub color: ColorConfig,
     pub enneagram: EnneagramConfig
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[serde(default = "Config::read_default", deny_unknown_fields)]
+pub struct Config(ConfigData);
+
+impl Deref for Config
+{
+    type Target = ConfigData;
+
+    fn deref(&self) -> &Self::Target
+    {
+        &self.0 
+    }
+}
+impl From<ConfigData> for Config
+{
+    fn from(data: ConfigData) -> Self
+    {
+        Self(data)
+    }
+}
+impl From<Config> for ConfigData
+{
+    fn from(config: Config) -> ConfigData
+    {
+        config.0
+    }
 }
 
 impl Default for ShowConfig
@@ -357,12 +385,12 @@ impl Config
 {
     pub fn read_default() -> Self
     {
-        let default_config_path = Self::config_path("default.yaml");
+        let default_config_path = Self::default_config_path();
         if !default_config_path.exists()
         {
             Config::default().write_config_path(&default_config_path);
         }
-        Self::read_config_path(&default_config_path)
+        Self::read_default_config()
     }
 
     pub fn config_dir() -> PathBuf
@@ -398,6 +426,10 @@ impl Config
             .expect(&format!("Configuration '{}' should have extension '.yaml'", config_path.to_string_lossy()));
         config_path
     }
+    pub fn default_config_path() -> Cow<'static, Path>
+    {
+        Self::config_path("default.yaml")
+    }
 
     fn write_config_path(&self, config_path: &std::path::Path)
     {
@@ -407,13 +439,25 @@ impl Config
             .expect(&format!("Unable to create configuration '{}'.", config_path.to_string_lossy()))
     }
 
+    fn read_generic_type_path<T>(config_path: &std::path::Path) -> T
+    where
+        T: DeserializeOwned
+    {
+        let yaml = File::open(config_path)
+            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
+        serde_saphyr::from_reader(yaml)
+            //serde_saphyr::from_str_validate(&yaml) // TODO: implement validator
+            .expect(&format!("Unable to parse configuration '{}'.", config_path.to_string_lossy()))
+    }
+
     fn read_config_path(config_path: &std::path::Path) -> Config
     {
-        let yaml = std::fs::read_to_string(config_path)
-            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
-        serde_saphyr::from_str(&yaml)
-        //serde_saphyr::from_str_validate(&yaml) // TODO: implement validator
-            .expect(&format!("Unable to parse configuration '{}'.", config_path.to_string_lossy()))
+        Self::read_generic_type_path(config_path)
+    }
+
+    fn read_default_config() -> Config
+    {
+        Config(Self::read_generic_type_path(&Self::default_config_path()))
     }
 
     #[allow(unused)]
