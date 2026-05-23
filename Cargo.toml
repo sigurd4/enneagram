@@ -12,7 +12,7 @@ categories = ["algorithms", "mathematics"]
 default = ["artwork", "pivot", "config"]
 blasphemy = ["dep:rand"]
 pivot = []
-config = []
+config = ["dep:serde-saphyr", "dep:serde"]
 artwork = ["dep:ratatui", "dep:ratatui-3d"]
 
 [dependencies]
@@ -20,5 +20,5 @@ moddef = "0.3.0"
 rand = {version = "0.10.1", optional = true}
 ratatui-3d = {version = "0.1.0", optional = true}
 ratatui = {version = "0.30.0", optional = true}
-serde-saphyr = {version = "0.0.26", features = ["huge_documents"]}
-serde = "1.0.228"
+serde-saphyr = {version = "0.0.26", features = ["huge_documents"], optional = true}
+serde = {version = "1.0.228", optional = true}
