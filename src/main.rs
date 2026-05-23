@@ -5,7 +5,7 @@ use rand::distr::Distribution;
 #[cfg(feature = "blasphemy")]
 use std::io::Read;
 
-use crate::{enneagram::Enneagram, enneatype::Enneatype};
+use crate::{config::Config, enneagram::Enneagram, enneatype::Enneatype};
 
 moddef::moddef!(
     mod {
@@ -38,6 +38,8 @@ fn main()
         edges: Vec::new(),
         config: Default::default()
     };
+
+    let mut configs = vec![];
 
     loop
     {
@@ -105,7 +107,9 @@ fn main()
             #[cfg(feature = "pivot")]
             Pivot,
             #[cfg(feature = "artwork")]
-            Artwork
+            Artwork,
+            #[cfg(feature = "config")]
+            Config
         }
 
         let mut take_flag = |flag, invert| {
@@ -126,6 +130,19 @@ fn main()
                     (true, false) => panic!("Artwork is already enabled"),
                     (false, true) => panic!("Artwork is already disabled"),
                     (false, false) => enable_artwork = true
+                },
+                #[cfg(feature = "config")]
+                Flag::Config => if invert
+                {
+                    configs.clear()
+                }
+                else if let Some(config) = args.next()
+                {
+                    configs.push(Config::read_config(&config))
+                }
+                else
+                {
+                    panic!("Expected argument: config-file (yaml, see {}).", Config::config_path("default.yaml").to_string_lossy())
                 }
             }
         };
@@ -148,6 +165,8 @@ fn main()
                 "pivot" => Flag::Pivot,
                 #[cfg(feature = "artwork")]
                 "artwork" => Flag::Artwork,
+                #[cfg(feature = "config")]
+                "config" => Flag::Config,
                 _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
             };
             take_flag(
@@ -170,6 +189,8 @@ fn main()
                     'p' => Flag::Pivot,
                     #[cfg(feature = "artwork")]
                     'a' => Flag::Artwork,
+                    #[cfg(feature = "config")]
+                    'c' => Flag::Config,
                     _ => panic!("Invalid argument: Unrecognized single-character flag '{flag_char}'")
                 };
                 take_flag(

@@ -132,21 +132,6 @@ impl Enneatype
         [sine, cosine]
     }
 
-    pub fn neighbours(&self) -> [Enneatype; 8]
-    {
-        self.triads()
-            .into_iter()
-            .filter_map(|triad| match triad.edges()
-                {
-                    [this, a, b] | [a, this, b] | [a, b, this] if this == self => Some([*a, *b]),
-                    _ => None
-                }
-            ).flatten()
-            .collect::<Vec<_>>()
-            .try_into()
-            .expect("There must be exactly 8 neighbouring edges!")
-    }
-
     pub fn info(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
     {
         Self::common_info(core::slice::from_ref(self), f, &config)
@@ -225,15 +210,5 @@ mod test
     {
         let edges = Enneatype::all();
         assert!(edges.is_sorted())
-    }
-
-    #[test]
-    fn test_neighbours()
-    {
-        for edge in Enneatype::all()
-        {
-            let neighbours = edge.neighbours();
-            println!("{edge:?} -> {neighbours:?}")
-        }
     }
 }

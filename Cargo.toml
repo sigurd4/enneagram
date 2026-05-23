@@ -9,9 +9,10 @@ keywords = ["enneagram", "personality", "psychology", "occult", "enneatype"]
 categories = ["algorithms", "mathematics"]
 
 [features]
-default = ["artwork", "pivot"]
+default = ["artwork", "pivot", "config"]
 blasphemy = ["dep:rand"]
 pivot = []
+config = []
 artwork = ["dep:ratatui", "dep:ratatui-3d"]
 
 [dependencies]
@@ -19,7 +20,5 @@ moddef = "0.3.0"
 rand = {version = "0.10.1", optional = true}
 ratatui-3d = {version = "0.1.0", optional = true}
 ratatui = {version = "0.30.0", optional = true}
-serde-saphyr = "0.0.26"
+serde-saphyr = {version = "0.0.26", features = ["validator"]}
 serde = "1.0.228"
-glam = {version = "0.33.0", default-features = false, features = ["i8", "std", "serde"]}
-rgb = {version = "0.8.53", default-features = false, features = ["serde"]}
