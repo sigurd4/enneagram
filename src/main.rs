@@ -25,7 +25,8 @@ moddef::moddef!(
 
 fn main()
 {
-    let mut args = std::env::args();
+    let mut args = std::env::args()
+        .peekable();
 
     let _executeable = args.next()
         .unwrap_or_else(|| "enneagram".to_string());
@@ -155,10 +156,21 @@ fn main()
                 {
                     configs.clear()
                 }
-                else if let Some(config_arg) = args.next()
+                else if let Some(config_path) = args.next()
                 {
-                    let config = Config::read_config(&config_arg);
-                    configs.push((config_arg, config))
+                    while let Some(next_arg) = args.peek() && next_arg == ":"
+                    {
+                        let _ = args.next() // Ignore ':'-operator
+                            .expect("Wasn't there supposed to be a ':'-operator there? Confused.");
+                        let config_fallback = args.next()
+                            .expect(&format!(
+                                "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
+                                Config::config_path("default.yaml").to_string_lossy()
+                            ));
+                        Config::push_fallback(config_fallback);
+                    }
+                    let config = Config::read_config(&config_path);
+                    configs.push((config_path, config))
                 }
                 else
                 {

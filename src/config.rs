@@ -1,5 +1,5 @@
 use core::{ops::Deref, str::FromStr};
-use std::{borrow::Cow, fs::File, path::{Path, PathBuf}};
+use std::{borrow::Cow, collections::VecDeque, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex}};
 
 use ratatui_3d::Rgb;
 use serde::{Deserialize, Deserializer, Serialize, Serializer, de::DeserializeOwned};
@@ -381,14 +381,39 @@ impl Default for DomainConfig
     }
 }
 
+/// First-in-first-out buffer of fallback configs. Will be emptied upon next reading of a config.
+static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<String>>>> = LazyLock::new(|| Arc::new(Mutex::new(Vec::new())));
+
 impl Config
 {
+    fn pop_fallback() -> Option<Self>
+    {
+        let config_path = {
+            let mut fallback = FALLBACK_FIFO.lock()
+                .expect("Failed to lock fallback queue upon pop.");
+            fallback.pop()
+        }?;
+
+        Some(Self::read_config(&config_path))
+    }
+
+    pub fn push_fallback(fallback_config_path: String)
+    {
+        let mut fallback = FALLBACK_FIFO.lock()
+            .expect(&format!("Failed to lock fallback queue upon push of '{fallback_config_path}'."));
+        fallback.push(fallback_config_path);
+    }
+
     pub fn read_default() -> Self
     {
         let default_config_path = Self::default_config_path();
         if !default_config_path.exists()
         {
             Config::default().write_config_path(&default_config_path);
+        }
+        if let Some(fallback) = Self::pop_fallback()
+        {
+            return fallback
         }
         Self::read_default_config()
     }
