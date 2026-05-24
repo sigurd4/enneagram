@@ -3,6 +3,7 @@ use core::any::Any;
 use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
 
 /// Internal strategy for one's (meta-)suffering/"who to blame?"
+/// a.k.a "The Revolver"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Fault
 {

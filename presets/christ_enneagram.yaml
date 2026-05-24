@@ -1,0 +1,26 @@
+color:
+  surface: FFFF55
+  wire: 55FFFF
+  dyed: FF55FF
+  glare: FFFFFF
+  sun: FFFFFF
+enneagram:
+  edges:
+    1:
+      name: Teaching - Tolerance - Patience
+    2:
+      name: Care - Compassion - Solidarity
+    3:
+      name: Ambition - Energy - Vision
+    4:
+      name: Creativity - Sensitivity - Naturalness
+    5:
+      name: Distance - Sobriety - Wisdom
+    6:
+      name: Fidelity - Obedience - Trust
+    7:
+      name: Festiveness - Joie de Vivre - Pain
+    8:
+      name: Confrontation - Clarity - Authority
+    9:
+      name: Composure - Peaceableness - Love

@@ -82,7 +82,7 @@ pub trait Triad: Debug + Any
 #[cfg(test)]
 mod test
 {
-    use crate::triad::{Fault, Frame, Need, Means, Triad};
+    use crate::{config::Config, triad::{Fault, Frame, Means, Need, Triad}};
 
     #[test]
     fn test_frame()
@@ -118,8 +118,8 @@ mod test
     where
         T: Triad + ?Sized
     {
-        let config = Default::default();
-        let conf = triad.config(&config);
+        let config = Config::default();
+        let conf = triad.config(&config.enneagram.triads);
         println!("Q: {}\nA: {}\n", conf.expression, conf.reflection);
         let edges = triad.edges();
         let reconstruction = crate::triad::triangulate(edges);

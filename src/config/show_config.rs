@@ -9,16 +9,3 @@ pub struct ShowConfig
     pub pivot_lines: bool,
     pub triad_lines: bool,
 }
-
-impl Default for ShowConfig
-{
-    fn default() -> Self
-    {
-        Self {
-            path_lines: true,
-            boundary_lines: true,
-            pivot_lines: true,
-            triad_lines: true,
-        }
-    }
-}

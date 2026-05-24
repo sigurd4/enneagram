@@ -11,18 +11,3 @@ pub struct DomainConfig
     pub extroverted_synthesis: String,
     pub extroverted_dissonance: String
 }
-
-impl Default for DomainConfig
-{
-    fn default() -> Self
-    {
-        Self {
-            introverted_dissonance: "introverted dissonance".into(),
-            introverted_synthesis: "introverted synthesis".into(),
-            desire_machine: "desire-machine".into(),
-            body_without_organs: "body without organs".into(),
-            extroverted_synthesis: "extroverted synthesis".into(),
-            extroverted_dissonance: "extroverted dissonance".into()
-        }
-    }
-}

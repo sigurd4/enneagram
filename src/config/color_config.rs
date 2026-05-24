@@ -54,20 +54,6 @@ where
     Ok(str_to_rgb(&src))
 }
 
-impl Default for ColorConfig
-{
-    fn default() -> Self
-    {
-        Self {
-            surface: Rgb(0xF0, 0xFF, 0xFF),
-            wire: Rgb(0xFF, 0x00, 0x00),
-            dyed: Rgb(0xFF, 0xC0, 0x40),
-            glare: Rgb(0xFF, 0xFF, 0xFF),
-            sun: Rgb(0xFF, 0xFF, 0xFF)
-        }
-    }
-}
-
 #[cfg(test)]
 mod test
 {

@@ -21,7 +21,7 @@ moddef::moddef!(
 #[serde(default = "Config::read_default", deny_unknown_fields)]
 pub struct Config(ConfigData);
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct ConfigData
 {
@@ -29,6 +29,15 @@ pub struct ConfigData
     pub show: ShowConfig,
     pub color: ColorConfig,
     pub enneagram: EnneagramConfig
+}
+
+impl Default for ConfigData
+{
+    fn default() -> Self
+    {
+        serde_saphyr::from_str(DEFAULT_CONFIG_DATA)
+            .expect("Failed to parse original default config.")
+    }
 }
 
 impl Deref for Config
@@ -63,6 +72,7 @@ static CONFIG_DIRS: LazyLock<Arc<Mutex<Vec<PathBuf>>>> = LazyLock::new(|| Arc::n
 
 const SYSTEMWISE_CONFIG_DIR: &str = "/etc/enneagram";
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";
+const DEFAULT_CONFIG_DATA: &str = include_str!("../../presets/default.yaml");
 
 enum FindDirectoryError
 {
@@ -477,7 +487,15 @@ impl Config
     fn write_config_path(&self, config_path: &std::path::Path)
     {
         // Serialize to yaml.
-        let yaml = serde_saphyr::to_string(self)
+        let yaml = serde_saphyr::to_string_with_options(self, serde_saphyr::ser_options!{
+                empty_as_braces: true,
+                indent_step: 2,
+                compact_list_indent: true,
+                tagged_enums: false,
+                prefer_block_scalars: true,
+                quote_all: false,
+                yaml_12: false
+            })
             .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
 
         // Write to filesystem.

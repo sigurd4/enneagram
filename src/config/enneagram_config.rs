@@ -2,11 +2,11 @@ use serde::{Deserialize, Serialize};
 
 use crate::config::{DomainConfig, EdgesConfig, TriadsConfig};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
 pub struct EnneagramConfig
 {
-    pub triads: TriadsConfig,
     pub edges: EdgesConfig,
+    pub triads: TriadsConfig,
     pub domains: DomainConfig
 }

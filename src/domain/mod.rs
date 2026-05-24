@@ -201,7 +201,7 @@ pub trait Domain: Debug + Any + 'static
 #[cfg(test)]
 mod test
 {
-    use crate::{config::EnneagramConfig, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}};
+    use crate::{config::Config, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}};
 
     #[test]
     fn test_external_dissonance()
@@ -242,13 +242,13 @@ mod test
     #[test]
     fn test_all()
     {
-        let config = EnneagramConfig::default();
+        let config = Config::default();
 
         for domain in crate::domain::all()
         {
-            let q = std::fmt::from_fn(|f| domain.question(f, &config.triads));
-            let a = std::fmt::from_fn(|f| domain.answer(f, &config.triads));
-            let e = domain.edge().config(&config.edges).name.as_str();
+            let q = std::fmt::from_fn(|f| domain.question(f, &config.enneagram.triads));
+            let a = std::fmt::from_fn(|f| domain.answer(f, &config.enneagram.triads));
+            let e = domain.edge().config(&config.enneagram.edges).name.as_str();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }
@@ -257,13 +257,13 @@ mod test
     where
         T: Domain
     {
-        let config = EnneagramConfig::default();
+        let config = Config::default();
 
         for domain in domains
         {
-            let q = std::fmt::from_fn(|f| domain.question(f, &config.triads));
-            let a = std::fmt::from_fn(|f| domain.answer(f, &config.triads));
-            let e = domain.edge().config(&config.edges).name.as_str();
+            let q = std::fmt::from_fn(|f| domain.question(f, &config.enneagram.triads));
+            let a = std::fmt::from_fn(|f| domain.answer(f, &config.enneagram.triads));
+            let e = domain.edge().config(&config.enneagram.edges).name.as_str();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }

@@ -1,0 +1,121 @@
+config:
+  directories:
+  - /home/sigurd/.config/enneagram
+  - /etc/enneagram
+show:
+  path_lines: true
+  boundary_lines: true
+  pivot_lines: true
+  triad_lines: true
+color:
+  surface: F0FFFF
+  wire: FF0000
+  dyed: FFC040
+  glare: FFFFFF
+  sun: FFFFFF
+enneagram:
+  edges:
+    1:
+      name: Recovery
+      pivot: how will you manage your frustration?
+      digit: -1,3 0,4 0,-4 -1,-4 1,-4
+    2:
+      name: Association
+      pivot: how will you gain worth?
+      digit: -3,3 -2,4 2,4 3,3 3,0 -3,-4 3,-4 3,-3
+    3:
+      name: Repression
+      pivot: how will you repress your shame?
+      digit: -3,3 -2,4 2,4 3,3 3,1 1,0 3,-1 3,-3 2,-4 -2,-4 -3,-3
+    4:
+      name: Rejection
+      pivot: how will you deal with your longing?
+      digit: 3,1 -3,1 1,4 1,-4
+    5:
+      name: Catatonia
+      pivot: how will you gain security?
+      digit: 3,4 -3,4 -3,1 2,1 3,0 3,-3 2,-4 -3,-4
+    6:
+      name: Paranoia
+      pivot: how will you deal with your insecurity?
+      digit: 3,4 0,4 -3,-1 -2,0 2,0 3,-1 3,-3 2,-4 -2,-4 -3,-3 -3,-1
+    7:
+      name: Disorganization
+      pivot: how will you handle your fear?
+      digit: -3,4 3,4 -3,-4
+    8:
+      name: Action
+      pivot: how will you gain control?
+      digit: 1,0 3,1 3,3 2,4 -2,4 -3,3 -3,1 -1,0 -3,-1 -3,-3 -2,-4 2,-4 3,-3 3,-1 1,0 -1,0
+    9:
+      name: Rest
+      pivot: how will you suppress your anger?
+      digit: 3,1 2,0 -2,0 -3,1 -3,3 -2,4 2,4 3,3 3,1 -3,-4
+  triads:
+    891:
+      description: Gut/"I am my urges, my concience hurts me"
+      expression: I am my urges, my concience hurts me
+      reflection: you have become your urges, your conscience hurts you
+      affirmation: follow my gut
+    567:
+      description: Head/"I am my thoughts, my fear hurts me"
+      expression: I am my thoughts, my fear hurts me
+      reflection: you have become your thoughts, your fear hurts you
+      affirmation: use my head
+    234:
+      description: Heart/"I am my emotions, my feelings hurt me"
+      expression: I am my emotions, my feelings hurt me
+      reflection: you have become your emotions, your feelings hurt you
+      affirmation: follow my heart
+    378:
+      description: Assertive/"I can change it"
+      expression: I can change it
+      reflection: you believe you can change it
+      affirmation: change it
+    612:
+      description: Compliant/"I can tolerate it"
+      expression: I can tolerate it
+      reflection: you believe you can tolerate it
+      affirmation: tolerate it
+    945:
+      description: Withdrawn/"I can avoid it"
+      expression: I can avoid it
+      reflection: you believe you can avoid it
+      affirmation: avoid it
+    792:
+      description: Positive/"everything is fine"
+      expression: everything is fine
+      reflection: you tell yourself that everything is fine
+      affirmation: stay positive
+    135:
+      description: Competent/"I take responsibility"
+      expression: I take responsibility
+      reflection: you hold yourself responsible
+      affirmation: take responsibility
+    468:
+      description: Reactive/"it's their fault"
+      expression: it's their fault
+      reflection: you blame others
+      affirmation: blame others
+    369:
+      description: Attachment/"I need freedom"
+      expression: I need freedom
+      reflection: you crave freedom
+      affirmation: be free
+    147:
+      description: Frustration/"I need control"
+      expression: I need control
+      reflection: you crave control
+      affirmation: be in control
+    258:
+      description: Rejection/"I need love"
+      expression: I need love
+      reflection: you crave love
+      affirmation: be accepted
+  domains:
+    introverted_dissonance: introverted dissonance
+    introverted_synthesis: introverted synthesis
+    desire_machine: desire-machine
+    body_without_organs: body without organs
+    extroverted_synthesis: extroverted synthesis
+    extroverted_dissonance: extroverted dissonance

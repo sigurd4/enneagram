@@ -174,7 +174,7 @@ impl Enneatype
 #[cfg(test)]
 mod test
 {
-    use crate::{config::EdgesConfig, enneatype::Enneatype};
+    use crate::{config::Config, enneatype::Enneatype};
 
     #[test]
     fn test_pos()
@@ -186,22 +186,22 @@ mod test
     #[test]
     fn test_path1()
     {
-        let config = EdgesConfig::default();
+        let config = Config::default();
 
         for edge in Enneatype::Action.path()
         {
-            println!("{}", edge.config(&config).name)
+            println!("{}", edge.config(&config.enneagram.edges).name)
         }
     }
 
     #[test]
     fn test_path2()
     {
-        let config = EdgesConfig::default();
+        let config = Config::default();
 
         for edge in Enneatype::Repression.path()
         {
-            println!("{}", edge.config(&config).name)
+            println!("{}", edge.config(&config.enneagram.edges).name)
         }
     }
 
