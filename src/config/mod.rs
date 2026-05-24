@@ -425,6 +425,7 @@ impl Config
             .last()
             .is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
         {
+            // Check visited config dirs.
             let mut config_path_full = None;
             for config_dir in Self::config_dirs()
             {
@@ -435,6 +436,8 @@ impl Config
                     break
                 }
             }
+
+            // Fallback to user config dir.
             config_path = match config_path_full
             {
                 Some(config_path) => config_path,
