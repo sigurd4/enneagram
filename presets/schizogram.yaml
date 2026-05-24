@@ -1,0 +1,27 @@
+enneagram:
+  edges:
+    recovery:
+      name: Recovery
+    association:
+      name: Association
+    repression:
+      name: Repression
+    rejection:
+      name: Rejection
+    catatonia:
+      name: Catatonia
+    paranoia:
+      name: Paranoia
+    disorganization:
+      name: Disorganization
+    action:
+      name: Action
+    rest:
+      name: Rest
+  domains:
+    introverted_dissonance: introverted dissonance
+    introverted_synthesis: introverted synthesis
+    desire_machine: desire-machine
+    body_without_organs: body without organs
+    extroverted_synthesis: extroverted synthesis
+    extroverted_dissonance: extroverted dissonance

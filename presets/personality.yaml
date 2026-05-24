@@ -1,0 +1,97 @@
+enneagram:
+  triads:
+    positive:
+      description: Positive/"everything is fine"
+      expression: everything is fine
+      reflection: you tell yourself that everything is fine
+      affirmation: stay positive
+    competent:
+      description: Competent/"I take responsibility"
+      expression: I take responsibility
+      reflection: you hold yourself responsible
+      affirmation: take responsibility
+    reactive:
+      description: Reactive/"it's their fault"
+      expression: it's their fault
+      reflection: you blame others
+      affirmation: blame others
+    gut:
+      description: Gut/"I am my urges, my concience hurts me"
+      expression: I am my urges, my concience hurts me
+      reflection: you have become your urges, your conscience hurts you
+      affirmation: follow my gut
+    head:
+      description: Head/"I am my thoughts, my fear hurts me"
+      expression: I am my thoughts, my fear hurts me
+      reflection: you have become your thoughts, your fear hurts you
+      affirmation: use my head
+    heart:
+      description: Heart/"I am my emotions, my feelings hurt me"
+      expression: I am my emotions, my feelings hurt me
+      reflection: you have become your emotions, your feelings hurt you
+      affirmation: follow my heart
+    assertive:
+      description: Assertive/"I can change it"
+      expression: I can change it
+      reflection: you believe you can change it
+      affirmation: change it
+    compliant:
+      description: Compliant/"I can tolerate it"
+      expression: I can tolerate it
+      reflection: you believe you can tolerate it
+      affirmation: tolerate it
+    withdrawn:
+      description: Withdrawn/"I can avoid it"
+      expression: I can avoid it
+      reflection: you believe you can avoid it
+      affirmation: avoid it
+    attachment:
+      description: Attachment/"I need freedom"
+      expression: I need freedom
+      reflection: you crave freedom
+      affirmation: be free
+    frustration:
+      description: Frustration/"I need control"
+      expression: I need control
+      reflection: you crave control
+      affirmation: be in control
+    rejection:
+      description: Rejection/"I need love"
+      expression: I need love
+      reflection: you crave love
+      affirmation: be accepted
+  edges:
+    recovery:
+      name: Reformer, Perfectionist
+      pivot: how will you manage your anger?
+    association:
+      name: Helper, Giver
+      pivot: how will you become worthy of love?
+    repression:
+      name: Achiever, Performer
+      pivot: how will you repress your shame?
+    rejection:
+      name: Individualist, Romantic
+      pivot: how will you remain authentic?
+    catatonia:
+      name: Investigator, Observer
+      pivot: how will you gain understanding?
+    paranoia:
+      name: Loyalist, Loyal Skeptic
+      pivot: how will you handle your fear?
+    disorganization:
+      name: Enthusiast, Epicure
+      pivot: how will you ever become satisfied?
+    action:
+      name: Challenger, Protector
+      pivot: how will you gain influence?
+    rest:
+      name: Peacemaker, Mediator
+      pivot: how will you avoid conflict?
+  domains:
+    introverted_dissonance: introverted dissonance
+    introverted_synthesis: introverted synthesis
+    desire_machine: desire-machine
+    body_without_organs: body without organs
+    extroverted_synthesis: extroverted synthesis
+    extroverted_dissonance: extroverted dissonance
