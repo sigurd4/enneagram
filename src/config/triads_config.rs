@@ -1,6 +1,8 @@
+use core::borrow::Borrow;
+
 use serde::{Deserialize, Serialize};
 
-use crate::config::TriadConfig;
+use crate::config::{Config, TriadConfig};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -30,4 +32,12 @@ pub struct TriadsConfig
     pub frustration: TriadConfig,
     #[serde(rename = "258")]
     pub rejection: TriadConfig
+}
+
+impl Borrow<TriadsConfig> for Config
+{
+    fn borrow(&self) -> &TriadsConfig
+    {
+        &self.enneagram.triads
+    }
 }
