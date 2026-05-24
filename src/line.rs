@@ -19,10 +19,3 @@ where
         _ => false
     }
 }
-
-pub fn length(l: [[f64; 2]; 2]) -> f64
-{
-    let [[ax, ay], [bx, by]] = l;
-    let [dx, dy] = [bx - ax, by - ay];
-    (dx*dx + dy*dy).sqrt()
-}

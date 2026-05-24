@@ -11,6 +11,7 @@ moddef::moddef!(
     }
 );
 
+#[cfg(test)]
 pub fn triangulate(edges: &[Enneatype; 3]) -> Box<dyn Triad>
 {
     let [triad] = core::iter::empty()

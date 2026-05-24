@@ -104,17 +104,6 @@ impl<P> Wireframe<P>
             .map(move |[a, b]| [points[a], points[b]])
     }
 
-    pub fn lines<'a>(&'a self) -> impl Iterator<Item = [P; 2]> + 'a
-    where
-        P: Copy + 'a
-    {
-        let Self { points, lines } = self;
-
-        lines.iter()
-            .copied()
-            .map(move |[a, b]| [points[a], points[b]])
-    }
-
     pub fn corner_indices<'a>(&'a self) -> impl Iterator<Item = [usize; 3]> + 'a
     where
         P: Copy + PartialEq

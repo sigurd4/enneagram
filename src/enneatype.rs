@@ -58,12 +58,6 @@ impl Enneatype
         assert!((1..=9).contains(&number), "Enneagram numbers must be within the range of 1-9.");
         number
     }
-    pub fn index(&self) -> usize
-    {
-        self.number()
-            .checked_sub(1)
-            .expect("Enneagram numbers must start at 1.") as usize
-    }
 
     pub fn common_triads(edges: &[Enneatype]) -> Vec<Box<dyn Triad>>
     {

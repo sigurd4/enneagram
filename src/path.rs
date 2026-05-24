@@ -23,10 +23,3 @@ where
         ).into_iter()
         .flatten()
 }
-
-pub fn length(path: impl IntoIterator<Item = [f64; 2]>) -> f64
-{
-    crate::path::lines(path)
-        .map(|[a, b]| crate::line::length([a, b]))
-        .sum::<f64>()
-}
