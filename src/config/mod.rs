@@ -1,4 +1,4 @@
-use core::{fmt::Display, ops::Deref, str::FromStr};
+use core::{borrow::Borrow, fmt::Display, ops::Deref, str::FromStr};
 use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex, MutexGuard}};
 
 use serde::{Deserialize, Serialize, de::DeserializeOwned};
@@ -274,6 +274,16 @@ impl Config
             return fallback
         }
         Self::read_default_config()
+    }
+
+    pub fn read_default_member<T>() -> T
+    where
+        Self: Borrow<T>,
+        T: Clone
+    {
+        Self::read_default()
+            .borrow()
+            .clone()
     }
 
     fn find_directory<'a>(dir: impl Into<Cow<'a, Path>>) -> Result<Cow<'a, Path>, FindDirectoryError>
