@@ -553,6 +553,13 @@ impl From<FindXdgConfigHomeDirectoryError> for FindUserConfigDirectoryError
         Self::Unavailable(error)
     }
 }
+impl From<CreateDirectoryError> for FindUserConfigDirectoryError
+{
+    fn from(error: CreateDirectoryError) -> Self
+    {
+        Self::Creation(error)
+    }
+}
 impl Display for FindUserConfigDirectoryError
 {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
@@ -672,14 +679,12 @@ impl Config
                 Err(error) => match error
                 {
                     FindDirectoryError::Nonexistant { path } => std::fs::create_dir(&path)
-                        .map_err(|error| FindUserConfigDirectoryError::Creation(CreateDirectoryError::Failed {
+                        .map_err(|error| CreateDirectoryError::Failed {
                             path,
                             error
-                        }))?,
-                    FindDirectoryError::NotADirectory { path } => return Err(
-                        FindUserConfigDirectoryError::Creation(CreateDirectoryError::NotADirectory { path })
-                    )
-                },
+                        })?,
+                    FindDirectoryError::NotADirectory { path } => return Err(CreateDirectoryError::NotADirectory { path }.into())
+                }
             }
         };
         Ok(config_dir)
