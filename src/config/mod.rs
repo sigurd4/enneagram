@@ -420,6 +420,12 @@ impl Config
         // Construct path.
         let mut config_path = Cow::from(Path::new(config));
 
+        // Add extension if missing.
+        if config_path.extension().is_none()
+        {
+            config_path = config_path.with_extension("yaml").into()
+        }
+
         // Search in directories if only filename is provided.
         if config_path.components()
             .last()
