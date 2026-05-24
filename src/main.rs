@@ -165,7 +165,7 @@ fn main()
                         let config_fallback = args.next()
                             .expect(&format!(
                                 "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
-                                Config::config_path("default.yaml").to_string_lossy()
+                                Config::default_config_path().to_string_lossy()
                             ));
                         Config::push_fallback(config_fallback);
                     }
@@ -174,7 +174,7 @@ fn main()
                 }
                 else
                 {
-                    panic!("Expected argument: config-file (yaml, see {}).", Config::config_path("default.yaml").to_string_lossy())
+                    panic!("Expected argument: config-file (yaml, see {}).", Config::default_config_path().to_string_lossy())
                 }
             }
         };
