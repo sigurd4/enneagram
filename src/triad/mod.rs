@@ -1,4 +1,4 @@
-use core::{any::Any, fmt::Debug};
+use core::{any::Any, borrow::Borrow, fmt::Debug};
 
 use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype};
 
@@ -70,7 +70,7 @@ pub trait Triad: Debug + Any
     fn equals(&self, other: &dyn Triad) -> bool;
 
     fn edges(&self) -> &'static [Enneatype; 3];
-    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig;
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig;
 
     fn lines(&self) -> [[Enneatype; 2]; 3]
     {
@@ -119,7 +119,7 @@ mod test
         T: Triad + ?Sized
     {
         let config = Config::default();
-        let conf = triad.config(&config.enneagram.triads);
+        let conf = triad.config(&config);
         println!("Q: {}\nA: {}\n", conf.expression, conf.reflection);
         let edges = triad.edges();
         let reconstruction = crate::triad::triangulate(edges);

@@ -1,4 +1,4 @@
-use core::any::Any;
+use core::{any::Any, borrow::Borrow};
 
 use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
 
@@ -39,13 +39,14 @@ impl Triad for Means
             Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia], // 945
         }
     }
-    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig
     {
+        let triads = config.borrow();
         match self
         {
-            Means::Assertive => &config.assertive,
-            Means::Compliant => &config.compliant,
-            Means::Withdrawn => &config.withdrawn
+            Means::Assertive => &triads.assertive,
+            Means::Compliant => &triads.compliant,
+            Means::Withdrawn => &triads.withdrawn
         }
     }
 }

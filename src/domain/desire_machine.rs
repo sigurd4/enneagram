@@ -1,4 +1,4 @@
-use core::{any::Any, ops::Add};
+use core::{any::Any, borrow::Borrow, ops::Add};
 
 use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Frame, Need, Triad}};
 
@@ -22,9 +22,9 @@ impl DesireMachine
         ]
     }
 
-    pub fn kind<'a>(config: &'a DomainConfig) -> &'a str
+    pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
     {
-        config.desire_machine.as_str()
+        config.borrow().desire_machine.as_str()
     }
 }
 
@@ -64,7 +64,7 @@ impl Domain for DesireMachine
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind<'a>(&self, config: &'a DomainConfig) -> &'a str
+    fn kind<'a>(&self, config: &'a dyn Borrow<DomainConfig>) -> &'a str
     {
         Self::kind(config)
     }
@@ -76,11 +76,11 @@ impl Domain for DesireMachine
     {
         &self.extroverted
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &TriadsConfig) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
     {
         write!(f, "{} and {}", self.introverted.config(config).expression, self.extroverted.config(config).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &TriadsConfig) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
     {
         write!(f, "{} and {}", self.introverted.config(config).reflection, self.extroverted.config(config).reflection)
     }

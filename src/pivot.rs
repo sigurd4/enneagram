@@ -1,3 +1,5 @@
+use core::borrow::Borrow;
+
 use crate::{Clause, config::EnneagramConfig, enneatype::Enneatype};
 
 #[derive(Debug, Clone)]
@@ -44,9 +46,11 @@ impl Pivot
         self.extroverted == edge || self.introverted == edge
     }
 
-    pub fn select(self, config: &EnneagramConfig) -> Enneatype
+    pub fn select(self, config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Enneatype
     {
-        let question = self.homeostatis.config(&config.edges).pivot.as_str();
+        let config = config.borrow();
+
+        let question = self.homeostatis.config(config).pivot.as_str();
 
         crate::select(
             Clause::Answer(question),

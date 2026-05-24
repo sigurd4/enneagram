@@ -2,7 +2,7 @@ use core::borrow::Borrow;
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EdgeConfig};
+use crate::config::{Config, EdgeConfig, EnneagramConfig};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -28,10 +28,17 @@ pub struct EdgesConfig
     pub rest: EdgeConfig
 }
 
+impl Borrow<EdgesConfig> for EnneagramConfig
+{
+    fn borrow(&self) -> &EdgesConfig
+    {
+        &self.edges
+    }
+}
 impl Borrow<EdgesConfig> for Config
 {
     fn borrow(&self) -> &EdgesConfig
     {
-        &self.enneagram.edges
+        &self.enneagram.borrow()
     }
 }

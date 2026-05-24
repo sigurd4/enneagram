@@ -82,10 +82,10 @@ fn main()
                 }
                 if enneagram.edges.is_empty()
                 {
-                    let domain = domain::select(&enneagram.config.enneagram);
+                    let domain = domain::select(&enneagram.config);
                     let mut edge = domain.edge();
 
-                    let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config.enneagram));
+                    let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config));
                     println!("\n{edge_info}");
 
                     #[cfg(feature = "pivot")]
@@ -95,13 +95,13 @@ fn main()
                         {
                             println!();
                             let pivot = edge.pivot();
-                            let origin = core::mem::replace(&mut edge, pivot.select(&enneagram.config.enneagram));
+                            let origin = core::mem::replace(&mut edge, pivot.select(&enneagram.config));
                             if edge == origin
                             {
                                 break
                             }
 
-                            let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config.enneagram));
+                            let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config));
                             println!("\n{edge_info}");
                         }
                     }
@@ -113,7 +113,7 @@ fn main()
                     let mut sep = "";
                     for edges in enneagram.edges
                     {
-                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, &enneagram.config.enneagram));
+                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, &enneagram.config));
                         println!("{sep}{edge_info}");
                         sep = "\n"
                     }

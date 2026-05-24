@@ -2,7 +2,7 @@ use core::borrow::Borrow;
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, TriadConfig};
+use crate::config::{Config, EnneagramConfig, TriadConfig};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -34,10 +34,17 @@ pub struct TriadsConfig
     pub rejection: TriadConfig
 }
 
+impl Borrow<TriadsConfig> for EnneagramConfig
+{
+    fn borrow(&self) -> &TriadsConfig
+    {
+        &self.triads
+    }
+}
 impl Borrow<TriadsConfig> for Config
 {
     fn borrow(&self) -> &TriadsConfig
     {
-        &self.enneagram.triads
+        &self.enneagram.borrow()
     }
 }

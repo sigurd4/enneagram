@@ -1,4 +1,4 @@
-use core::any::Any;
+use core::{any::Any, borrow::Borrow};
 
 use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
 
@@ -39,13 +39,14 @@ impl Triad for Frame
             Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection], // 234
         }
     }
-    fn config<'a>(&self, config: &'a TriadsConfig) -> &'a TriadConfig
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig
     {
+        let triads = config.borrow();
         match self
         {
-            Frame::Gut => &config.gut,
-            Frame::Head => &config.head,
-            Frame::Heart => &config.heart
+            Frame::Gut => &triads.gut,
+            Frame::Head => &triads.head,
+            Frame::Heart => &triads.heart
         }
     }
 }

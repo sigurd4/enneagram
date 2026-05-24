@@ -1,4 +1,6 @@
-use crate::{config::EnneagramConfig, triad::{Fault, Frame, Means, Need, Triad}};
+use core::borrow::Borrow;
+
+use crate::{config::TriadsConfig, triad::{Fault, Frame, Means, Need, Triad}};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Personality
@@ -11,11 +13,11 @@ pub struct Personality
 
 impl Personality
 {
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &EnneagramConfig) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
     {
-        let frame = self.frame.config(&config.triads).affirmation.as_str();
-        let fault = self.fault.config(&config.triads).affirmation.as_str();
-        let strategy = self.strategy.config(&config.triads).affirmation.as_str();
+        let frame = self.frame.config(config).affirmation.as_str();
+        let fault = self.fault.config(config).affirmation.as_str();
+        let strategy = self.strategy.config(config).affirmation.as_str();
 
         write!(f, "i will {frame}, {fault}, and {strategy}.")
     }
