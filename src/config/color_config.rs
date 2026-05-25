@@ -1,6 +1,12 @@
 use core::{borrow::Borrow, convert::Infallible, ops::Deref, str::FromStr};
 
+#[cfg(feature = "artwork")]
 use ratatui_3d::Rgb;
+
+#[cfg(not(feature = "artwork"))]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct Rgb(u8, u8, u8);
+
 use serde::{Deserialize, Serialize};
 
 use crate::config::Config;
@@ -25,6 +31,7 @@ pub struct ColorConfig
     shine: Option<Color>
 }
 
+#[cfg(feature = "artwork")]
 impl ColorConfig
 {
     crate::config::getter!([_, c.color].sky.deref() -> Rgb);
@@ -59,6 +66,7 @@ impl Borrow<ColorConfig> for Config
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 struct Color(Rgb);
 
+#[cfg(feature = "artwork")]
 impl Deref for Color
 {
     type Target = Rgb;
@@ -124,7 +132,7 @@ mod test
 {
     use core::str::FromStr;
 
-use ratatui_3d::Rgb;
+    use super::Rgb;
 
     use crate::config::color_config::Color;
 

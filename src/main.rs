@@ -134,7 +134,6 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
             Pivot,
             #[cfg(feature = "artwork")]
             Artwork,
-            #[cfg(feature = "config")]
             Config
         }
 
@@ -157,7 +156,6 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     (false, true) => panic!("Artwork is already disabled"),
                     (false, false) => enable_artwork = true
                 },
-                #[cfg(feature = "config")]
                 Flag::Config => if invert
                 {
                     configs.clear()
@@ -203,7 +201,6 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                 "pivot" => Flag::Pivot,
                 #[cfg(feature = "artwork")]
                 "artwork" => Flag::Artwork,
-                #[cfg(feature = "config")]
                 "config" => Flag::Config,
                 _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
             };
@@ -227,7 +224,6 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     'p' => Flag::Pivot,
                     #[cfg(feature = "artwork")]
                     'a' => Flag::Artwork,
-                    #[cfg(feature = "config")]
                     'c' => Flag::Config,
                     _ => panic!("Invalid argument: Unrecognized single-character flag '{flag_char}'")
                 };
@@ -367,7 +363,9 @@ mod test
 {
     use std::path::Path;
 
+    #[cfg(feature = "artwork")]
     #[test]
+    #[ignore] // It fucks up the keyboard input, because i'm not fluent in ratatui
     fn test_color_override()
     {
         const YAML: &str = "/tmp/test_color_override_enneagram.yaml";

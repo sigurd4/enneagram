@@ -344,6 +344,7 @@ impl Config
 
         // Verify and create if needed.
         config_dir = Self::create_directory(&config_dir, || {
+                #[cfg(feature = "presets")]
                 for (config_name, yaml) in presets::PRESETS
                 {
                     let config_path = Self::config_path(config_name);
