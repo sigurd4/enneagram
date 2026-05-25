@@ -370,10 +370,20 @@ mod test
     #[test]
     fn test_color_override()
     {
-        const YAML: &str = "/tmp/test_color_override.yaml";
+        const YAML: &str = "/tmp/test_color_override_enneagram.yaml";
 
         std::fs::write(Path::new(YAML), "color:\n  glare: FF00FF\n  sun: FFFF00").unwrap();
 
         crate::run(["enneagram", "-ac", YAML])
+    }
+
+    #[test]
+    fn test_christ_enneagram()
+    {
+        const YAML: &str = "/tmp/chist_enneagram.yaml";
+
+        std::fs::write(Path::new(YAML), include_str!("../presets/christ_enneagram.yaml")).unwrap();
+
+        crate::run(["enneagram", "-c", YAML, "1"])
     }
 }

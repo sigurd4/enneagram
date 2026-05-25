@@ -201,7 +201,7 @@ impl Config
             .chain(fallback.iter()
                 .copied()
                 .chain(core::iter::once(&*DEFAULT_CONFIG))
-                .filter_map(|b| getter(b))
+                .filter_map(|config| getter(config))
             )
             .next()
             .expect("No configuration contained the requested value.")
@@ -215,21 +215,22 @@ impl Config
         let fallback = FALLBACK_FIFO.lock()
             .expect("Failed to lock fallback queue.");
         let mut fold = None;
-        for b in initial.into_iter()
+        for value in initial.into_iter()
             .chain(fallback.iter()
                 .copied()
                 .chain(core::iter::once(&*DEFAULT_CONFIG))
-                .filter_map(|b| getter(b))
+                .filter_map(|config| getter(config))
             )
         {
-            match b.try_into()
+            let fold_taken = match fold.take()
+            {
+                None => value.into(),
+                Some(mut fold_taken) => {fold_taken |= value; fold_taken}
+            };
+            match fold_taken.try_into()
             {
                 Ok(output) => return output,
-                Err(b) => match &mut fold
-                {
-                    None => fold = Some(b.into()),
-                    Some(fold) => *fold |= b
-                }
+                Err(fold_taken) => fold = Some(fold_taken)
             }
         }
         fold.expect("No configuration contained the requested value.")
