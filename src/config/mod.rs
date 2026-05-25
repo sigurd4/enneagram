@@ -16,6 +16,17 @@ moddef::moddef!(
     }
 );
 
+macro_rules! member {
+    ([$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident) => {
+        Config::fallback($this.$member.as_ref(), |$conf| (|| {
+            $(let $conf = $conf.$subconf.as_ref()?;)*
+
+            $conf.$member.as_ref()
+        })())
+    };
+}
+use member as member;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Config
@@ -32,15 +43,15 @@ impl Config
 {
     pub fn show(&self) -> &ShowConfig
     {
-        Self::fallback(self.show.as_ref(), |c| c.show.as_ref())
+        crate::config::member!([self, c].show)
     }
     pub fn color(&self) -> &ColorConfig
     {
-        Self::fallback(self.color.as_ref(), |c| c.color.as_ref())
+        crate::config::member!([self, c].color)
     }
     pub fn enneagram(&self) -> &EnneagramConfig
     {
-        Self::fallback(self.enneagram.as_ref(), |c| c.enneagram.as_ref())
+        crate::config::member!([self, c].enneagram)
     }
 }
 

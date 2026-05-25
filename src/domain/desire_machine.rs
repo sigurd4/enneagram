@@ -24,7 +24,7 @@ impl DesireMachine
 
     pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
     {
-        config.borrow().desire_machine.as_str()
+        config.borrow().desire_machine()
     }
 }
 

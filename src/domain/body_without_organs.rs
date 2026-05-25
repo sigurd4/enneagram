@@ -24,7 +24,7 @@ impl BodyWithoutOrgans
 
     pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
     {
-        config.borrow().body_without_organs.as_str()
+        config.borrow().body_without_organs()
     }
 }
 

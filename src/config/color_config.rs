@@ -25,23 +25,23 @@ impl ColorConfig
 {
     pub fn surface(&self) -> &Rgb
     {
-        Config::fallback(self.surface.as_ref(), |c| c.color.as_ref().and_then(|c| c.surface.as_ref())).deref()
+        crate::config::member!([self, c.color].surface).deref()
     }
     pub fn wire(&self) -> &Rgb
     {
-        Config::fallback(self.wire.as_ref(), |c| c.color.as_ref().and_then(|c| c.wire.as_ref())).deref()
+        crate::config::member!([self, c.color].wire).deref()
     }
     pub fn dyed(&self) -> &Rgb
     {
-        Config::fallback(self.dyed.as_ref(), |c| c.color.as_ref().and_then(|c| c.dyed.as_ref())).deref()
+        crate::config::member!([self, c.color].dyed).deref()
     }
     pub fn glare(&self) -> &Rgb
     {
-        Config::fallback(self.glare.as_ref(), |c| c.color.as_ref().and_then(|c| c.glare.as_ref())).deref()
+        crate::config::member!([self, c.color].glare).deref()
     }
     pub fn sun(&self) -> &Rgb
     {
-        Config::fallback(self.sun.as_ref(), |c| c.color.as_ref().and_then(|c| c.sun.as_ref())).deref()
+        crate::config::member!([self, c.color].sun).deref()
     }
 
     pub fn line(&self, is_dyed: bool) -> &Rgb

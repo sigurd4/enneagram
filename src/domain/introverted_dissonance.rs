@@ -24,7 +24,7 @@ impl InternalDissonance
 
     pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
     {
-        config.borrow().introverted_dissonance.as_str()
+        config.borrow().introverted_dissonance()
     }
 }
 
