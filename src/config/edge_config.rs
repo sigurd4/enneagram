@@ -1,84 +1,16 @@
-use core::ops::{BitOrAssign, Deref};
+use core::ops::Deref;
 use std::borrow::Cow;
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
-#[serde(deny_unknown_fields)]
-pub struct PartialEdgeConfig<'a>
-{
-    #[serde(skip_serializing_if = "Option::is_none")]
-    name: Option<Cow<'a, str>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    pivot: Option<Cow<'a, str>>,
-    #[serde(skip_serializing_if = "Option::is_none")]
-    digit: Option<Cow<'a, Digit>>
-}
-
-#[derive(Clone, Debug, PartialEq, Eq)]
-pub struct EdgeConfig<'a>
-{
-    pub name: Cow<'a, str>,
-    pub pivot: Cow<'a, str>,
-    pub digit: Cow<'a, Digit>
-}
-
-impl<'a> BitOrAssign<&'a PartialEdgeConfig<'a>> for PartialEdgeConfig<'a>
-{
-    fn bitor_assign(&mut self, rhs: &'a PartialEdgeConfig<'a>)
+crate::config::def_unitary!(
+    struct EdgeConfig for PartialEdgeConfig
     {
-        let Self { name, pivot, digit } = rhs;
-
-        if let Some(v) = name.as_ref() { self.name.get_or_insert_with(|| v.as_ref().into()); }
-        if let Some(v) = pivot.as_ref() { self.pivot.get_or_insert_with(|| v.as_ref().into()); }
-        if let Some(v) = digit.as_ref() { self.digit.get_or_insert_with(|| Cow::Borrowed(v.as_ref())); }
+        name: str,
+        pivot: str,
+        digit: Digit
     }
-}
-
-impl<'a> From<&'a PartialEdgeConfig<'a>> for PartialEdgeConfig<'a>
-{
-    fn from(value: &'a PartialEdgeConfig<'a>) -> Self
-    {
-        let Self { name, pivot, digit } = value;
-
-        Self {
-            name: name.as_ref().map(|c| c.as_ref().into()),
-            pivot: pivot.as_ref().map(|c| c.as_ref().into()),
-            digit: digit.as_ref().map(|c| Cow::Borrowed(c.as_ref()))
-        }
-    }
-}
-
-impl<'a> TryFrom<&'a PartialEdgeConfig<'a>> for EdgeConfig<'a>
-{
-    type Error = &'a PartialEdgeConfig<'a>;
-
-    fn try_from(value: &'a PartialEdgeConfig<'a>) -> Result<Self, Self::Error>
-    {
-        let PartialEdgeConfig { name, pivot, digit } = value;
-
-        Ok(Self {
-            name: name.as_ref().ok_or(value)?.as_ref().into(),
-            pivot: pivot.as_ref().ok_or(value)?.as_ref().into(),
-            digit: Cow::Borrowed(digit.as_ref().ok_or(value)?.as_ref())
-        })
-    }
-}
-impl<'a> TryFrom<PartialEdgeConfig<'a>> for EdgeConfig<'a>
-{
-    type Error = PartialEdgeConfig<'a>;
-
-    fn try_from(value: PartialEdgeConfig<'a>) -> Result<Self, Self::Error>
-    {
-        let PartialEdgeConfig { name, pivot, digit } = value.clone();
-
-        Ok(Self {
-            name: name.ok_or(value.clone())?,
-            pivot: pivot.ok_or(value.clone())?,
-            digit: digit.ok_or(value)?
-        })
-    }
-}
+);
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 pub struct Digit(Box<[[i8; 2]]>);

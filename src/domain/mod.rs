@@ -33,8 +33,8 @@ pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domai
             Nontrivial(N)
         }
         
-        let trivial_choices = trivial.map(|triad| (triad.config(config).expression.as_str(), move || triad));
-        let nontrivial_choices = nontrivial.map(|triad| (triad.config(config).expression.as_str(), move || triad));
+        let trivial_choices = trivial.each_ref().map(|triad| (triad.config(config), move || *triad));
+        let nontrivial_choices = nontrivial.each_ref().map(|triad| (triad.config(config), move || *triad));
 
         let (domain_kind, codomain_kind) = {
             let [(_, lhs), ..] = trivial_choices;
@@ -46,17 +46,17 @@ pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domai
         println!("\x1b[u -> {codomain_kind}");
 
         let polymorphic_trivial_choices = trivial_choices.each_ref()
-            .map(|(expression, generator)| (*expression, || Triviality::Trivial(generator())));
+            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Trivial(generator())));
         let polymorphic_nontrivial_choices = nontrivial_choices.each_ref()
-            .map(|(expression, generator)| (*expression, || Triviality::Nontrivial(generator())));
+            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Nontrivial(generator())));
 
         let first_triad = crate::select(
             Clause::Question,
             &core::iter::chain(
                 polymorphic_trivial_choices.each_ref()
-                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>)),
+                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>)),
                 polymorphic_nontrivial_choices.each_ref()
-                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>))
+                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>))
             ).collect::<Vec<_>>()
         );
         let (trivial_triad, nontrivial_triad) = match first_triad
@@ -67,7 +67,7 @@ pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domai
                     crate::select(
                         Clause::Continuation(nontrivial_conjunction),
                         &nontrivial_choices.each_ref()
-                            .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> N))
+                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> N))
                     )
                 )
             },
@@ -76,7 +76,7 @@ pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domai
                     crate::select(
                         Clause::Continuation(trivial_conjunction),
                         &trivial_choices.each_ref()
-                            .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> T))
+                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> T))
                     ),
                     nontrivial_triad
                 )

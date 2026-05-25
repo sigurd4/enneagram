@@ -39,14 +39,14 @@ impl Triad for Frame
             Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection], // 234
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
         match self
         {
-            Frame::Gut => &triads.gut,
-            Frame::Head => &triads.head,
-            Frame::Heart => &triads.heart
+            Frame::Gut => triads.gut(),
+            Frame::Head => triads.head(),
+            Frame::Heart => triads.heart()
         }
     }
 }

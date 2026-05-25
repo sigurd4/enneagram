@@ -40,14 +40,14 @@ impl Triad for Fault
             Fault::Reactive => &[Enneatype::Rejection, Enneatype::Paranoia, Enneatype::Action], // 468
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
         match self
         {
-            Fault::Positive => &triads.positive,
-            Fault::Competent => &triads.competent,
-            Fault::Reactive => &triads.reactive,
+            Fault::Positive => triads.positive(),
+            Fault::Competent => triads.competent(),
+            Fault::Reactive => triads.reactive(),
         }
     }
 }

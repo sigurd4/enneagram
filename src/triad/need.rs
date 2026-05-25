@@ -38,14 +38,14 @@ impl Triad for Need
             Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action], // 258
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a TriadConfig
+    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
         match self
         {
-            Need::Attachment => &triads.attachment,
-            Need::Frustration => &triads.frustration,
-            Need::Rejection => &triads.rejection
+            Need::Attachment => triads.attachment(),
+            Need::Frustration => triads.frustration(),
+            Need::Rejection => triads.rejection()
         }
     }
 }

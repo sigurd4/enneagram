@@ -56,6 +56,92 @@ macro_rules! getter {
 }
 use getter as getter;
 
+macro_rules! def_unitary {
+    (
+        struct $name:ident for $partial:ident
+        {
+            $($var:ident: $var_ty:ty),+$(,)?
+        }
+    ) => {
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        #[derive(Serialize, Deserialize)]
+        #[serde(deny_unknown_fields)]
+        pub struct $partial<'a>
+        {
+            $(
+                #[serde(skip_serializing_if = "Option::is_none")]
+                $var: Option<Cow<'a, $var_ty>>,
+            )+
+        }
+
+        #[derive(Clone, Debug, PartialEq, Eq)]
+        pub struct $name<'a>
+        {
+            $(
+                pub $var: Cow<'a, $var_ty>,
+            )+
+        }
+
+        impl<'a> std::ops::BitOrAssign<&'a $partial<'a>> for $partial<'a>
+        {
+            fn bitor_assign(&mut self, rhs: &'a $partial<'a>)
+            {
+                let Self { $($var,)+ } = rhs;
+
+                $(
+                    if let Some(v) = $var.as_ref() { self.$var.get_or_insert_with(|| Cow::Borrowed(v.as_ref())); }
+                )+
+            }
+        }
+
+        impl<'a> From<&'a $partial<'a>> for $partial<'a>
+        {
+            fn from(value: &'a $partial<'a>) -> Self
+            {
+                let Self { $($var,)+ } = value;
+
+                Self {
+                    $(
+                        $var: $var.as_ref().map(|c| Cow::Borrowed(c.as_ref())),
+                    )+
+                }
+            }
+        }
+
+        impl<'a> TryFrom<&'a $partial<'a>> for $name<'a>
+        {
+            type Error = &'a $partial<'a>;
+
+            fn try_from(value: &'a $partial<'a>) -> Result<Self, Self::Error>
+            {
+                let $partial { $($var,)+ } = value;
+
+                Ok(Self {
+                    $(
+                        $var: Cow::Borrowed($var.as_ref().ok_or(value)?.as_ref()),
+                    )+
+                })
+            }
+        }
+        impl<'a> TryFrom<$partial<'a>> for $name<'a>
+        {
+            type Error = $partial<'a>;
+
+            fn try_from(value: $partial<'a>) -> Result<Self, Self::Error>
+            {
+                let $partial { $($var,)+ } = value.clone();
+
+                Ok(Self {
+                    $(
+                        $var: $var.ok_or(value.clone())?,
+                    )+
+                })
+            }
+        }
+    };
+}
+use def_unitary as def_unitary;
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
 pub struct Config

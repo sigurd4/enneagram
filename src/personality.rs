@@ -15,9 +15,14 @@ impl Personality
 {
     pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
     {
-        let frame = self.frame.config(config).affirmation.as_str();
-        let fault = self.fault.config(config).affirmation.as_str();
-        let strategy = self.strategy.config(config).affirmation.as_str();
+        let frame = self.frame.config(config);
+        let frame = frame.affirmation.as_ref();
+
+        let fault = self.fault.config(config);
+        let fault = fault.affirmation.as_ref();
+
+        let strategy = self.strategy.config(config);
+        let strategy = strategy.affirmation.as_ref();
 
         write!(f, "i will {frame}, {fault}, and {strategy}.")
     }
