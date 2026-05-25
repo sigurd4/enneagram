@@ -35,20 +35,20 @@ impl Enneatype
         &[Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
     }
 
-    pub fn config<'a>(&self, config: &'a (impl Borrow<EdgesConfig> + ?Sized)) -> &'a EdgeConfig
+    pub fn config<'a>(&self, config: &'a (impl Borrow<EdgesConfig> + ?Sized)) -> EdgeConfig<'a>
     {
         let edges = config.borrow();
         match self
         {
-            Enneatype::Recovery => &edges.recovery,
-            Enneatype::Association => &edges.association,
-            Enneatype::Repression => &edges.repression,
-            Enneatype::Rejection => &edges.rejection,
-            Enneatype::Catatonia => &edges.catatonia,
-            Enneatype::Paranoia => &edges.paranoia,
-            Enneatype::Disorganization => &edges.disorganization,
-            Enneatype::Action => &edges.action,
-            Enneatype::Rest => &edges.rest,
+            Enneatype::Recovery => edges.recovery(),
+            Enneatype::Association => edges.association(),
+            Enneatype::Repression => edges.repression(),
+            Enneatype::Rejection => edges.rejection(),
+            Enneatype::Catatonia => edges.catatonia(),
+            Enneatype::Paranoia => edges.paranoia(),
+            Enneatype::Disorganization => edges.disorganization(),
+            Enneatype::Action => edges.action(),
+            Enneatype::Rest => edges.rest(),
         }
     }
 

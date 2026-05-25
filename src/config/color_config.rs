@@ -23,26 +23,11 @@ pub struct ColorConfig
 
 impl ColorConfig
 {
-    pub fn surface(&self) -> &Rgb
-    {
-        crate::config::member!([self, c.color].surface).deref()
-    }
-    pub fn wire(&self) -> &Rgb
-    {
-        crate::config::member!([self, c.color].wire).deref()
-    }
-    pub fn dyed(&self) -> &Rgb
-    {
-        crate::config::member!([self, c.color].dyed).deref()
-    }
-    pub fn glare(&self) -> &Rgb
-    {
-        crate::config::member!([self, c.color].glare).deref()
-    }
-    pub fn sun(&self) -> &Rgb
-    {
-        crate::config::member!([self, c.color].sun).deref()
-    }
+    crate::config::getter!([_, c.color].surface.deref() -> Rgb);
+    crate::config::getter!([_, c.color].wire.deref() -> Rgb);
+    crate::config::getter!([_, c.color].dyed.deref() -> Rgb);
+    crate::config::getter!([_, c.color].glare.deref() -> Rgb);
+    crate::config::getter!([_, c.color].sun.deref() -> Rgb);
 
     pub fn line(&self, is_dyed: bool) -> &Rgb
     {

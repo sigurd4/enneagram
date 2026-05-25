@@ -249,7 +249,8 @@ mod test
         {
             let q = std::fmt::from_fn(|f| domain.question(f, &config));
             let a = std::fmt::from_fn(|f| domain.answer(f, &config));
-            let e = domain.edge().config(&config).name.as_str();
+            let e = domain.edge().config(&config);
+            let e = e.name.as_ref();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }
@@ -264,7 +265,8 @@ mod test
         {
             let q = std::fmt::from_fn(|f| domain.question(f, &config));
             let a = std::fmt::from_fn(|f| domain.answer(f, &config));
-            let e = domain.edge().config(&config).name.as_str();
+            let e = domain.edge().config(&config);
+            let e = e.name.as_ref();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
     }

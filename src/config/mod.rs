@@ -1,4 +1,4 @@
-use core::{fmt::Display, str::FromStr};
+use core::{fmt::{Debug, Display}, ops::BitOrAssign, str::FromStr};
 use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex}};
 
 use serde::{Deserialize, Serialize};
@@ -24,8 +24,31 @@ macro_rules! member {
             $conf.$member.as_ref()
         })())
     };
+    ([$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident |=) => {
+        Config::fallback_fold($this.$member.as_ref(), |$conf| (|| {
+            $(let $conf = $conf.$subconf.as_ref()?;)*
+
+            $conf.$member.as_ref()
+        })())
+    };
 }
 use member as member;
+
+macro_rules! getter {
+    ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> $ty:ty) => {
+        pub fn $member(&self) -> &$ty
+        {
+            crate::config::member!([self, $conf$(.$subconf)*].$member)$(.$deref())*
+        }
+    };
+    ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* |= -> $ty:ty) => {
+        pub fn $member(&self) -> $ty
+        {
+            crate::config::member!([self, $conf$(.$subconf)*].$member |=)$(.$deref())*
+        }
+    };
+}
+use getter as getter;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
@@ -41,18 +64,9 @@ pub struct Config
 
 impl Config
 {
-    pub fn show(&self) -> &ShowConfig
-    {
-        crate::config::member!([self, c].show)
-    }
-    pub fn color(&self) -> &ColorConfig
-    {
-        crate::config::member!([self, c].color)
-    }
-    pub fn enneagram(&self) -> &EnneagramConfig
-    {
-        crate::config::member!([self, c].enneagram)
-    }
+    crate::config::getter!([_, c].show -> ShowConfig);
+    crate::config::getter!([_, c].color -> ColorConfig);
+    crate::config::getter!([_, c].enneagram -> EnneagramConfig);
 }
 
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";
@@ -99,6 +113,36 @@ impl Config
             )
             .next()
             .expect("No configuration contained the requested value.")
+    }
+
+    fn fallback_fold<'a, T, V>(initial: Option<&'a V>, getter: impl Fn(&'a Self) -> Option<&'a V>) -> T
+    where
+        &'a V: TryInto<T, Error = &'a V> + Into<V>,
+        V: TryInto<T, Error = V> + BitOrAssign<&'a V> + Debug + 'a
+    {
+        let fallback = FALLBACK_FIFO.lock()
+            .expect("Failed to lock fallback queue.");
+        let mut fold = None;
+        for b in initial.into_iter()
+            .chain(fallback.iter()
+                .copied()
+                .chain(core::iter::once(&*DEFAULT_CONFIG))
+                .filter_map(|b| getter(b))
+            )
+        {
+            match b.try_into()
+            {
+                Ok(output) => return output,
+                Err(b) => match &mut fold
+                {
+                    None => fold = Some(b.into()),
+                    Some(fold) => *fold |= b
+                }
+            }
+        }
+        fold.expect("No configuration contained the requested value.")
+            .try_into()
+            .expect("Item incomplete.")
     }
 
     pub fn add_fallback(fallback_config: Config)

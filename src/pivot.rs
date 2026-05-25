@@ -50,7 +50,8 @@ impl Pivot
     {
         let config = config.borrow();
 
-        let question = self.homeostatis.config(config).pivot.as_str();
+        let h = self.homeostatis.config(config);
+        let question = h.pivot.as_ref();
 
         crate::select(
             Clause::Answer(question),
