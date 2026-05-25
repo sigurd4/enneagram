@@ -46,10 +46,10 @@ impl Enneagram
     pub fn lines(&self) -> Vec<[Enneatype; 2]>
     {
         let mut lines = core::iter::empty()
-            .chain(if self.config.show().path_lines {Some(self.path_lines())} else {None}.into_iter().flatten())
-            .chain(if self.config.show().boundary_lines {Some(self.boundary_lines())} else {None}.into_iter().flatten())
-            .chain(if self.config.show().pivot_lines {Some(self.pivot_lines())} else {None}.into_iter().flatten())
-            .chain(if self.config.show().triad_lines {Some(self.triad_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show().path_lines() {Some(self.path_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show().boundary_lines() {Some(self.boundary_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show().pivot_lines() {Some(self.pivot_lines())} else {None}.into_iter().flatten())
+            .chain(if self.config.show().triad_lines() {Some(self.triad_lines())} else {None}.into_iter().flatten())
             .collect::<Vec<_>>();
         lines.dedup_by(|a, b| crate::line::equals(a, b));
         lines

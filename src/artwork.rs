@@ -50,7 +50,7 @@ impl Artwork
                             .mesh()
                     )
                     .with_material(Material::default()
-                        .with_color(*self.enneagram.config.color()
+                        .with_color(self.enneagram.config.color()
                             .line(self.enneagram.edges.iter()
                                 .flatten()
                                 .any(|e| e == edge)
@@ -79,7 +79,7 @@ impl Artwork
                         .mesh()
                 )
                 .with_material(Material::default()
-                    .with_color(*self.enneagram.config.color()
+                    .with_color(self.enneagram.config.color()
                         .line(dyed_lines.iter()
                             .any(|dyed_line| crate::line::equals(dyed_line, &line))
                         )
@@ -96,12 +96,12 @@ impl Artwork
                     .extrude(-1.0)
                     .mesh()
             )
-            .with_material(Material::default().with_color(*self.enneagram.config.color().surface()))
+            .with_material(Material::default().with_color(self.enneagram.config.color().surface()))
             .with_transform(transform),
         );
         
-        scene.add_light(Light::ambient(*self.enneagram.config.color().glare(), 1.0));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), *self.enneagram.config.color().sun()));
+        scene.add_light(Light::ambient(self.enneagram.config.color().glare(), 1.0));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), self.enneagram.config.color().sun()));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();

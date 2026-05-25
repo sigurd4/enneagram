@@ -18,9 +18,9 @@ pub struct EnneagramConfig
 
 impl EnneagramConfig
 {
-    crate::config::getter!([_, c.enneagram].edges -> EdgesConfig);
-    crate::config::getter!([_, c.enneagram].triads -> TriadsConfig);
-    crate::config::getter!([_, c.enneagram].domains -> DomainConfig);
+    crate::config::getter!([_, c.enneagram].edges -> &EdgesConfig);
+    crate::config::getter!([_, c.enneagram].triads -> &TriadsConfig);
+    crate::config::getter!([_, c.enneagram].domains -> &DomainConfig);
 }
 
 impl Borrow<EnneagramConfig> for Config

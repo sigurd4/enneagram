@@ -35,10 +35,16 @@ macro_rules! member {
 use member as member;
 
 macro_rules! getter {
-    ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> $ty:ty) => {
+    ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> &$ty:ty) => {
         pub fn $member(&self) -> &$ty
         {
             crate::config::member!([self, $conf$(.$subconf)*].$member)$(.$deref())*
+        }
+    };
+    ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> $ty:ty) => {
+        pub fn $member(&self) -> $ty
+        {
+            *crate::config::member!([self, $conf$(.$subconf)*].$member)$(.$deref())*
         }
     };
     ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* |= -> $ty:ty) => {
@@ -64,9 +70,9 @@ pub struct Config
 
 impl Config
 {
-    crate::config::getter!([_, c].show -> ShowConfig);
-    crate::config::getter!([_, c].color -> ColorConfig);
-    crate::config::getter!([_, c].enneagram -> EnneagramConfig);
+    crate::config::getter!([_, c].show -> &ShowConfig);
+    crate::config::getter!([_, c].color -> &ColorConfig);
+    crate::config::getter!([_, c].enneagram -> &EnneagramConfig);
 }
 
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";

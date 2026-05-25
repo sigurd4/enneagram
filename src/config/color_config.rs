@@ -29,7 +29,7 @@ impl ColorConfig
     crate::config::getter!([_, c.color].glare.deref() -> Rgb);
     crate::config::getter!([_, c.color].sun.deref() -> Rgb);
 
-    pub fn line(&self, is_dyed: bool) -> &Rgb
+    pub fn line(&self, is_dyed: bool) -> Rgb
     {
         if is_dyed
         {

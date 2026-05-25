@@ -24,14 +24,14 @@ pub struct DomainConfig
 
 impl DomainConfig
 {
-    crate::config::getter!([_, c.enneagram.domains].introverted_dissonance.deref() -> str);
-    crate::config::getter!([_, c.enneagram.domains].introverted_synthesis.deref() -> str);
-    crate::config::getter!([_, c.enneagram.domains].desire_machine.deref() -> str);
-    crate::config::getter!([_, c.enneagram.domains].body_without_organs.deref() -> str);
-    crate::config::getter!([_, c.enneagram.domains].extroverted_synthesis.deref() -> str);
-    crate::config::getter!([_, c.enneagram.domains].extroverted_dissonance.deref() -> str);
+    crate::config::getter!([_, c.enneagram.domains].introverted_dissonance.deref() -> &str);
+    crate::config::getter!([_, c.enneagram.domains].introverted_synthesis.deref() -> &str);
+    crate::config::getter!([_, c.enneagram.domains].desire_machine.deref() -> &str);
+    crate::config::getter!([_, c.enneagram.domains].body_without_organs.deref() -> &str);
+    crate::config::getter!([_, c.enneagram.domains].extroverted_synthesis.deref() -> &str);
+    crate::config::getter!([_, c.enneagram.domains].extroverted_dissonance.deref() -> &str);
 }
-
+ 
 impl Borrow<DomainConfig> for EnneagramConfig
 {
     fn borrow(&self) -> &DomainConfig
