@@ -1,7 +1,7 @@
 color:
   sky: 000055
   surface: 55FFFF
-  wire: FFFF55
+  wire: FFFF00
   dyed: FF55FF
 enneagram:
   edges:
