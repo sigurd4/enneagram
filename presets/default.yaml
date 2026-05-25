@@ -7,8 +7,8 @@ color:
   surface: F0FFFF
   wire: FF0000
   dyed: FFC040
-  glare: FFFFFF
-  sun: FFFFFF
+  glare: FFEEFF
+  sun: EEEEFF
 enneagram:
   edges:
     1:
