@@ -1,4 +1,4 @@
-use core::{borrow::Borrow, fmt::Display, str::FromStr};
+use core::{fmt::Display, str::FromStr};
 use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex}};
 
 use serde::{Deserialize, Serialize};
@@ -32,15 +32,15 @@ impl Config
 {
     pub fn show(&self) -> &ShowConfig
     {
-        Self::fallback(self, |c| &c.show)
+        Self::fallback(self.show.as_ref(), |c| c.show.as_ref())
     }
     pub fn color(&self) -> &ColorConfig
     {
-        Self::fallback(self, |c| &c.color)
+        Self::fallback(self.color.as_ref(), |c| c.color.as_ref())
     }
     pub fn enneagram(&self) -> &EnneagramConfig
     {
-        Self::fallback(self, |c| &c.enneagram)
+        Self::fallback(self.enneagram.as_ref(), |c| c.enneagram.as_ref())
     }
 }
 
@@ -76,19 +76,16 @@ const XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE: &str = "XDG_CONFIG_HOME";
 
 impl Config
 {
-    fn fallback<M, T>(member: &M, getter: impl Fn(&M) -> &Option<T>) -> &T
-    where
-        Self: Borrow<M>
+    fn fallback<T>(initial: Option<&T>, getter: impl Fn(&Self) -> Option<&T>) -> &T
     {
         let fallback = FALLBACK_FIFO.lock()
             .expect("Failed to lock fallback queue.");
-        core::iter::once(member)
+        initial.into_iter()
             .chain(fallback.iter()
                 .copied()
                 .chain(core::iter::once(&*DEFAULT_CONFIG))
-                .map(|c| c.borrow())
+                .filter_map(|b| getter(b))
             )
-            .filter_map(|b| getter(b).as_ref())
             .next()
             .expect("No configuration contained the requested value.")
     }

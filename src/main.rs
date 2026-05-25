@@ -25,7 +25,13 @@ moddef::moddef!(
 
 fn main()
 {
-    let mut args = std::env::args()
+    run(std::env::args())
+}
+
+fn run(args: impl IntoIterator<Item: Into<String>>)
+{
+    let mut args = args.into_iter()
+        .map(Into::into)
         .peekable();
 
     let _executeable = args.next()
@@ -354,4 +360,21 @@ fn select<T>(
         Clause::Continuation(_) => println!("{expression}\x1b[s")
     }
     result()
+}
+
+#[cfg(test)]
+mod test
+{
+    use std::path::Path;
+
+    #[test]
+    fn test_color_override()
+    {
+        const YAML: &str = "/tmp/test_color_override.yaml";
+
+        std::fs::write(Path::new(YAML), "color:\n  glare: FF00FF\n  sun: FFFF00").unwrap();
+
+        crate::run(["enneagram", "-ac", YAML])
+        //enneagram -c ./tmp.yaml -a
+    }
 }
