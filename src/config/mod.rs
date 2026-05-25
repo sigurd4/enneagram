@@ -311,7 +311,7 @@ impl Config
         }
     }
 
-    fn create_directory(dir: &Path) -> Result<Cow<'_, Path>, CreateDirectoryError>
+    fn create_directory(dir: &Path, upon_creation: impl Fn()) -> Result<Cow<'_, Path>, CreateDirectoryError>
     {
         loop
         {
@@ -320,11 +320,14 @@ impl Config
                 Ok(dir) => return Ok(dir),
                 Err(error) => match error
                 {
-                    FindDirectoryError::Nonexistant { path } => std::fs::create_dir(&path)
-                        .map_err(|error| CreateDirectoryError::Failed {
-                            path,
-                            error
-                        })?,
+                    FindDirectoryError::Nonexistant { path } => {
+                        std::fs::create_dir(&path)
+                            .map_err(|error| CreateDirectoryError::Failed {
+                                path: path,
+                                error
+                            })?;
+                        upon_creation()
+                    },
                     FindDirectoryError::NotADirectory { path } => {
                         return Err(CreateDirectoryError::NotADirectory { path }.into())
                     }
@@ -340,7 +343,15 @@ impl Config
             .join(Path::new("enneagram"));
 
         // Verify and create if needed.
-        config_dir = Self::create_directory(&config_dir)?
+        config_dir = Self::create_directory(&config_dir, || {
+                for (config_name, yaml) in presets::PRESETS
+                {
+                    let config_path = Self::config_path(config_name);
+                    
+                    std::fs::write(&config_path, yaml)
+                        .expect(&format!("Failed to write preset '{config_name}' to '{}'", config_path.to_string_lossy()))
+                }
+            })?
             .into_owned();
 
         Ok(config_dir)
