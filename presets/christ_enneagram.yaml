@@ -7,19 +7,28 @@ enneagram:
   edges:
     1:
       name: Teaching - Tolerance - Patience
+      digit: -1,3 0,4 0,-4 -1,-4 1,-4
     2:
       name: Care - Compassion - Solidarity
+      digit: -3,3 -2,4 2,4 3,3 3,0 -3,-4 3,-4 3,-3
     3:
       name: Ambition - Energy - Vision
+      digit: -3,3 -2,4 2,4 3,3 3,1 1,0 3,-1 3,-3 2,-4 -2,-4 -3,-3
     4:
       name: Creativity - Sensitivity - Naturalness
+      digit: 3,1 -3,1 1,4 1,-4
     5:
       name: Distance - Sobriety - Wisdom
+      digit: 3,4 -3,4 -3,1 2,1 3,0 3,-3 2,-4 -3,-4
     6:
       name: Fidelity - Obedience - Trust
+      digit: 3,4 0,4 -3,-1 -2,0 2,0 3,-1 3,-3 2,-4 -2,-4 -3,-3 -3,-1
     7:
       name: Festiveness - Joie de Vivre - Pain
+      digit: -3,4 3,4 -3,-4
     8:
       name: Confrontation - Clarity - Authority
+      digit: 1,0 3,1 3,3 2,4 -2,4 -3,3 -3,1 -1,0 -3,-1 -3,-3 -2,-4 2,-4 3,-3 3,-1 1,0 -1,0
     9:
       name: Composure - Peaceableness - Love
+      digit: 3,1 2,0 -2,0 -3,1 -3,3 -2,4 2,4 3,3 3,1 -3,-4

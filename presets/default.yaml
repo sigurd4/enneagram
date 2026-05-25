@@ -14,40 +14,40 @@ color:
 enneagram:
   edges:
     1:
-      name: Recovery
-      pivot: how will you manage your frustration?
+      name: Reformer, Perfectionist
+      pivot: how will you manage your anger?
       digit: -1,3 0,4 0,-4 -1,-4 1,-4
     2:
-      name: Association
-      pivot: how will you gain worth?
+      name: Helper, Giver
+      pivot: how will you become worthy of love?
       digit: -3,3 -2,4 2,4 3,3 3,0 -3,-4 3,-4 3,-3
     3:
-      name: Repression
+      name: Achiever, Performer
       pivot: how will you repress your shame?
       digit: -3,3 -2,4 2,4 3,3 3,1 1,0 3,-1 3,-3 2,-4 -2,-4 -3,-3
     4:
-      name: Rejection
-      pivot: how will you deal with your longing?
+      name: Individualist, Romantic
+      pivot: how will you remain authentic?
       digit: 3,1 -3,1 1,4 1,-4
     5:
-      name: Catatonia
-      pivot: how will you gain security?
+      name: Investigator, Observer
+      pivot: how will you gain understanding?
       digit: 3,4 -3,4 -3,1 2,1 3,0 3,-3 2,-4 -3,-4
     6:
-      name: Paranoia
-      pivot: how will you deal with your insecurity?
+      name: Loyalist, Loyal Skeptic
+      pivot: how will you handle your fear?
       digit: 3,4 0,4 -3,-1 -2,0 2,0 3,-1 3,-3 2,-4 -2,-4 -3,-3 -3,-1
     7:
-      name: Disorganization
-      pivot: how will you handle your fear?
+      name: Enthusiast, Epicure
+      pivot: how will you ever become satisfied?
       digit: -3,4 3,4 -3,-4
     8:
-      name: Action
-      pivot: how will you gain control?
+      name: Challenger, Protector
+      pivot: how will you gain influence?
       digit: 1,0 3,1 3,3 2,4 -2,4 -3,3 -3,1 -1,0 -3,-1 -3,-3 -2,-4 2,-4 3,-3 3,-1 1,0 -1,0
     9:
-      name: Rest
-      pivot: how will you suppress your anger?
+      name: Peacemaker, Mediator
+      pivot: how will you avoid conflict?
       digit: 3,1 2,0 -2,0 -3,1 -3,3 -2,4 2,4 3,3 3,1 -3,-4
   triads:
     891:
@@ -113,7 +113,7 @@ enneagram:
   domains:
     introverted_dissonance: introverted dissonance
     introverted_synthesis: introverted synthesis
-    desire_machine: desire-machine
-    body_without_organs: body without organs
+    desire_machine: thesis
+    body_without_organs: antithesis
     extroverted_synthesis: extroverted synthesis
     extroverted_dissonance: extroverted dissonance

@@ -1,32 +1,54 @@
+show:
+  path_lines: true
+  boundary_lines: true
+  pivot_lines: true
+  triad_lines: true
+color:
+  sky: 000000
+  surface: F0FFFF
+  wire: FF0000
+  dyed: FFC040
+  glare: FFEEFF
+  sun: 110000
+  shine: EEEEFF
 enneagram:
   edges:
     1:
       name: Reformer, Perfectionist
       pivot: how will you manage your anger?
+      digit: -1,3 0,4 0,-4 -1,-4 1,-4
     2:
       name: Helper, Giver
       pivot: how will you become worthy of love?
+      digit: -3,3 -2,4 2,4 3,3 3,0 -3,-4 3,-4 3,-3
     3:
       name: Achiever, Performer
       pivot: how will you repress your shame?
+      digit: -3,3 -2,4 2,4 3,3 3,1 1,0 3,-1 3,-3 2,-4 -2,-4 -3,-3
     4:
       name: Individualist, Romantic
       pivot: how will you remain authentic?
+      digit: 3,1 -3,1 1,4 1,-4
     5:
       name: Investigator, Observer
       pivot: how will you gain understanding?
+      digit: 3,4 -3,4 -3,1 2,1 3,0 3,-3 2,-4 -3,-4
     6:
       name: Loyalist, Loyal Skeptic
       pivot: how will you handle your fear?
+      digit: 3,4 0,4 -3,-1 -2,0 2,0 3,-1 3,-3 2,-4 -2,-4 -3,-3 -3,-1
     7:
       name: Enthusiast, Epicure
       pivot: how will you ever become satisfied?
+      digit: -3,4 3,4 -3,-4
     8:
       name: Challenger, Protector
       pivot: how will you gain influence?
+      digit: 1,0 3,1 3,3 2,4 -2,4 -3,3 -3,1 -1,0 -3,-1 -3,-3 -2,-4 2,-4 3,-3 3,-1 1,0 -1,0
     9:
       name: Peacemaker, Mediator
       pivot: how will you avoid conflict?
+      digit: 3,1 2,0 -2,0 -3,1 -3,3 -2,4 2,4 3,3 3,1 -3,-4
   triads:
     891:
       description: Gut/"I am my urges, my concience hurts me"
@@ -91,7 +113,7 @@ enneagram:
   domains:
     introverted_dissonance: introverted dissonance
     introverted_synthesis: introverted synthesis
-    desire_machine: desire-machine
-    body_without_organs: body without organs
+    desire_machine: thesis
+    body_without_organs: antithesis
     extroverted_synthesis: extroverted synthesis
     extroverted_dissonance: extroverted dissonance

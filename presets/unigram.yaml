@@ -1,20 +1,20 @@
 enneagram:
   edges:
-    recovery:
+    1:
       name: Gradient
-    association:
+    2:
       name: Superego
-    repression:
+    3:
       name: Ego
-    rejection:
+    4:
       name: Id
-    catatonia:
+    5:
       name: Catatonia
-    paranoia:
+    6:
       name: Paranoia
-    disorganization:
+    7:
       name: Disorganization
-    action:
+    8:
       name: Flow
-    rest:
+    9:
       name: Equilibrium
