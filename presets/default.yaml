@@ -1,7 +1,3 @@
-config:
-  directories:
-  - /home/sigurd/.config/enneagram
-  - /etc/enneagram
 show:
   path_lines: true
   boundary_lines: true

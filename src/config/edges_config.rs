@@ -39,6 +39,6 @@ impl Borrow<EdgesConfig> for Config
 {
     fn borrow(&self) -> &EdgesConfig
     {
-        &self.enneagram.borrow()
+        &self.enneagram().borrow()
     }
 }

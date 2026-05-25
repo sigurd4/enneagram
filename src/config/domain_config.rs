@@ -27,6 +27,6 @@ impl Borrow<DomainConfig> for Config
 {
     fn borrow(&self) -> &DomainConfig
     {
-        &self.enneagram.borrow()
+        &self.enneagram().borrow()
     }
 }

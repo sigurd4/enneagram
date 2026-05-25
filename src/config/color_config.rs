@@ -25,7 +25,7 @@ impl Borrow<ColorConfig> for Config
 {
     fn borrow(&self) -> &ColorConfig
     {
-        &self.color
+        self.color()
     }
 }
 

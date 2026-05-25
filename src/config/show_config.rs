@@ -18,6 +18,6 @@ impl Borrow<ShowConfig> for Config
 {
     fn borrow(&self) -> &ShowConfig
     {
-        &self.show
+        &self.show()
     }
 }

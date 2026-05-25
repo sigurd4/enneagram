@@ -35,7 +35,7 @@ impl Artwork
             let [x, y] = edge.position()
                 .map(|p| p*DIGIT_RADIUS);
             for line in crate::path::lines_disconnected(
-                    edge.config(&self.enneagram.config.enneagram.edges)
+                    edge.config(&self.enneagram.config)
                         .digit
                         .iter()
                         .copied()
@@ -51,11 +51,11 @@ impl Artwork
                     )
                     .with_material(Material::default().with_color(if self.enneagram.edges.iter().flatten().any(|e| e == edge)
                     {
-                        self.enneagram.config.color.dyed
+                        self.enneagram.config.color().dyed
                     }
                     else
                     {
-                        self.enneagram.config.color.wire
+                        self.enneagram.config.color().wire
                     }))
                     .with_transform(transform),
                 );
@@ -81,11 +81,11 @@ impl Artwork
                 .with_material(Material::default().with_color(if dyed_lines.iter()
                         .any(|dyed_line| crate::line::equals(dyed_line, &line))
                     {
-                        self.enneagram.config.color.dyed
+                        self.enneagram.config.color().dyed
                     }
                     else
                     {
-                        self.enneagram.config.color.wire
+                        self.enneagram.config.color().wire
                     }))
                 .with_transform(transform),
             );
@@ -98,12 +98,12 @@ impl Artwork
                     .extrude(-1.0)
                     .mesh()
             )
-            .with_material(Material::default().with_color(self.enneagram.config.color.surface))
+            .with_material(Material::default().with_color(self.enneagram.config.color().surface))
             .with_transform(transform),
         );
         
-        scene.add_light(Light::ambient(self.enneagram.config.color.glare, 1.0));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), self.enneagram.config.color.sun));
+        scene.add_light(Light::ambient(self.enneagram.config.color().glare, 1.0));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), self.enneagram.config.color().sun));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();

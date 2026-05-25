@@ -45,6 +45,6 @@ impl Borrow<TriadsConfig> for Config
 {
     fn borrow(&self) -> &TriadsConfig
     {
-        &self.enneagram.borrow()
+        &self.enneagram().borrow()
     }
 }

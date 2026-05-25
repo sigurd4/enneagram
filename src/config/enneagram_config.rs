@@ -17,6 +17,6 @@ impl Borrow<EnneagramConfig> for Config
 {
     fn borrow(&self) -> &EnneagramConfig
     {
-        &self.enneagram
+        &self.enneagram()
     }
 }

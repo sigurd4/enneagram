@@ -6,7 +6,6 @@ use serde::{Deserialize, Serialize, de::DeserializeOwned};
 moddef::moddef!(
     flat(pub) mod {
         color_config,
-        config_config,
         domain_config,
         edge_config,
         edges_config,
@@ -18,61 +17,270 @@ moddef::moddef!(
 );
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
-#[serde(default = "Config::read_default", deny_unknown_fields)]
-pub struct Config(ConfigData);
-
-#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
-pub struct ConfigData
+pub struct Config
 {
-    config: ConfigConfig,
-    pub show: ShowConfig,
-    pub color: ColorConfig,
-    pub enneagram: EnneagramConfig
+    #[serde(skip_serializing_if = "Option::is_none")]
+    show: Option<ShowConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    color: Option<ColorConfig>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    enneagram: Option<EnneagramConfig>
 }
 
-impl Default for ConfigData
+impl Config
 {
-    fn default() -> Self
+    pub fn show(&self) -> &ShowConfig
     {
-        serde_saphyr::from_str(DEFAULT_CONFIG_DATA)
-            .expect("Failed to parse original default config.")
+        Self::fallback(self, |c| &c.show)
+    }
+    pub fn color(&self) -> &ColorConfig
+    {
+        Self::fallback(self, |c| &c.color)
+    }
+    pub fn enneagram(&self) -> &EnneagramConfig
+    {
+        Self::fallback(self, |c| &c.enneagram)
     }
 }
 
-impl Deref for Config
-{
-    type Target = ConfigData;
-
-    fn deref(&self) -> &Self::Target
-    {
-        &self.0 
-    }
-}
-impl From<ConfigData> for Config
-{
-    fn from(data: ConfigData) -> Self
-    {
-        Self(data)
-    }
-}
-impl From<Config> for ConfigData
-{
-    fn from(config: Config) -> ConfigData
-    {
-        config.0
-    }
-}
-
-/// First-in-first-out buffer of fallback configs. Will be emptied upon next reading of a config.
-static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<String>>>> = LazyLock::new(|| Arc::new(Mutex::new(Vec::new())));
-
-/// Configuration directories added throughout runtime.
-static CONFIG_DIRS: LazyLock<Arc<Mutex<Vec<PathBuf>>>> = LazyLock::new(|| Arc::new(Mutex::new(Vec::new())));
-
-const SYSTEMWISE_CONFIG_DIR: &str = "/etc/enneagram";
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";
 const DEFAULT_CONFIG_DATA: &str = include_str!("../../presets/default.yaml");
+
+static DEFAULT_CONFIG_PATH: LazyLock<Cow<Path>> = LazyLock::new(|| {
+    Config::config_path(DEFAULT_CONFIG_FILENAME)
+});
+
+static DEFAULT_CONFIG: LazyLock<Config> = LazyLock::new(|| {
+    static DEFAULT_CONFIG_PRESET: LazyLock<Config> = LazyLock::new(|| {
+        serde_saphyr::from_str(DEFAULT_CONFIG_DATA)
+            .expect("Failed to parse original default config.")
+    });
+
+    if !DEFAULT_CONFIG_PATH.exists()
+    {
+        DEFAULT_CONFIG_PRESET.write_config(DEFAULT_CONFIG_FILENAME);
+    }
+
+    Config::read_config(DEFAULT_CONFIG_FILENAME)
+});
+
+/// Fallback configurations.
+static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<&'static Config>>>> = LazyLock::new(|| {
+    Arc::new(Mutex::new(Vec::new()))
+});
+
+const HOME_DIRECTORY_ENV_VARIABLE: &str = "HOME";
+const CONFIG_SUBDIRECTORY_UNIX: &str = ".config";
+const XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE: &str = "XDG_CONFIG_HOME";
+
+impl Config
+{
+    fn fallback<M, T>(member: &M, getter: impl Fn(&M) -> &Option<T>) -> &T
+    where
+        Self: Borrow<M>
+    {
+        let fallback = FALLBACK_FIFO.lock()
+            .expect("Failed to lock fallback queue.");
+        core::iter::once(member)
+            .chain(fallback.iter()
+                .copied()
+                .chain(core::iter::once(&*DEFAULT_CONFIG))
+                .map(|c| c.borrow())
+            )
+            .filter_map(|b| getter(b).as_ref())
+            .next()
+            .expect("No configuration contained the requested value.")
+    }
+
+    pub fn add_fallback(fallback_config: Config)
+    {
+        let mut fallback = FALLBACK_FIFO.lock()
+            .expect(&format!("Failed to lock fallback queue."));
+        fallback.push(Box::leak(Box::new(fallback_config)));
+    }
+
+    fn find_directory<'a>(dir: impl Into<Cow<'a, Path>>) -> Result<Cow<'a, Path>, FindDirectoryError>
+    {
+        let dir = dir.into();
+        if !dir.exists()
+        {
+            return Err(FindDirectoryError::Nonexistant {
+                path: dir.into()
+            })
+        }
+        if !dir.is_dir()
+        {
+            return Err(FindDirectoryError::NotADirectory {
+                path: dir.into()
+            })
+        }
+        Ok(dir)
+    }
+
+    fn find_env_directory(variable: &str) -> Result<PathBuf, FindEnvDirectoryError>
+    {
+        // Extract string from environment.
+        let env = std::env::var(variable)
+            .map_err(|error| FindEnvDirectoryError::MissingVariable {
+                error,
+                variable: variable.to_string()
+            })?;
+
+        // Create path-buffer from string.
+        let mut dir = match PathBuf::from_str(&env)
+        {
+            Ok(dir) => dir,
+            Err(infallible) => match infallible {}
+        };
+
+        // Verify directory.
+        dir = Self::find_directory(dir)
+            .map_err(|error| FindEnvDirectoryError::NotFound {
+                error,
+                variable: variable.to_string()
+            })?
+            .into_owned();
+
+        Ok(dir)
+    }
+
+    fn home_dir() -> Result<PathBuf, FindHomeDirectoryError>
+    {
+        Ok(Self::find_env_directory(HOME_DIRECTORY_ENV_VARIABLE)?)
+    }
+
+    fn xdg_config_home_dir() -> Result<PathBuf, FindXdgConfigHomeDirectoryError>
+    {
+        match Self::find_env_directory(XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE)
+        {
+            Ok(dir) => Ok(dir),
+            Err(error) => match error.try_into()
+            {
+                Ok(error) => Err(error),
+                Err(dir) => Ok(dir)
+            }
+        }
+    }
+
+    fn create_directory(dir: &Path) -> Result<Cow<'_, Path>, CreateDirectoryError>
+    {
+        loop
+        {
+            match Self::find_directory(dir)
+            {
+                Ok(dir) => return Ok(dir),
+                Err(error) => match error
+                {
+                    FindDirectoryError::Nonexistant { path } => std::fs::create_dir(&path)
+                        .map_err(|error| CreateDirectoryError::Failed {
+                            path,
+                            error
+                        })?,
+                    FindDirectoryError::NotADirectory { path } => {
+                        return Err(CreateDirectoryError::NotADirectory { path }.into())
+                    }
+                }
+            }
+        }
+    }
+
+    fn config_dir() -> Result<PathBuf, FindUserConfigDirectoryError>
+    {
+        // Construct as subdirectory of $XDG_CONFIG_DIR
+        let mut config_dir = Self::xdg_config_home_dir()?
+            .join(Path::new("enneagram"));
+
+        // Verify and create if needed.
+        config_dir = Self::create_directory(&config_dir)?
+            .into_owned();
+
+        Ok(config_dir)
+    }
+
+    pub fn config_path<'a>(config: &'a str) -> Cow<'a, Path>
+    {
+        // Construct path.
+        let mut config_path = Cow::from(Path::new(config));
+
+        // Add extension if missing.
+        if config_path.extension().is_none()
+        {
+            config_path = config_path.with_extension("yaml").into()
+        }
+
+        // Search in directories if only filename is provided.
+        if config_path.components()
+            .last()
+            .is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
+        {
+            let user_config_dir = match Self::config_dir()
+            {
+                Ok(config_dir) => config_dir,
+                Err(error) => panic!("User configuration directory not found: {error}")
+            };
+
+            config_path = user_config_dir.join(config_path).into()
+        }
+
+        // Check extension.
+        if !config_path.extension()
+            .and_then(|extension| extension.to_str())
+            .is_some_and(|extension| extension == "yaml")
+        {
+            panic!("Configuration '{}' should have extension '.yaml'", config_path.to_string_lossy())
+        }
+
+        config_path
+    }
+
+    pub fn default_config_path() -> &'static Path
+    {
+        &DEFAULT_CONFIG_PATH
+    }
+
+    fn write_config_path(&self, config_path: &Path)
+    {
+        // Serialize to yaml.
+        let yaml = serde_saphyr::to_string_with_options(self, serde_saphyr::ser_options!{
+                empty_as_braces: true,
+                indent_step: 2,
+                compact_list_indent: true,
+                tagged_enums: false,
+                prefer_block_scalars: true,
+                quote_all: false,
+                yaml_12: false
+            })
+            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
+
+        // Write to filesystem.
+        std::fs::write(config_path, yaml)
+            .expect(&format!("Unable to create configuration '{}'.", config_path.to_string_lossy()))
+    }
+
+    #[allow(unused)]
+    pub fn write_config(&self, config: &str)
+    {
+        self.write_config_path(&Self::config_path(config))
+    }
+
+    fn read_config_path(config_path: &Path) -> Config
+    {
+        // Read from filesystem.
+        let yaml = File::open(config_path)
+            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
+
+        // Deserialize from yaml.
+        serde_saphyr::from_reader(yaml)
+            //serde_saphyr::from_str_validate(&yaml) // TODO: implement validator
+            .expect(&format!("Unable to parse configuration '{}'.", config_path.to_string_lossy()))
+    }
+
+    pub fn read_config(config: &str) -> Config
+    {
+        Self::read_config_path(&Self::config_path(config))
+    }
+}
 
 enum FindDirectoryError
 {
@@ -235,326 +443,6 @@ impl Display for FindUserConfigDirectoryError
             Self::Unavailable(error) => write!(f, "Configuration directory unavailable. {error}"),
             Self::Creation(error) => write!(f, "Unable to create configuration directory. {error}")
         }
-    }
-}
-
-const HOME_DIRECTORY_ENV_VARIABLE: &str = "HOME";
-const CONFIG_SUBDIRECTORY_UNIX: &str = ".config";
-const XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE: &str = "XDG_CONFIG_HOME";
-
-impl Config
-{
-    fn pop_fallback() -> Option<Self>
-    {
-        let config_path = {
-            let mut fallback = FALLBACK_FIFO.lock()
-                .expect("Failed to lock fallback queue upon pop.");
-            fallback.pop()
-        }?;
-
-        Some(Self::read_config(&config_path))
-    }
-
-    pub fn push_fallback(fallback_config_path: String)
-    {
-        let mut fallback = FALLBACK_FIFO.lock()
-            .expect(&format!("Failed to lock fallback queue upon push of '{fallback_config_path}'."));
-        fallback.push(fallback_config_path);
-    }
-
-    pub fn read_default() -> Self
-    {
-        let default_config_path = Self::default_config_path();
-        if !default_config_path.exists()
-        {
-            Config::default().write_config_path(&default_config_path);
-        }
-        if let Some(fallback) = Self::pop_fallback()
-        {
-            return fallback
-        }
-        Self::read_default_config()
-    }
-
-    pub fn read_default_member<T>() -> T
-    where
-        Self: Borrow<T>,
-        T: Clone
-    {
-        Self::read_default()
-            .borrow()
-            .clone()
-    }
-
-    fn find_directory<'a>(dir: impl Into<Cow<'a, Path>>) -> Result<Cow<'a, Path>, FindDirectoryError>
-    {
-        let dir = dir.into();
-        if !dir.exists()
-        {
-            return Err(FindDirectoryError::Nonexistant {
-                path: dir.into()
-            })
-        }
-        if !dir.is_dir()
-        {
-            return Err(FindDirectoryError::NotADirectory {
-                path: dir.into()
-            })
-        }
-        Ok(dir)
-    }
-
-    fn find_env_directory(variable: &str) -> Result<PathBuf, FindEnvDirectoryError>
-    {
-        // Extract string from environment.
-        let env = std::env::var(variable)
-            .map_err(|error| FindEnvDirectoryError::MissingVariable {
-                error,
-                variable: variable.to_string()
-            })?;
-
-        // Create path-buffer from string.
-        let mut dir = match PathBuf::from_str(&env)
-        {
-            Ok(dir) => dir,
-            Err(infallible) => match infallible {}
-        };
-
-        // Verify directory.
-        dir = Self::find_directory(dir)
-            .map_err(|error| FindEnvDirectoryError::NotFound {
-                error,
-                variable: variable.to_string()
-            })?
-            .into_owned();
-
-        Ok(dir)
-    }
-
-    fn home_dir() -> Result<PathBuf, FindHomeDirectoryError>
-    {
-        Ok(Self::find_env_directory(HOME_DIRECTORY_ENV_VARIABLE)?)
-    }
-
-    fn xdg_config_home_dir() -> Result<PathBuf, FindXdgConfigHomeDirectoryError>
-    {
-        match Self::find_env_directory(XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE)
-        {
-            Ok(dir) => Ok(dir),
-            Err(error) => match error.try_into()
-            {
-                Ok(error) => Err(error),
-                Err(dir) => Ok(dir)
-            }
-        }
-    }
-
-    fn create_directory(dir: &Path) -> Result<Cow<'_, Path>, CreateDirectoryError>
-    {
-        loop
-        {
-            match Self::find_directory(dir)
-            {
-                Ok(dir) => return Ok(dir),
-                Err(error) => match error
-                {
-                    FindDirectoryError::Nonexistant { path } => std::fs::create_dir(&path)
-                        .map_err(|error| CreateDirectoryError::Failed {
-                            path,
-                            error
-                        })?,
-                    FindDirectoryError::NotADirectory { path } => {
-                        return Err(CreateDirectoryError::NotADirectory { path }.into())
-                    }
-                }
-            }
-        }
-    }
-
-    fn user_config_dir() -> Result<PathBuf, FindUserConfigDirectoryError>
-    {
-        // Construct as subdirectory of $XDG_CONFIG_DIR
-        let mut config_dir = Self::xdg_config_home_dir()?
-            .join(Path::new("enneagram"));
-
-        // Verify and create if needed.
-        config_dir = Self::create_directory(&config_dir)?
-            .into_owned();
-
-        Ok(config_dir)
-    }
-
-    fn config_dirs_lock<'a>() -> MutexGuard<'a, Vec<PathBuf>>
-    {
-        CONFIG_DIRS.lock()
-            .expect("Failed to lock config directory search paths cache.")
-    }
-
-    fn add_config_dir<'a>(nex_config_dir: impl Into<Cow<'a, Path>>)
-    {
-        let search_path = nex_config_dir.into();
-        if let Ok(config_dir) = Self::find_directory(search_path)
-        {
-            let config_dir = config_dir.into_owned();
-            let mut config_dirs_lock = Self::config_dirs_lock();
-            if config_dirs_lock.contains(&config_dir)
-            {
-                return
-            }
-            config_dirs_lock.push(config_dir)
-        }
-    }
-
-    fn add_config_dirs<'a>(new_config_dirs: impl IntoIterator<Item: Into<Cow<'a, Path>>>)
-    {
-        for search_path in new_config_dirs.into_iter()
-        {
-            Self::add_config_dir(search_path)
-        }
-    }
-
-    fn default_config_dirs() -> Vec<PathBuf>
-    {
-        let user_config_dir = match Self::user_config_dir()
-        {
-            Ok(config_dir) => config_dir.into(),
-            Err(error) => panic!("User configuration directory not found: {error}")
-        };
-
-        let config_dirs = vec![
-            user_config_dir,
-            PathBuf::from(SYSTEMWISE_CONFIG_DIR)
-        ];
-        Self::add_config_dirs(config_dirs.iter().map(PathBuf::as_path));
-        config_dirs
-    }
-
-    fn config_dirs() -> Vec<PathBuf>
-    {
-        Self::add_config_dirs(Self::default_config_dirs());
-        Self::config_dirs_lock().clone()
-    }
-
-    pub fn config_path<'a>(config: &'a str) -> Cow<'a, Path>
-    {
-        // Construct path.
-        let mut config_path = Cow::from(Path::new(config));
-
-        // Add extension if missing.
-        if config_path.extension().is_none()
-        {
-            config_path = config_path.with_extension("yaml").into()
-        }
-
-        // Search in directories if only filename is provided.
-        if config_path.components()
-            .last()
-            .is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
-        {
-            // Check visited config dirs.
-            let mut config_path_full = None;
-            for config_dir in Self::config_dirs()
-            {
-                let config_search_path = config_dir.join(&config_path);
-                if config_search_path.exists() && config_search_path.is_file()
-                {
-                    config_path_full = Some(config_search_path.into());
-                    break
-                }
-            }
-
-            // Fallback to user config dir.
-            config_path = match config_path_full
-            {
-                Some(config_path) => config_path,
-                None => {
-                    let user_config_dir = match Self::user_config_dir()
-                    {
-                        Ok(config_dir) => config_dir,
-                        Err(error) => panic!("User configuration directory not found: {error}")
-                    };
-
-                    user_config_dir.join(config_path).into()
-                }
-            }
-        }
-
-        // Check extension.
-        if !config_path.extension()
-            .and_then(|extension| extension.to_str())
-            .is_some_and(|extension| extension == "yaml")
-        {
-            panic!("Configuration '{}' should have extension '.yaml'", config_path.to_string_lossy())
-        }
-
-        config_path
-    }
-    pub fn default_config_path() -> Cow<'static, Path>
-    {
-        Self::config_path(DEFAULT_CONFIG_FILENAME)
-    }
-
-    fn write_config_path(&self, config_path: &std::path::Path)
-    {
-        // Serialize to yaml.
-        let yaml = serde_saphyr::to_string_with_options(self, serde_saphyr::ser_options!{
-                empty_as_braces: true,
-                indent_step: 2,
-                compact_list_indent: true,
-                tagged_enums: false,
-                prefer_block_scalars: true,
-                quote_all: false,
-                yaml_12: false
-            })
-            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
-
-        // Write to filesystem.
-        std::fs::write(config_path, yaml)
-            .expect(&format!("Unable to create configuration '{}'.", config_path.to_string_lossy()))
-    }
-
-    fn read_generic_type_path<T>(config_path: &std::path::Path) -> T
-    where
-        T: DeserializeOwned
-    {
-        // Read from filesystem.
-        let yaml = File::open(config_path)
-            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
-
-        // Deserialize from yaml.
-        serde_saphyr::from_reader(yaml)
-            //serde_saphyr::from_str_validate(&yaml) // TODO: implement validator
-            .expect(&format!("Unable to parse configuration '{}'.", config_path.to_string_lossy()))
-    }
-
-    fn init_hook(&self)
-    {
-        Self::add_config_dirs(self.config.directories.iter().map(PathBuf::as_path));
-    }
-
-    fn read_config_path(config_path: &std::path::Path) -> Config
-    {
-        let config = Self::read_generic_type_path::<Config>(config_path);
-        config.init_hook();
-        config
-    }
-
-    fn read_default_config() -> Config
-    {
-        let config = Config(Self::read_generic_type_path(&Self::default_config_path()));
-        config.init_hook();
-        config
-    }
-
-    #[allow(unused)]
-    pub fn write_config(self, config: &str)
-    {
-        self.write_config_path(&Self::config_path(config))
-    }
-
-    pub fn read_config(config: &str) -> Config
-    {
-        Self::read_config_path(&Self::config_path(config))
     }
 }
 

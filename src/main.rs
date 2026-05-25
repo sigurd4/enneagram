@@ -37,7 +37,7 @@ fn main()
     let mut enable_artwork = false;
     let mut enneagram = Enneagram {
         edges: Vec::new(),
-        config: Config::read_default()
+        config: Config::default()
     };
 
     let mut configs = vec![];
@@ -167,7 +167,7 @@ fn main()
                                 "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
                                 Config::default_config_path().to_string_lossy()
                             ));
-                        Config::push_fallback(config_fallback);
+                        Config::add_fallback(Config::read_config(&config_fallback));
                     }
                     let config = Config::read_config(&config_path);
                     configs.push((config_path, config))
