@@ -1,7 +1,7 @@
 use core::f32::consts::PI;
 
 use ratatui::{Terminal, layout::Rect, prelude::Backend};
-use ratatui_3d::{Light, Material, Rgb, Scene, SceneObject, Transform, Viewport3D, Viewport3DState, math::{Quat, Vec3}};
+use ratatui_3d::{Light, Material, Scene, SceneObject, Transform, Viewport3D, Viewport3DState, math::{Quat, Vec3}};
 
 use crate::{enneagram::Enneagram, wireframe::Wireframe};
 
@@ -16,7 +16,7 @@ impl Artwork
     {
         // Build a scene
         let mut scene = Scene::new()
-            .with_background(Rgb(0, 0, 0));
+            .with_background(self.enneagram.config.color().sky());
 
         const RADIUS: f32 = 1.4;
         const LINE_THICKNESS: f64 = 0.02;
@@ -101,7 +101,8 @@ impl Artwork
         );
         
         scene.add_light(Light::ambient(self.enneagram.config.color().glare(), 1.0));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0), self.enneagram.config.color().sun()));
+        scene.add_light(Light::directional(Vec3::new(-0.2, -0.2, 1.0),  self.enneagram.config.color().sun()));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0),  self.enneagram.config.color().shine()));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();

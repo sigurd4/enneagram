@@ -1,9 +1,8 @@
 color:
-  surface: FFFF55
-  wire: 55FFFF
+  sky: 000000
+  surface: 55FFFF
+  wire: FFFF55
   dyed: FF55FF
-  glare: FFFFFF
-  sun: FFFFFF
 enneagram:
   edges:
     1:

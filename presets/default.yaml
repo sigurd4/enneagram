@@ -4,11 +4,13 @@ show:
   pivot_lines: true
   triad_lines: true
 color:
+  sky: 000000
   surface: F0FFFF
   wire: FF0000
   dyed: FFC040
   glare: FFEEFF
-  sun: EEEEFF
+  sun: 110000
+  shine: EEEEFF
 enneagram:
   edges:
     1:

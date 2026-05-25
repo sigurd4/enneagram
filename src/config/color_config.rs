@@ -10,6 +10,8 @@ use crate::config::Config;
 pub struct ColorConfig
 {
     #[serde(skip_serializing_if = "Option::is_none")]
+    sky: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
     surface: Option<Color>,
     #[serde(skip_serializing_if = "Option::is_none")]
     wire: Option<Color>,
@@ -18,16 +20,20 @@ pub struct ColorConfig
     #[serde(skip_serializing_if = "Option::is_none")]
     glare: Option<Color>,
     #[serde(skip_serializing_if = "Option::is_none")]
-    sun: Option<Color>
+    sun: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    shine: Option<Color>
 }
 
 impl ColorConfig
 {
+    crate::config::getter!([_, c.color].sky.deref() -> Rgb);
     crate::config::getter!([_, c.color].surface.deref() -> Rgb);
     crate::config::getter!([_, c.color].wire.deref() -> Rgb);
     crate::config::getter!([_, c.color].dyed.deref() -> Rgb);
     crate::config::getter!([_, c.color].glare.deref() -> Rgb);
     crate::config::getter!([_, c.color].sun.deref() -> Rgb);
+    crate::config::getter!([_, c.color].shine.deref() -> Rgb);
 
     pub fn line(&self, is_dyed: bool) -> Rgb
     {
