@@ -18,18 +18,9 @@ pub struct EnneagramConfig
 
 impl EnneagramConfig
 {
-    pub fn edges(&self) -> &EdgesConfig
-    {
-        Config::fallback(self.edges.as_ref(), |c| c.enneagram.as_ref().and_then(|c| c.edges.as_ref()))
-    }
-    pub fn triads(&self) -> &TriadsConfig
-    {
-        Config::fallback(self.triads.as_ref(), |c| c.enneagram.as_ref().and_then(|c| c.triads.as_ref()))
-    }
-    pub fn domains(&self) -> &DomainConfig
-    {
-        Config::fallback(self.domains.as_ref(), |c| c.enneagram.as_ref().and_then(|c| c.domains.as_ref()))
-    }
+    crate::config::getter!([_, c.enneagram].edges -> EdgesConfig);
+    crate::config::getter!([_, c.enneagram].triads -> TriadsConfig);
+    crate::config::getter!([_, c.enneagram].domains -> DomainConfig);
 }
 
 impl Borrow<EnneagramConfig> for Config
