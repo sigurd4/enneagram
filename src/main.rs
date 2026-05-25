@@ -375,6 +375,5 @@ mod test
         std::fs::write(Path::new(YAML), "color:\n  glare: FF00FF\n  sun: FFFF00").unwrap();
 
         crate::run(["enneagram", "-ac", YAML])
-        //enneagram -c ./tmp.yaml -a
     }
 }
