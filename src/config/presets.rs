@@ -1,4 +1,4 @@
-pub static PRESETS: &[(&str, &str)] = &[
+pub const PRESETS: &[(&str, &str)] = &[
 	("unigram", include_str!("../../presets/unigram.yaml")),
 	("christ_enneagram", include_str!("../../presets/christ_enneagram.yaml")),
 	("personality_enneagram", include_str!("../../presets/personality_enneagram.yaml")),

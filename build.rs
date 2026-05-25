@@ -43,7 +43,7 @@ fn main()
         }).collect::<Vec<_>>()
         .concat();
     
-    let presets_contents = format!("pub static PRESETS: &[(&str, &str)] = &[\n{yamls}];");
+    let presets_contents = format!("pub const PRESETS: &[(&str, &str)] = &[\n{yamls}];");
 
     expect!(std::fs::write(presets_rs, presets_contents), Err(_) => "Failed to write presets.rs")
 }
