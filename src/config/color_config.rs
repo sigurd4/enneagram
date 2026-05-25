@@ -1,4 +1,4 @@
-use core::borrow::Borrow;
+use core::{borrow::Borrow, convert::Infallible, ops::Deref, str::FromStr};
 
 use ratatui_3d::Rgb;
 use serde::{Deserialize, Serialize};
@@ -9,16 +9,52 @@ use crate::config::Config;
 #[serde(deny_unknown_fields)]
 pub struct ColorConfig
 {
-    #[serde(with = "rgb")]
-    pub surface: Rgb,
-    #[serde(with = "rgb")]
-    pub wire: Rgb,
-    #[serde(with = "rgb")]
-    pub dyed: Rgb,
-    #[serde(with = "rgb")]
-    pub glare: Rgb,
-    #[serde(with = "rgb")]
-    pub sun: Rgb
+    #[serde(skip_serializing_if = "Option::is_none")]
+    surface: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    wire: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    dyed: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    glare: Option<Color>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sun: Option<Color>
+}
+
+impl ColorConfig
+{
+    pub fn surface(&self) -> &Rgb
+    {
+        Config::fallback(self, |c| &c.surface)
+    }
+    pub fn wire(&self) -> &Rgb
+    {
+        Config::fallback(self, |c| &c.wire)
+    }
+    pub fn dyed(&self) -> &Rgb
+    {
+        Config::fallback(self, |c| &c.dyed)
+    }
+    pub fn glare(&self) -> &Rgb
+    {
+        Config::fallback(self, |c| &c.glare)
+    }
+    pub fn sun(&self) -> &Rgb
+    {
+        Config::fallback(self, |c| &c.sun)
+    }
+
+    pub fn line(&self, is_dyed: bool) -> &Rgb
+    {
+        if is_dyed
+        {
+            self.dyed()
+        }
+        else
+        {
+            self.wire()
+        }
+    }
 }
 
 impl Borrow<ColorConfig> for Config
@@ -29,68 +65,88 @@ impl Borrow<ColorConfig> for Config
     }
 }
 
-mod rgb
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+struct Color(Rgb);
+
+impl Deref for Color
 {
-    use ratatui_3d::Rgb;
-    use serde::{Deserialize, Deserializer, Serialize, Serializer};
+    type Target = Rgb;
 
-    use self as rgb;
-
-    pub(super) fn to_string(value: &Rgb) -> String
+    fn deref(&self) -> &Self::Target
     {
-        let Rgb(r, g, b) = value;
+        &self.0
+    }
+}
+
+impl ToString for Color
+{
+    fn to_string(&self) -> String
+    {
+        let Self(Rgb(r, g, b)) = self;
 
         format!("{r:02X}{g:02X}{b:02X}")
     }
-    pub(super) fn from_str(src: &str) -> Rgb
+}
+
+impl FromStr for Color
+{
+    type Err = Infallible;
+
+    fn from_str(src: &str) -> Result<Self, Self::Err>
     {
         let rgb = u32::from_str_radix(src, 16)
             .expect(&format!("Unable to parse RBG hexadecimal color '{src}'."));
 
         assert!(rgb <= 0xFFFFFF, "RGB color cannot have alpha-channel.");
 
-        Rgb(
+        Ok(Self(Rgb(
             (rgb >> 16) as u8,
             (rgb >> 8) as u8,
             rgb as u8
-        )
+        )))
     }
+}
 
-    pub fn serialize<S>(value: &Rgb, serializer: S) -> Result<S::Ok, S::Error>
+impl Serialize for Color
+{
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
     where
-        S: Serializer
+        S: serde::Serializer
     {
-        let hex = rgb::to_string(value);
-
-        hex.serialize(serializer)
+        self.to_string().serialize(serializer)
     }
-    pub fn deserialize<'de, D>(deserializer: D) -> Result<Rgb, D::Error>
-    where
-        D: Deserializer<'de>
-    {
-        let src = String::deserialize(deserializer)?;
+}
 
-        Ok(rgb::from_str(&src))
+impl<'de> Deserialize<'de> for Color
+{
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error>
+    where
+        D: serde::Deserializer<'de>
+    {
+        Self::from_str(&String::deserialize(deserializer)?)
+            .map_err(|err| match err {})
     }
 }
 
 #[cfg(test)]
 mod test
 {
-    use ratatui_3d::Rgb;
+    use core::str::FromStr;
 
-    use crate::config::color_config::rgb;
+use ratatui_3d::Rgb;
+
+    use crate::config::color_config::Color;
 
     #[test]
     fn test_hex()
     {
-        let rgb = Rgb(0, 10, 0);
+        let rgb = Color(Rgb(0, 10, 0));
 
-        let hex = rgb::to_string(&rgb);
+        let hex = rgb.to_string();
 
         println!("{}", hex);
 
-        let rgb_decoded = rgb::from_str(&hex);
+        let rgb_decoded = Color::from_str(&hex).unwrap();
 
         assert_eq!(rgb, rgb_decoded)
     }
