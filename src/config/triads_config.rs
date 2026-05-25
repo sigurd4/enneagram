@@ -38,13 +38,13 @@ impl Borrow<TriadsConfig> for EnneagramConfig
 {
     fn borrow(&self) -> &TriadsConfig
     {
-        &self.triads
+        self.triads()
     }
 }
 impl Borrow<TriadsConfig> for Config
 {
     fn borrow(&self) -> &TriadsConfig
     {
-        &self.enneagram().borrow()
+        self.enneagram().borrow()
     }
 }

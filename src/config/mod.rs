@@ -1,7 +1,7 @@
-use core::{borrow::Borrow, fmt::Display, ops::Deref, str::FromStr};
-use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex, MutexGuard}};
+use core::{borrow::Borrow, fmt::Display, str::FromStr};
+use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex}};
 
-use serde::{Deserialize, Serialize, de::DeserializeOwned};
+use serde::{Deserialize, Serialize};
 
 moddef::moddef!(
     flat(pub) mod {

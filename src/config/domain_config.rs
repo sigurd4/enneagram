@@ -20,13 +20,13 @@ impl Borrow<DomainConfig> for EnneagramConfig
 {
     fn borrow(&self) -> &DomainConfig
     {
-        &self.domains
+        self.domains()
     }
 }
 impl Borrow<DomainConfig> for Config
 {
     fn borrow(&self) -> &DomainConfig
     {
-        &self.enneagram().borrow()
+        self.enneagram().borrow()
     }
 }

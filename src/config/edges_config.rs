@@ -32,13 +32,13 @@ impl Borrow<EdgesConfig> for EnneagramConfig
 {
     fn borrow(&self) -> &EdgesConfig
     {
-        &self.edges
+        self.edges()
     }
 }
 impl Borrow<EdgesConfig> for Config
 {
     fn borrow(&self) -> &EdgesConfig
     {
-        &self.enneagram().borrow()
+        self.enneagram().borrow()
     }
 }
