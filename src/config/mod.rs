@@ -13,6 +13,9 @@ moddef::moddef!(
         show_config,
         triad_config,
         triads_config
+    },
+    mod {
+        presets
     }
 );
 
