@@ -50,4 +50,10 @@ impl Triad for Frame
             Frame::Heart => frame.heart()
         }
     }
+    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+    {
+        let triads = config.borrow();
+        let frame = triads.frame();
+        frame.description()
+    }
 }

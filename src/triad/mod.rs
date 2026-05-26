@@ -72,6 +72,7 @@ pub trait Triad: Debug + Any
 
     fn edges(&self) -> &'static [Enneatype; 3];
     fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>;
+    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str;
 
     fn lines(&self) -> [[Enneatype; 2]; 3]
     {

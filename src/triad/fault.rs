@@ -51,4 +51,10 @@ impl Triad for Fault
             Fault::Reactive => fault.reactive(),
         }
     }
+    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+    {
+        let triads = config.borrow();
+        let fault = triads.fault();
+        fault.description()
+    }
 }

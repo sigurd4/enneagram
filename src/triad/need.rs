@@ -49,4 +49,10 @@ impl Triad for Need
             Need::Rejection => need.rejection()
         }
     }
+    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+    {
+        let triads = config.borrow();
+        let need = triads.need();
+        need.description()
+    }
 }

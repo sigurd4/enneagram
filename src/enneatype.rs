@@ -150,8 +150,9 @@ impl Enneatype
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();
+            let kind = triad.kind(config).to_string();
             let config = triad.config(config);
-            write!(f, "\n{numbers} {}", config.description)?;
+            write!(f, "\n{numbers} {kind}: {}", config.description)?;
         }
         Ok(())
     }

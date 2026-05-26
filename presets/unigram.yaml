@@ -1,20 +1,208 @@
+show:
+  path_lines: true
+  boundary_lines: true
+  pivot_lines: true
+  triad_lines: true
+color:
+  sky: 000022
+  surface: FFFFFF
+  wire: FF0022
+  dyed: FFFF55
+  glare: FFEEFF
+  sun: 110000
+  shine: EEEEFF
 enneagram:
   edges:
     1:
-      name: Gradient
+      name: "Gradient" # - Yamu
+        #description: "physical contrast"
+      #experience: _
+        #description: "tension of impulses"
+      #likeness: The intermediate
+        #description: "the ultimate impulse"
+      pivot: Your impulses are intense.
+      digit: -1,3 0,4 0,-4 -1,-4 1,-4
     2:
-      name: Superego
+      name: "Superego" # - Yamu
+        #description: "emotional flow"
+      #experience: Unashamed # - Yamu
+        #description: "flow of emotions"
+      #likeness: The collective conscious
+        #description: "the overwhelming emotion"
+      pivot: Your emotions are flowing. How will you release them?
+      digit: -3,3 -2,4 2,4 3,3 3,0 -3,-4 3,-4 3,-3
     3:
-      name: Ego
+      name: "Ego" # - Yamu
+        #description: "emotional contrast"
+      #experience: Repression # - Yamu
+        #description: "tension of emotions"
+      #likeness: Sentience # - Yamu
+        #description: "the ultimate emotion"
+      pivot: Your emotions are intense. How will you ease them?
+      digit: -3,3 -2,4 2,4 3,3 3,1 1,0 3,-1 3,-3 2,-4 -2,-4 -3,-3
     4:
-      name: Id
+      name: "Id" # - Yamu
+        #description: "emotional dispersion"
+      #experience: Longing # - Yamu
+        #description: "dispersion of emotions"
+      #likeness: The unconscious
+        #description: "the abscence of emotion"
+      pivot: Your emotions are disorganized. How will mend them?
+      digit: 3,1 -3,1 1,4 1,-4
     5:
-      name: Catatonia
+      name: "Catatonia" # - Yamu
+        #description: "metaphysical dispersion"
+      #experience: Vertical thinking # - Sigurd
+        #description: "dispersion of thoughts"
+      #likeness: Body without inten sities # - Sigurd
+        #description: "the absent thought"
+      pivot: Your thoughts are disorganized. How will you mend them?
+      digit: 3,4 -3,4 -3,1 2,1 3,0 3,-3 2,-4 -3,-4
     6:
-      name: Paranoia
+      name: "Paranoia" # - Yamu
+        #description: "metaphysical contrast"
+      #experience: Productivity # - Yamu
+        # description: "tension of thoughts"
+      #likeness: God # - Yamu
+        #description: "the ultimate thought"
+      pivot: Your thoughts are intense. How will you ease them?
+      digit: 3,4 0,4 -3,-1 -2,0 2,0 3,-1 3,-3 2,-4 -2,-4 -3,-3 -3,-1
     7:
-      name: Disorganization
-    8:
-      name: Flow
+      name: "Disorganization" # - Yamu
+        #description: "metaphysical flow"
+      #experience: Lateral thinking # - Sigurd
+        #description: "flow of thoughts"
+      #likeness: Body without organs # - Sigurd
+        #description: "the overwhelming thought"
+      pivot: Your thoughts are flowing. How will you release them?
+      digit: -3,4 3,4 -3,-4
+    8: 
+      name: "Flow" # - Yamu  
+        #description: "physical flow"
+      #experience: _
+        #description: "flow of impulses"
+      #likeness: Enthalpy
+        #description: "the overwhelming impulse"
+      pivot: Your impulses are flowing. How will you release them?
+      digit: 1,0 3,1 3,3 2,4 -2,4 -3,3 -3,1 -1,0 -3,-1 -3,-3 -2,-4 2,-4 3,-3 3,-1 1,0 -1,0
     9:
-      name: Equilibrium
+      name: "Equilibrium" # - Yamu
+        #description: "physical dispersion"
+      #expe rience: _
+        #description: "dispersion of impulses"
+      #likeness: Entrophy # - Yamu
+        #description: "the absent impulse"
+      pivot: Your impulses are disorganized.
+      digit: 3,1 2,0 -2,0 -3,1 -3,3 -2,4 2,4 3,3 3,1 -3,-4
+  triads:
+    A:
+      description: Directivity
+      891:
+        # Flow - "flow of impulses"
+        # Equilibrium - "dispersion of impulses"
+        # Gradient - "tension of impulses"
+        description: "Physical/\"The  physical world of imperfection\"" # - Yamu
+        expression: I focus on the external world, i trust my gut
+        reflection: you are chained to the physical world, your impulses control you
+        affirmation: trust my impulses
+      567:
+        # Catatonia - "dispersion of thoughts"
+        # Paranoia - "tension of thoughts"
+        # Disorganization - "flow of thoughts"
+        description: "Metaphysical/\"The perfect world of forms\"" # - Yamu
+        expression: I focus on the internal world, i trust my mind
+        reflection: you are chained to the world of forms, your thoughts control you
+        affirmation: trust my thoughts
+      234:
+        # Superego - "flow of emotions"
+        # Ego - "tension of emotions"
+        # Id - "dispersion of emotions"
+        description: "Emotional/\"The chaotic world of the demiurge\"" # - Yamu
+        expression: I focus on neither, i trust my emotions
+        reflection: you are chained  to the demiurge, your emotions control you
+        affirmation: trust my emotions
+    B:
+      description: Creativity
+      378:
+        # Ego/Sentience - Tension of emotion
+        # Disorganization/Body without organs - Flow of thought
+        # Flow - Flow of impulse
+        description: Inspiration
+        expression: i am inspired
+        reflection: you're inspired
+        affirmation: find inspiration
+      612:
+        # Paranoia/God - Flow of thought
+        # Gradient - Tension of impulses
+        # Superego - Emotional flow
+        description: Production
+        expression: i am productive
+        reflection: you're productive
+        affirmation: produce
+      945:
+        # Equilibrium - Dispersion of impulse
+        # Id - Dispersion of emotion
+        # Catatonia - Dispersion of thought
+        description: Restitution
+        expression: i am resting
+        reflection: you're resting
+        affirmation: rest
+    C:
+      description: Approach to "the Self"
+      792:
+        # Disorganization - Flow of thoughts
+        # Equilibrium - Dispersion of impulses
+        # Superego - Flow of emotions
+        description: "repression"
+        expression: i'm nobody
+        reflection: you're somebody
+        affirmation: repress my ego
+      135:
+        # Gradient - Tension of impulses
+        # Ego - Tension of emotions
+        # Catatonia - Dispersion of thoughts
+        description: "exhaustion"
+        expression: i'm exhausted
+        reflection: you're exhausted
+        affirmation: embrace my ego
+      468:
+        # Id - Dispersion of emotions
+        # Paranoia - Tension of thoughts
+        # Flow - Flow of impulses
+        description: "ego-death"
+        expression: i'm everybody 
+        reflection: you've lost yourself
+        affirmation: lose my ego
+    D:
+      description: Idealizes
+      369:
+        # Ego - The ultimate emotion
+        # Paranoia - The ultimate thought
+        # Equilibrium - The absent impulse
+        description: "the ultimate" # - Yamu
+        expression: i pursue the ultimate
+        reflection: you idealize the ultimate
+        affirmation: in search of the ultimate
+      147:
+        # Gradient - The ultimate impulse
+        # Id - The abscence of emotion
+        # Disorganization - The overwhelming thought
+        description: "the perfect" 
+        expression: i pursue perfection
+        reflection: you idealize perfection
+        affirmation: in search of the perfect
+      258:
+        # Superego - The overwhelming emotion
+        # Catatonia - The absent thought
+        # Flow - The overwhelming impulse
+        description: "the effortless"
+        expression: i pursue the effortless
+        reflection: you idealize effortlessness
+        affirmation: in search of effortlessness
+  domains:
+    A+B: creative direction
+    A+C: direction of identity
+    A&D: direction of ideals
+    C&B: creative identity
+    D+B: creative ideals
+    D+C: identity and ideals

@@ -50,4 +50,10 @@ impl Triad for Means
             Means::Withdrawn => means.withdrawn()
         }
     }
+    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+    {
+        let triads = config.borrow();
+        let means = triads.means();
+        means.description()
+    }
 }
