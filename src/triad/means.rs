@@ -42,11 +42,12 @@ impl Triad for Means
     fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
+        let means = triads.means();
         match self
         {
-            Means::Assertive => triads.assertive(),
-            Means::Compliant => triads.compliant(),
-            Means::Withdrawn => triads.withdrawn()
+            Means::Assertive => means.assertive(),
+            Means::Compliant => means.compliant(),
+            Means::Withdrawn => means.withdrawn()
         }
     }
 }

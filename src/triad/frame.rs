@@ -42,11 +42,12 @@ impl Triad for Frame
     fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
+        let frame = triads.frame();
         match self
         {
-            Frame::Gut => triads.gut(),
-            Frame::Head => triads.head(),
-            Frame::Heart => triads.heart()
+            Frame::Gut => frame.gut(),
+            Frame::Head => frame.head(),
+            Frame::Heart => frame.heart()
         }
     }
 }

@@ -41,11 +41,12 @@ impl Triad for Need
     fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
+        let need = triads.need();
         match self
         {
-            Need::Attachment => triads.attachment(),
-            Need::Frustration => triads.frustration(),
-            Need::Rejection => triads.rejection()
+            Need::Attachment => need.attachment(),
+            Need::Frustration => need.frustration(),
+            Need::Rejection => need.rejection()
         }
     }
 }

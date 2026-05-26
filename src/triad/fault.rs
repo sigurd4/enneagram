@@ -43,11 +43,12 @@ impl Triad for Fault
     fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
     {
         let triads = config.borrow();
+        let fault = triads.fault();
         match self
         {
-            Fault::Positive => triads.positive(),
-            Fault::Competent => triads.competent(),
-            Fault::Reactive => triads.reactive(),
+            Fault::Positive => fault.positive(),
+            Fault::Competent => fault.competent(),
+            Fault::Reactive => fault.reactive(),
         }
     }
 }
