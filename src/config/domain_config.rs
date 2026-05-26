@@ -8,17 +8,17 @@ use crate::config::{Config, EnneagramConfig};
 #[serde(deny_unknown_fields)]
 pub struct DomainConfig
 {
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "A+B", skip_serializing_if = "Option::is_none")]
     pub introverted_dissonance: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "A+C", skip_serializing_if = "Option::is_none")]
     pub introverted_synthesis: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "A&D", skip_serializing_if = "Option::is_none")]
     pub desire_machine: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "C&B", skip_serializing_if = "Option::is_none")]
     pub body_without_organs: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "D+B", skip_serializing_if = "Option::is_none")]
     pub extroverted_synthesis: Option<String>,
-    #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "D+C", skip_serializing_if = "Option::is_none")]
     pub extroverted_dissonance: Option<String>
 }
 

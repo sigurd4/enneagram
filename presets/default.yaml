@@ -119,9 +119,9 @@ enneagram:
         reflection: you crave love
         affirmation: be accepted
   domains:
-    introverted_dissonance: introverted dissonance
-    introverted_synthesis: introverted synthesis
-    desire_machine: thesis
-    body_without_organs: antithesis
-    extroverted_synthesis: extroverted synthesis
-    extroverted_dissonance: extroverted dissonance
+    A+B: introverted dissonance
+    A+C: introverted synthesis
+    A&D: thesis
+    C&B: antithesis
+    D+B: extroverted synthesis
+    D+C: extroverted dissonance

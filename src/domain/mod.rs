@@ -43,7 +43,7 @@ pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domai
             (domain.kind(config), domain.reciprocal().kind(config))
         };
 
-        println!("\x1b[u -> {codomain_kind}");
+        println!("\x1b[u\x1b[3;90m -> {codomain_kind}\x1b[0m");
 
         let polymorphic_trivial_choices = trivial_choices.each_ref()
             .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Trivial(generator())));

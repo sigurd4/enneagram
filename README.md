@@ -164,7 +164,7 @@ In a way, the zeroth becomes the price which you pay for each use of the program
 
 I just watched Jodorowsky's The Holy Mountain. The enneagram seems to reappear a lot in that movie as a symbol. There are interesting connections between the characters' plot points across the movie and the enneagram. The movie mainly focuses on sin, and how to conquer it in order to climb The Holy Mountain.
 
-# Experimental results
+# Experimental results of the schizogram
 
 I tried to use this enneagram program for self-evaluation for a month or so, and only occationally using it on others to better understand their inner turmoil. Turns out, with the current setup, it only works given the axiom that emotional turmoil is present to begin with.
 
@@ -201,6 +201,10 @@ Clearly there is an urgent need for the use of multiple enneagrams. The one i ma
 ## Written apology
 
 To those i've caused distress, i'm deeply sorry. I didn't know what i was doing.
+
+# The unigram
+
+I've now implemented the unigram as a yaml config for the enneagram program using the fundamental presupposition i.e. the 0-th of "the fundamental root of experience is creativity", as opposed to the Schopenhauerian notion of "the fundamental root of experience is suffering" which i used for the schizogram. It's still currently under development, but it looks promising as a guide for creative pursuits. It's exciting to see how these different ngrams can be used to enter various modes of experience. They are an ancient form of magic. I'm looking forward to experimenting with it, and seeing the results. I have hope that it may be different than the madness-inducing effects of the schizogram. I'm sure it can be used for good!
 
 # Acknowledgements
 

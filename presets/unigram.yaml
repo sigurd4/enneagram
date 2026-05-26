@@ -101,50 +101,50 @@ enneagram:
         # Flow - "flow of impulses"
         # Equilibrium - "dispersion of impulses"
         # Gradient - "tension of impulses"
-        description: "Physical/\"The  physical world of imperfection\"" # - Yamu
-        expression: I focus on the external world, i trust my gut
+        description: Physical/"The  physical world of imperfection" # - Yamu
+        expression: I focus on the external world, I trust my gut
         reflection: you are chained to the physical world, your impulses control you
         affirmation: trust my impulses
       567:
         # Catatonia - "dispersion of thoughts"
         # Paranoia - "tension of thoughts"
         # Disorganization - "flow of thoughts"
-        description: "Metaphysical/\"The perfect world of forms\"" # - Yamu
-        expression: I focus on the internal world, i trust my mind
+        description: Metaphysical/"The perfect world of forms" # - Yamu
+        expression: I focus on the internal world, I trust my mind
         reflection: you are chained to the world of forms, your thoughts control you
         affirmation: trust my thoughts
       234:
         # Superego - "flow of emotions"
         # Ego - "tension of emotions"
         # Id - "dispersion of emotions"
-        description: "Emotional/\"The chaotic world of the demiurge\"" # - Yamu
-        expression: I focus on neither, i trust my emotions
+        description: Emotional/"The chaotic world of the demiurge" # - Yamu
+        expression: I focus on neither, I trust my emotions
         reflection: you are chained  to the demiurge, your emotions control you
         affirmation: trust my emotions
     B:
-      description: Creativity
+      description: Approach to creativity
       378:
         # Ego/Sentience - Tension of emotion
         # Disorganization/Body without organs - Flow of thought
         # Flow - Flow of impulse
-        description: Inspiration
-        expression: i am inspired
+        description: Inspiration/"coded currents"
+        expression: I am inspired
         reflection: you're inspired
         affirmation: find inspiration
       612:
         # Paranoia/God - Flow of thought
         # Gradient - Tension of impulses
         # Superego - Emotional flow
-        description: Production
-        expression: i am productive
+        description: Production/"decoded currents"
+        expression: I am productive
         reflection: you're productive
         affirmation: produce
       945:
         # Equilibrium - Dispersion of impulse
         # Id - Dispersion of emotion
         # Catatonia - Dispersion of thought
-        description: Restitution
-        expression: i am resting
+        description: Restitution/"stagnation"
+        expression: I am resting
         reflection: you're resting
         affirmation: rest
     C:
@@ -153,7 +153,7 @@ enneagram:
         # Disorganization - Flow of thoughts
         # Equilibrium - Dispersion of impulses
         # Superego - Flow of emotions
-        description: "repression"
+        description: Ego-repression
         expression: i'm nobody
         reflection: you're somebody
         affirmation: repress my ego
@@ -161,7 +161,7 @@ enneagram:
         # Gradient - Tension of impulses
         # Ego - Tension of emotions
         # Catatonia - Dispersion of thoughts
-        description: "exhaustion"
+        description: Ego-exhaustion
         expression: i'm exhausted
         reflection: you're exhausted
         affirmation: embrace my ego
@@ -169,8 +169,8 @@ enneagram:
         # Id - Dispersion of emotions
         # Paranoia - Tension of thoughts
         # Flow - Flow of impulses
-        description: "ego-death"
-        expression: i'm everybody 
+        description: Ego-death
+        expression: i'm everybody
         reflection: you've lost yourself
         affirmation: lose my ego
     D:
@@ -179,24 +179,24 @@ enneagram:
         # Ego - The ultimate emotion
         # Paranoia - The ultimate thought
         # Equilibrium - The absent impulse
-        description: "the ultimate" # - Yamu
-        expression: i pursue the ultimate
+        description: The ultimate # - Yamu
+        expression: I pursue the ultimate
         reflection: you idealize the ultimate
         affirmation: in search of the ultimate
       147:
         # Gradient - The ultimate impulse
         # Id - The abscence of emotion
         # Disorganization - The overwhelming thought
-        description: "the perfect" 
-        expression: i pursue perfection
+        description: Perfection
+        expression: I pursue perfection
         reflection: you idealize perfection
         affirmation: in search of the perfect
       258:
         # Superego - The overwhelming emotion
         # Catatonia - The absent thought
         # Flow - The overwhelming impulse
-        description: "the effortless"
-        expression: i pursue the effortless
+        description: Effortlessness
+        expression: I pursue effortlessness
         reflection: you idealize effortlessness
         affirmation: in search of effortlessness
   domains:

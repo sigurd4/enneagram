@@ -380,7 +380,7 @@ mod test
     {
         const YAML: &str = "/tmp/chist_enneagram.yaml";
 
-        std::fs::write(Path::new(YAML), include_str!("../presets/christ_enneagram.yaml")).unwrap();
+        std::fs::write(Path::new(YAML), include_str!("../presets/christ.yaml")).unwrap();
 
         crate::run(["enneagram", "-c", YAML, "1"])
     }

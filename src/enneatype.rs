@@ -140,7 +140,7 @@ impl Enneatype
         {
             let number = edge.number();
             let config = edge.config(config);
-            writeln!(f, "Enneagram {number} {}", config.name)?;
+            writeln!(f, "\x1b[1;33mEnneagram {number} {}\x1b[0m", config.name)?;
         }
 
         for triad in Self::common_triads(edges)
@@ -150,9 +150,9 @@ impl Enneatype
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();
-            let kind = triad.kind(config).to_string();
+            let kind = format!("\x1b[3;90m# {}:\x1b[0m", triad.kind(config));
             let config = triad.config(config);
-            write!(f, "\n{numbers} {kind}: {}", config.description)?;
+            write!(f, "\n{kind}\n\x1b[0;97m{numbers} {}\x1b[0m", config.description)?;
         }
         Ok(())
     }
