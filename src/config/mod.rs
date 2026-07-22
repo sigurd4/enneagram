@@ -1,5 +1,15 @@
-use core::{fmt::{Debug, Display}, ops::BitOrAssign, str::FromStr};
-use std::{borrow::Cow, env::VarError, fs::File, path::{Path, PathBuf}, sync::{Arc, LazyLock, Mutex}};
+use core::{
+    fmt::{Debug, Display},
+    ops::BitOrAssign,
+    str::FromStr
+};
+use std::{
+    borrow::Cow,
+    env::VarError,
+    fs::File,
+    path::{Path, PathBuf},
+    sync::{Arc, LazyLock, Mutex}
+};
 
 use serde::{Deserialize, Serialize};
 
@@ -35,7 +45,7 @@ macro_rules! member {
         })())
     };
 }
-use member as member;
+use member;
 
 macro_rules! getter {
     ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> &$ty:ty) => {
@@ -57,7 +67,7 @@ macro_rules! getter {
         }
     };
 }
-use getter as getter;
+use getter;
 
 macro_rules! def_unitary {
     (
@@ -143,7 +153,7 @@ macro_rules! def_unitary {
         }
     };
 }
-use def_unitary as def_unitary;
+use def_unitary;
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
@@ -160,22 +170,19 @@ pub struct Config
 impl Config
 {
     crate::config::getter!([_, c].show -> &ShowConfig);
+
     crate::config::getter!([_, c].color -> &ColorConfig);
+
     crate::config::getter!([_, c].enneagram -> &EnneagramConfig);
 }
 
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";
 const DEFAULT_CONFIG_DATA: &str = include_str!("../../presets/default.yaml");
 
-static DEFAULT_CONFIG_PATH: LazyLock<Cow<Path>> = LazyLock::new(|| {
-    Config::config_path(DEFAULT_CONFIG_FILENAME)
-});
+static DEFAULT_CONFIG_PATH: LazyLock<Cow<Path>> = LazyLock::new(|| Config::config_path(DEFAULT_CONFIG_FILENAME));
 
 static DEFAULT_CONFIG: LazyLock<Config> = LazyLock::new(|| {
-    static DEFAULT_CONFIG_PRESET: LazyLock<Config> = LazyLock::new(|| {
-        serde_saphyr::from_str(DEFAULT_CONFIG_DATA)
-            .expect("Failed to parse original default config.")
-    });
+    static DEFAULT_CONFIG_PRESET: LazyLock<Config> = LazyLock::new(|| serde_saphyr::from_str(DEFAULT_CONFIG_DATA).expect("Failed to parse original default config."));
 
     if !DEFAULT_CONFIG_PATH.exists()
     {
@@ -186,9 +193,7 @@ static DEFAULT_CONFIG: LazyLock<Config> = LazyLock::new(|| {
 });
 
 /// Fallback configurations.
-static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<&'static Config>>>> = LazyLock::new(|| {
-    Arc::new(Mutex::new(Vec::new()))
-});
+static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<&'static Config>>>> = LazyLock::new(|| Arc::new(Mutex::new(Vec::new())));
 
 const HOME_DIRECTORY_ENV_VARIABLE: &str = "HOME";
 const CONFIG_SUBDIRECTORY_UNIX: &str = ".config";
@@ -198,14 +203,10 @@ impl Config
 {
     fn fallback<T>(initial: Option<&T>, getter: impl Fn(&Self) -> Option<&T>) -> &T
     {
-        let fallback = FALLBACK_FIFO.lock()
-            .expect("Failed to lock fallback queue.");
-        initial.into_iter()
-            .chain(fallback.iter()
-                .copied()
-                .chain(core::iter::once(&*DEFAULT_CONFIG))
-                .filter_map(|config| getter(config))
-            )
+        let fallback = FALLBACK_FIFO.lock().expect("Failed to lock fallback queue.");
+        initial
+            .into_iter()
+            .chain(fallback.iter().copied().chain(core::iter::once(&*DEFAULT_CONFIG)).filter_map(|config| getter(config)))
             .next()
             .expect("No configuration contained the requested value.")
     }
@@ -215,20 +216,20 @@ impl Config
         &'a V: TryInto<T, Error = &'a V> + Into<V>,
         V: TryInto<T, Error = V> + BitOrAssign<&'a V> + Debug + 'a
     {
-        let fallback = FALLBACK_FIFO.lock()
-            .expect("Failed to lock fallback queue.");
+        let fallback = FALLBACK_FIFO.lock().expect("Failed to lock fallback queue.");
         let mut fold = None;
-        for value in initial.into_iter()
-            .chain(fallback.iter()
-                .copied()
-                .chain(core::iter::once(&*DEFAULT_CONFIG))
-                .filter_map(|config| getter(config))
-            )
+        for value in initial
+            .into_iter()
+            .chain(fallback.iter().copied().chain(core::iter::once(&*DEFAULT_CONFIG)).filter_map(|config| getter(config)))
         {
             let fold_taken = match fold.take()
             {
                 None => value.into(),
-                Some(mut fold_taken) => {fold_taken |= value; fold_taken}
+                Some(mut fold_taken) =>
+                {
+                    fold_taken |= value;
+                    fold_taken
+                }
             };
             match fold_taken.try_into()
             {
@@ -236,15 +237,12 @@ impl Config
                 Err(fold_taken) => fold = Some(fold_taken)
             }
         }
-        fold.expect("No configuration contained the requested value.")
-            .try_into()
-            .expect("Item incomplete.")
+        fold.expect("No configuration contained the requested value.").try_into().expect("Item incomplete.")
     }
 
     pub fn add_fallback(fallback_config: Config)
     {
-        let mut fallback = FALLBACK_FIFO.lock()
-            .expect(&format!("Failed to lock fallback queue."));
+        let mut fallback = FALLBACK_FIFO.lock().expect(&format!("Failed to lock fallback queue."));
         fallback.push(Box::leak(Box::new(fallback_config)));
     }
 
@@ -253,15 +251,11 @@ impl Config
         let dir = dir.into();
         if !dir.exists()
         {
-            return Err(FindDirectoryError::Nonexistant {
-                path: dir.into()
-            })
+            return Err(FindDirectoryError::Nonexistant { path: dir.into() });
         }
         if !dir.is_dir()
         {
-            return Err(FindDirectoryError::NotADirectory {
-                path: dir.into()
-            })
+            return Err(FindDirectoryError::NotADirectory { path: dir.into() });
         }
         Ok(dir)
     }
@@ -269,11 +263,15 @@ impl Config
     fn find_env_directory(variable: &str) -> Result<PathBuf, FindEnvDirectoryError>
     {
         // Extract string from environment.
-        let env = std::env::var(variable)
-            .map_err(|error| FindEnvDirectoryError::MissingVariable {
-                error,
-                variable: variable.to_string()
-            })?;
+        let env = std::env::var(variable).map_err(|error| FindEnvDirectoryError::MissingVariable {
+            error,
+            variable: variable.to_string()
+        })?;
+
+        if env.is_empty()
+        {
+            return Err(FindEnvDirectoryError::EmptyVariable { variable: variable.to_string() });
+        }
 
         // Create path-buffer from string.
         let mut dir = match PathBuf::from_str(&env)
@@ -320,17 +318,12 @@ impl Config
                 Ok(dir) => return Ok(dir),
                 Err(error) => match error
                 {
-                    FindDirectoryError::Nonexistant { path } => {
-                        std::fs::create_dir(&path)
-                            .map_err(|error| CreateDirectoryError::Failed {
-                                path: path,
-                                error
-                            })?;
+                    FindDirectoryError::Nonexistant { path } =>
+                    {
+                        std::fs::create_dir(&path).map_err(|error| CreateDirectoryError::Failed { path: path, error })?;
                         upon_creation()
-                    },
-                    FindDirectoryError::NotADirectory { path } => {
-                        return Err(CreateDirectoryError::NotADirectory { path }.into())
                     }
+                    FindDirectoryError::NotADirectory { path } => return Err(CreateDirectoryError::NotADirectory { path }.into())
                 }
             }
         }
@@ -339,21 +332,19 @@ impl Config
     fn config_dir() -> Result<PathBuf, FindUserConfigDirectoryError>
     {
         // Construct as subdirectory of $XDG_CONFIG_DIR
-        let mut config_dir = Self::xdg_config_home_dir()?
-            .join(Path::new("enneagram"));
+        let mut config_dir = Self::xdg_config_home_dir()?.join(Path::new("enneagram"));
 
         // Verify and create if needed.
         config_dir = Self::create_directory(&config_dir, || {
-                #[cfg(feature = "presets")]
-                for (config_name, yaml) in presets::PRESETS
-                {
-                    let config_path = Self::config_path(config_name);
-                    
-                    std::fs::write(&config_path, yaml)
-                        .expect(&format!("Failed to write preset '{config_name}' to '{}'", config_path.to_string_lossy()))
-                }
-            })?
-            .into_owned();
+            #[cfg(feature = "presets")]
+            for (config_name, yaml) in presets::PRESETS
+            {
+                let config_path = Self::config_path(config_name);
+
+                std::fs::write(&config_path, yaml).expect(&format!("Failed to write preset '{config_name}' to '{}'", config_path.to_string_lossy()))
+            }
+        })?
+        .into_owned();
 
         Ok(config_dir)
     }
@@ -370,9 +361,7 @@ impl Config
         }
 
         // Search in directories if only filename is provided.
-        if config_path.components()
-            .last()
-            .is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
+        if config_path.components().last().is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
         {
             let user_config_dir = match Self::config_dir()
             {
@@ -384,7 +373,8 @@ impl Config
         }
 
         // Check extension.
-        if !config_path.extension()
+        if !config_path
+            .extension()
             .and_then(|extension| extension.to_str())
             .is_some_and(|extension| extension == "yaml")
         {
@@ -402,7 +392,9 @@ impl Config
     fn write_config_path(&self, config_path: &Path)
     {
         // Serialize to yaml.
-        let yaml = serde_saphyr::to_string_with_options(self, serde_saphyr::ser_options!{
+        let yaml = serde_saphyr::to_string_with_options(
+            self,
+            serde_saphyr::ser_options! {
                 empty_as_braces: true,
                 indent_step: 2,
                 compact_list_indent: true,
@@ -410,12 +402,12 @@ impl Config
                 prefer_block_scalars: true,
                 quote_all: false,
                 yaml_12: false
-            })
-            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
+            }
+        )
+        .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
 
         // Write to filesystem.
-        std::fs::write(config_path, yaml)
-            .expect(&format!("Unable to create configuration '{}'.", config_path.to_string_lossy()))
+        std::fs::write(config_path, yaml).expect(&format!("Unable to create configuration '{}'.", config_path.to_string_lossy()))
     }
 
     #[allow(unused)]
@@ -427,8 +419,7 @@ impl Config
     fn read_config_path(config_path: &Path) -> Config
     {
         // Read from filesystem.
-        let yaml = File::open(config_path)
-            .expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
+        let yaml = File::open(config_path).expect(&format!("Unable to serialize configuration '{}'.", config_path.to_string_lossy()));
 
         // Deserialize from yaml.
         serde_saphyr::from_reader(yaml)
@@ -444,10 +435,12 @@ impl Config
 
 enum FindDirectoryError
 {
-    Nonexistant {
+    Nonexistant
+    {
         path: PathBuf
     },
-    NotADirectory {
+    NotADirectory
+    {
         path: PathBuf
     }
 }
@@ -466,13 +459,17 @@ impl Display for FindDirectoryError
 
 enum FindEnvDirectoryError
 {
-    MissingVariable {
-        error: VarError,
+    MissingVariable
+    {
+        error: VarError, variable: String
+    },
+    EmptyVariable
+    {
         variable: String
     },
-    NotFound {
-        error: FindDirectoryError,
-        variable: String
+    NotFound
+    {
+        error: FindDirectoryError, variable: String
     }
 }
 
@@ -487,6 +484,7 @@ impl Display for FindEnvDirectoryError
                 VarError::NotPresent => write!(f, "variable '${variable}' not defined. {error}"),
                 VarError::NotUnicode(_os_string) => write!(f, "unable to parse variable '${variable}'. {error}")
             },
+            Self::EmptyVariable { variable } => write!(f, "variable '${variable}' is empty."),
             Self::NotFound { error, variable } => write!(f, "variable '${variable}' i.e. {error}")
         }
     }
@@ -532,7 +530,11 @@ impl TryFrom<FindEnvDirectoryError> for FindXdgConfigHomeDirectoryError
             FindEnvDirectoryError::MissingVariable {
                 error: VarError::NotPresent,
                 variable
-            } if variable == HOME_DIRECTORY_ENV_VARIABLE => match Config::home_dir() // Try to use ~/.config instead.
+            }
+            | FindEnvDirectoryError::EmptyVariable { variable }
+                if variable == XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE =>
+            {
+                match Config::home_dir() // Try to use ~/.config instead.
             {
                 Ok(home_dir) => match Config::find_directory(home_dir.join(Path::new(CONFIG_SUBDIRECTORY_UNIX)))
                 {
@@ -540,7 +542,8 @@ impl TryFrom<FindEnvDirectoryError> for FindXdgConfigHomeDirectoryError
                     Err(_) => Ok(Self(error))
                 },
                 Err(FindHomeDirectoryError(error)) => Ok(Self(error))
-            },
+            }
+            }
             _ => Ok(Self(error))
         }
     }
@@ -548,12 +551,13 @@ impl TryFrom<FindEnvDirectoryError> for FindXdgConfigHomeDirectoryError
 
 enum CreateDirectoryError
 {
-    Failed {
-        path: PathBuf,
-        error: std::io::Error
+    Failed
+    {
+        path: PathBuf, error: std::io::Error
     },
-    NotADirectory {
-        path: PathBuf        
+    NotADirectory
+    {
+        path: PathBuf
     }
 }
 
@@ -563,13 +567,12 @@ impl Display for CreateDirectoryError
     {
         match self
         {
-            Self::Failed {
-                path,
-                error
-            } => write!(f, "Creation of directory '{}' failed. {error}", path.to_string_lossy()),
-            Self::NotADirectory {
-                path
-            } => write!(f, "Creation of directory '{}' failed. A file by the same name already exists and is not a directory.", path.to_string_lossy())
+            Self::Failed { path, error } => write!(f, "Creation of directory '{}' failed. {error}", path.to_string_lossy()),
+            Self::NotADirectory { path } => write!(
+                f,
+                "Creation of directory '{}' failed. A file by the same name already exists and is not a directory.",
+                path.to_string_lossy()
+            )
         }
     }
 }
