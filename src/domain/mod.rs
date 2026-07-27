@@ -1,6 +1,8 @@
-use core::{any::Any, borrow::Borrow, fmt::Debug, ops::Add};
+use core::{any::Any, fmt::Debug};
 
-use crate::{Clause, config::{DomainConfig, EnneagramConfig, TriadsConfig}, enneatype::Enneatype, triad::{Fault, Frame, Means, Need, Triad}};
+use crate::{
+    config::{DomainConfig, Fallback, Property, TriadsConfig}, enneatype::Enneatype, triad::Triad
+};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -13,125 +15,16 @@ moddef::moddef!(
     }
 );
 
-pub fn select(config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> Box<dyn Domain>
-{
-    let config = config.borrow();
-    fn select_triads<T, N>(
-        trivial_conjunction: &str,
-        trivial: [T; 3],
-        nontrivial_conjunction: &str,
-        nontrivial: [N; 3],
-        config: &EnneagramConfig
-    ) -> <T as Add<N>>::Output
-    where
-        T: Triad + Copy + Add<N, Output: Domain>,
-        N: Triad + Copy
-    {
-        enum Triviality<T, N>
-        {
-            Trivial(T),
-            Nontrivial(N)
-        }
-        
-        let trivial_choices = trivial.each_ref().map(|triad| (triad.config(config), move || *triad));
-        let nontrivial_choices = nontrivial.each_ref().map(|triad| (triad.config(config), move || *triad));
-
-        let (domain_kind, codomain_kind) = {
-            let [(_, lhs), ..] = trivial_choices;
-            let [(_, rhs), ..] = nontrivial_choices;
-            let domain = lhs() + rhs();
-            (domain.kind(config), domain.reciprocal().kind(config))
-        };
-
-        println!("\x1b[u\x1b[3;90m -> {codomain_kind}\x1b[0m");
-
-        let polymorphic_trivial_choices = trivial_choices.each_ref()
-            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Trivial(generator())));
-        let polymorphic_nontrivial_choices = nontrivial_choices.each_ref()
-            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Nontrivial(generator())));
-
-        let first_triad = crate::select(
-            Clause::Question,
-            &core::iter::chain(
-                polymorphic_trivial_choices.each_ref()
-                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>)),
-                polymorphic_nontrivial_choices.each_ref()
-                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>))
-            ).collect::<Vec<_>>()
-        );
-        let (trivial_triad, nontrivial_triad) = match first_triad
-        {
-            Triviality::Trivial(trivial_triad) => {
-                (
-                    trivial_triad,
-                    crate::select(
-                        Clause::Continuation(nontrivial_conjunction),
-                        &nontrivial_choices.each_ref()
-                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> N))
-                    )
-                )
-            },
-            Triviality::Nontrivial(nontrivial_triad) => {
-                (
-                    crate::select(
-                        Clause::Continuation(trivial_conjunction),
-                        &trivial_choices.each_ref()
-                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> T))
-                    ),
-                    nontrivial_triad
-                )
-            },
-        };
-        let domain = trivial_triad + nontrivial_triad;
-        assert_eq!(domain.kind(config), domain_kind, "Domain-kind must be invariant! (it isn't)");
-        domain
-    }
-
-    let domain = crate::select::<Box<dyn Domain>>(
-        Clause::Answer("please select a domain"),
-        &[
-            (InternalDissonance::kind(config), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Means::all(), config))),
-            (InternalSynthesis::kind(config), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all(), config))),
-            (DesireMachine::kind(config), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all(), config))),
-            (BodyWithoutOrgans::kind(config), &|| Box::new(select_triads(", ", Fault::all(), " and ", Means::all(), config))),
-            (ExternalSynthesis::kind(config), &|| Box::new(select_triads(", but ", Need::all(), ", ", Means::all(), config))),
-            (ExternalDissonance::kind(config), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all(), config))),
-        ]
-    );
-    let answer = core::fmt::from_fn(|f| domain.answer(f, config));
-    println!("A: {answer}");
-
-    domain
-}
-
-pub fn all() -> [Box<dyn Domain>; 6*9]
+pub fn all() -> [Box<dyn Domain>; 6 * 9]
 {
     core::iter::empty()
-        .chain(
-            ExternalDissonance::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).chain(
-            ExternalSynthesis::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).chain(
-            BodyWithoutOrgans::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).chain(
-            DesireMachine::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).chain(
-            InternalSynthesis::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).chain(
-            InternalDissonance::all()
-                .into_iter()
-                .map(|domain| Box::new(domain) as Box<dyn Domain>)
-        ).collect::<Vec<_>>()
+        .chain(ExternalDissonance::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .chain(ExternalSynthesis::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .chain(BodyWithoutOrgans::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .chain(DesireMachine::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .chain(InternalSynthesis::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .chain(InternalDissonance::all().into_iter().map(|domain| Box::new(domain) as Box<dyn Domain>))
+        .collect::<Vec<_>>()
         .try_into()
         .expect("The enneagram is defined by 54 unique domains. Wrong number of domains!")
 }
@@ -141,7 +34,7 @@ pub trait Domain: Debug + Any + 'static
     fn as_any(&self) -> &dyn Any;
     fn equals(&self, other: &dyn Domain) -> bool;
 
-    fn kind<'a>(&self, config: &'a dyn Borrow<DomainConfig>) -> &'a str;
+    fn kind<'a>(&self, config: &'a dyn Property<DomainConfig>, fallback: &'a Fallback) -> &'a str;
     fn conscious(&self) -> &dyn Triad;
     fn subconscious(&self) -> &dyn Triad;
     fn triads(&self) -> [&dyn Triad; 2]
@@ -151,33 +44,40 @@ pub trait Domain: Debug + Any + 'static
     fn edge(&self) -> Enneatype
     {
         let triads = self.triads();
-        let mut edges = triads.into_iter()
+        let mut edges = triads
+            .into_iter()
             .map(|triad| triad.edges().map(|edge| Some(edge)))
             .reduce(|mut triad, other_triad| {
-                for edge in triad.iter_mut()
-                    .filter(|edge| edge.is_some() && !other_triad.contains(edge))
+                for edge in triad.iter_mut().filter(|edge| edge.is_some() && !other_triad.contains(edge))
                 {
                     *edge = None
                 }
                 triad
-            }).into_iter()
+            })
+            .into_iter()
             .flatten()
             .filter_map(|edge| edge);
-        let edge = edges.next().expect("The conscious and the subconscious must agree on a single common personality! No agreement");
-        assert_eq!({
-            let mut rest = edges.collect::<Vec<_>>();
-            rest.dedup();
-            rest
-        }, [], "The conscious and the subconscious must agree on a single common personality! Ambiguous overlap");
+        let edge = edges
+            .next()
+            .expect("The conscious and the subconscious must agree on a single common personality! No agreement");
+        assert_eq!(
+            {
+                let mut rest = edges.collect::<Vec<_>>();
+                rest.dedup();
+                rest
+            },
+            [],
+            "The conscious and the subconscious must agree on a single common personality! Ambiguous overlap"
+        );
         edge
     }
 
     #[allow(unused)]
-    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result;
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result;
-    fn answer(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result;
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result;
+    fn answer(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        self.reciprocal().trivial(f, config)
+        self.reciprocal().trivial(f, config, fallback)
     }
 
     fn reciprocal(&self) -> Box<dyn Domain>
@@ -185,14 +85,9 @@ pub trait Domain: Debug + Any + 'static
         // This is dumb but should work
         let edge = self.edge();
         let triads = self.triads();
-        let mut codomains = crate::domain::all()
-            .into_iter()
-            .filter(|domain| !self.equals(&**domain)
-                && edge == domain.edge()
-                && !domain.triads()
-                    .into_iter()
-                    .any(|other_triad| triads.iter().any(|triad| triad.equals(other_triad)))
-            );
+        let mut codomains = crate::domain::all().into_iter().filter(|domain| {
+            !self.equals(&**domain) && edge == domain.edge() && !domain.triads().into_iter().any(|other_triad| triads.iter().any(|triad| triad.equals(other_triad)))
+        });
         let codomain = codomains.next().expect("This domain has no reciprocal codomain!");
         assert_eq!(codomains.collect::<Vec<_>>().len(), 0, "The reciprocal codomain of this domain cannot be ambiguous!");
         codomain
@@ -202,7 +97,10 @@ pub trait Domain: Debug + Any + 'static
 #[cfg(test)]
 mod test
 {
-    use crate::{config::Config, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}};
+    use crate::{
+        config::{Config, Fallback},
+        domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}
+    };
 
     #[test]
     fn test_external_dissonance()
@@ -215,7 +113,7 @@ mod test
     {
         test_domain(ExternalSynthesis::all());
     }
-    
+
     #[test]
     fn test_behaviour()
     {
@@ -227,7 +125,7 @@ mod test
     {
         test_domain(DesireMachine::all());
     }
-    
+
     #[test]
     fn test_internal_conflict()
     {
@@ -244,12 +142,13 @@ mod test
     fn test_all()
     {
         let config = Config::default();
+        let fallback = Fallback::default();
 
         for domain in crate::domain::all()
         {
-            let q = std::fmt::from_fn(|f| domain.question(f, &config));
-            let a = std::fmt::from_fn(|f| domain.answer(f, &config));
-            let e = domain.edge().config(&config);
+            let q = std::fmt::from_fn(|f| domain.question(f, &config, &fallback));
+            let a = std::fmt::from_fn(|f| domain.answer(f, &config, &fallback));
+            let e = domain.edge().config(&config, &fallback);
             let e = e.name.as_ref();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }
@@ -260,12 +159,13 @@ mod test
         T: Domain
     {
         let config = Config::default();
+        let fallback = Fallback::default();
 
         for domain in domains
         {
-            let q = std::fmt::from_fn(|f| domain.question(f, &config));
-            let a = std::fmt::from_fn(|f| domain.answer(f, &config));
-            let e = domain.edge().config(&config);
+            let q = std::fmt::from_fn(|f| domain.question(f, &config, &fallback));
+            let a = std::fmt::from_fn(|f| domain.answer(f, &config, &fallback));
+            let e = domain.edge().config(&config, &fallback);
             let e = e.name.as_ref();
             println!("Q: {q}\nA: {a}\nE: {e}\n");
         }

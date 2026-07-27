@@ -1,25 +1,16 @@
-use std::io::Write;
+use std::{io::Write, ops::Add};
 
 #[cfg(feature = "blasphemy")]
 use rand::distr::Distribution;
+use serde_saphyr::options;
 #[cfg(feature = "blasphemy")]
 use std::io::Read;
 
-use crate::{config::Config, enneagram::Enneagram, enneatype::Enneatype};
+use enneagram::{Enneagram, Enneatype, config::{Config, EnneagramConfig, Fallback, Property}, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}, pivot::Pivot, triad::{Fault, Frame, Means, Need, Triad}};
 
 moddef::moddef!(
     mod {
-        artwork for cfg(feature = "artwork"),
-        config,
-        wireframe,
-        enneatype,
-        line,
-        enneagram,
-        domain,
-        triad,
-        personality,
-        pivot,
-        path
+        artwork for cfg(feature = "artwork")
     }
 );
 
@@ -41,12 +32,9 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
     let mut enable_pivot = true;
     #[cfg(feature = "artwork")]
     let mut enable_artwork = false;
-    let mut enneagram = Enneagram {
-        edges: Vec::new(),
-        config: Config::default()
-    };
+    let mut enneagram = Enneagram::default();
 
-    let mut configs = vec![];
+    let mut configs = Vec::<(String, Vec<Config>)>::new();
 
     loop
     {
@@ -57,19 +45,22 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                 match configs.len()
                 {
                     0 => (),
-                    1 => [(_, enneagram.config)] = configs.try_into()
-                        .expect("Config should now be unambiguous."),
+                    1 => {
+                        let [(_, config)] = configs.try_into()
+                            .expect("Config should now be unambiguous.");
+                        enneagram.overlay_configs(config);
+                    },
                     2.. => {
                         let options = configs.into_iter()
                             .map(|config| (config.0, move || config.1.clone()))
                             .collect::<Vec<(String, _)>>();
 
-                        enneagram.config = crate::select(
+                        enneagram.overlay_configs(crate::select::<Vec<Config>>(
                             Clause::Answer("please select one config"),
                             &options.iter()
                                 .map(|config| (config.0.as_str(), &config.1 as &dyn Fn() -> _))
                                 .collect::<Vec<_>>()
-                        );
+                        ).into_iter().rev());
                     }
                 }
 
@@ -86,12 +77,12 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
 
                     return
                 }
-                if enneagram.edges.is_empty()
+                if enneagram.is_empty()
                 {
-                    let domain = domain::select(&enneagram.config);
+                    let domain = select_domain(enneagram.config(), enneagram.fallback());
                     let mut edge = domain.edge();
 
-                    let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config));
+                    let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config(), enneagram.fallback()));
                     println!("\n{edge_info}");
 
                     #[cfg(feature = "pivot")]
@@ -101,13 +92,13 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                         {
                             println!();
                             let pivot = edge.pivot();
-                            let origin = core::mem::replace(&mut edge, pivot.select(&enneagram.config));
+                            let origin = core::mem::replace(&mut edge, select_pivot(pivot, enneagram.config(), enneagram.fallback()));
                             if edge == origin
                             {
                                 break
                             }
 
-                            let edge_info = core::fmt::from_fn(|f| edge.info(f, &enneagram.config));
+                            let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config(), enneagram.fallback()));
                             println!("\n{edge_info}");
                         }
                     }
@@ -117,9 +108,9 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                 else
                 {
                     let mut sep = "";
-                    for edges in enneagram.edges
+                    for edges in enneagram.edges()
                     {
-                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, &enneagram.config));
+                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, enneagram.config(), enneagram.fallback()));
                         println!("{sep}{edge_info}");
                         sep = "\n"
                     }
@@ -162,6 +153,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                 }
                 else if let Some(config_path) = args.next()
                 {
+                    let mut config_grouping = vec![Config::read_config(&config_path)];
                     while let Some(next_arg) = args.peek() && next_arg == ":"
                     {
                         let _ = args.next() // Ignore ':'-operator
@@ -171,10 +163,9 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                                 "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
                                 Config::default_config_path().to_string_lossy()
                             ));
-                        Config::add_fallback(Config::read_config(&config_fallback));
+                        config_grouping.push(Config::read_config(&config_fallback));
                     }
-                    let config = Config::read_config(&config_path);
-                    configs.push((config_path, config))
+                    configs.push((config_path, config_grouping))
                 }
                 else
                 {
@@ -240,7 +231,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
         }
         else if let Ok(mut number) = argument.parse::<u128>().map(Some)
         {
-            enneagram.edges.push(
+            enneagram.push_edges(
                 core::iter::repeat(())
                     .map_while(|()| {
                         let n = number.take()?;
@@ -255,7 +246,6 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     .collect::<Vec<_>>()
                     .into_iter()
                     .rev()
-                    .collect()
             );
             continue
         }
@@ -356,6 +346,118 @@ fn select<T>(
         Clause::Continuation(_) => println!("{expression}\x1b[s")
     }
     result()
+}
+
+pub fn select_domain(config: &(impl Property<EnneagramConfig> + ?Sized), fallback: &Fallback) -> Box<dyn Domain>
+{
+    let config = config.property(fallback);
+
+    fn select_triads<T, N>(
+        trivial_conjunction: &str,
+        trivial: [T; 3],
+        nontrivial_conjunction: &str,
+        nontrivial: [N; 3],
+        config: &EnneagramConfig,
+        fallback: &Fallback
+    ) -> <T as Add<N>>::Output
+    where
+        T: Triad + Copy + Add<N, Output: Domain>,
+        N: Triad + Copy
+    {
+        enum Triviality<T, N>
+        {
+            Trivial(T),
+            Nontrivial(N)
+        }
+        
+        let trivial_choices = trivial.each_ref().map(|triad| (triad.config(config, fallback), move || *triad));
+        let nontrivial_choices = nontrivial.each_ref().map(|triad| (triad.config(config, fallback), move || *triad));
+
+        let (domain_kind, codomain_kind) = {
+            let [(_, lhs), ..] = trivial_choices;
+            let [(_, rhs), ..] = nontrivial_choices;
+            let domain = lhs() + rhs();
+            (domain.kind(config, fallback), domain.reciprocal().kind(config, fallback))
+        };
+
+        println!("\x1b[u\x1b[3;90m -> {codomain_kind}\x1b[0m");
+
+        let polymorphic_trivial_choices = trivial_choices.each_ref()
+            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Trivial(generator())));
+        let polymorphic_nontrivial_choices = nontrivial_choices.each_ref()
+            .map(|(config, generator)| (config.expression.as_ref(), || Triviality::Nontrivial(generator())));
+
+        let first_triad = crate::select(
+            Clause::Question,
+            &core::iter::chain(
+                polymorphic_trivial_choices.each_ref()
+                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>)),
+                polymorphic_nontrivial_choices.each_ref()
+                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>))
+            ).collect::<Vec<_>>()
+        );
+        let (trivial_triad, nontrivial_triad) = match first_triad
+        {
+            Triviality::Trivial(trivial_triad) => {
+                (
+                    trivial_triad,
+                    crate::select(
+                        Clause::Continuation(nontrivial_conjunction),
+                        &nontrivial_choices.each_ref()
+                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> N))
+                    )
+                )
+            },
+            Triviality::Nontrivial(nontrivial_triad) => {
+                (
+                    crate::select(
+                        Clause::Continuation(trivial_conjunction),
+                        &trivial_choices.each_ref()
+                            .map(|(choice, generator)| (choice.expression.as_ref(), generator as &dyn Fn() -> T))
+                    ),
+                    nontrivial_triad
+                )
+            },
+        };
+        let domain = trivial_triad + nontrivial_triad;
+        assert_eq!(domain.kind(config, fallback), domain_kind, "Domain-kind must be invariant! (it isn't)");
+        domain
+    }
+
+    let domain = crate::select::<Box<dyn Domain>>(
+        Clause::Answer("please select a domain"),
+        &[
+            (InternalDissonance::kind(config, fallback), &|| Box::new(select_triads(", but ", Frame::all(), ", but ", Means::all(), config, fallback))),
+            (InternalSynthesis::kind(config, fallback), &|| Box::new(select_triads(", but ", Frame::all(), ", ", Fault::all(), config, fallback))),
+            (DesireMachine::kind(config, fallback), &|| Box::new(select_triads(", ", Frame::all(), " and ", Need::all(), config, fallback))),
+            (BodyWithoutOrgans::kind(config, fallback), &|| Box::new(select_triads(", ", Fault::all(), " and ", Means::all(), config, fallback))),
+            (ExternalSynthesis::kind(config, fallback), &|| Box::new(select_triads(", but ", Need::all(), ", ", Means::all(), config, fallback))),
+            (ExternalDissonance::kind(config, fallback), &|| Box::new(select_triads(", but ", Need::all(), ", but ", Fault::all(), config, fallback))),
+        ]
+    );
+    let answer = core::fmt::from_fn(|f| domain.answer(f, config, fallback));
+    println!("A: {answer}");
+
+    domain
+}
+
+pub fn select_pivot(pivot: Pivot, config: &(impl Property<EnneagramConfig> + ?Sized), fallback: &Fallback) -> Enneatype
+{
+    let config = config.property(fallback);
+
+    let h = pivot.homeostatis().config(config, fallback);
+    let question = h.pivot.as_ref();
+
+    crate::select(
+        Clause::Answer(question),
+        &[pivot.extroverted(), pivot.homeostatis(), pivot.introverted()]
+            .map(|edge| {
+                let affirmation = core::fmt::from_fn(|f| edge.affirmation(f, config, fallback));
+                (format!("{affirmation}"), move || edge)
+            })
+            .each_ref()
+            .map(|(affirmation, generator)| (&**affirmation, generator as &dyn Fn() -> Enneatype))
+    )
 }
 
 #[cfg(test)]

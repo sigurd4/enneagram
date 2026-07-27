@@ -1,8 +1,8 @@
-use core::borrow::Borrow;
-
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, DomainConfig, EdgesConfig, TriadsConfig};
+use crate::{
+    config::{Fallback, Property, Config, DomainConfig, EdgesConfig, TriadsConfig}
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(deny_unknown_fields)]
@@ -19,14 +19,25 @@ pub struct EnneagramConfig
 impl EnneagramConfig
 {
     crate::config::getter!([_, c.enneagram].edges -> &EdgesConfig);
+
     crate::config::getter!([_, c.enneagram].triads -> &TriadsConfig);
+
     crate::config::getter!([_, c.enneagram].domains -> &DomainConfig);
 }
 
-impl Borrow<EnneagramConfig> for Config
+impl Property for EnneagramConfig
 {
-    fn borrow(&self) -> &EnneagramConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self
     {
-        &self.enneagram()
+        self
+    }
+}
+impl<C> Property<EnneagramConfig> for C
+where
+    C: Property<Config>
+{
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a EnneagramConfig
+    {
+        self.property(fallback).enneagram(fallback)
     }
 }

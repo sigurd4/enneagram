@@ -1,6 +1,10 @@
-use core::{any::Any, borrow::Borrow};
+use core::{any::Any};
 
-use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
+use crate::{
+    config::{TriadConfig, TriadsConfig, Fallback, Property},
+    enneatype::Enneatype,
+    triad::Triad
+};
 
 /// External strategy towards suffering / means
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,6 +29,7 @@ impl Triad for Means
     {
         self
     }
+
     fn equals(&self, other: &dyn Triad) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
@@ -35,25 +40,27 @@ impl Triad for Means
         match self
         {
             Means::Assertive => &[Enneatype::Repression, Enneatype::Disorganization, Enneatype::Action], // 378
-            Means::Compliant => &[Enneatype::Paranoia, Enneatype::Recovery, Enneatype::Association], // 612
-            Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia], // 945
+            Means::Compliant => &[Enneatype::Paranoia, Enneatype::Recovery, Enneatype::Association],     // 612
+            Means::Withdrawn => &[Enneatype::Rest, Enneatype::Rejection, Enneatype::Catatonia]           // 945
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
+
+    fn config<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> TriadConfig<'a>
     {
-        let triads = config.borrow();
-        let means = triads.means();
+        let triads = config.property(fallback);
+        let means = triads.means(fallback);
         match self
         {
-            Means::Assertive => means.assertive(),
-            Means::Compliant => means.compliant(),
-            Means::Withdrawn => means.withdrawn()
+            Means::Assertive => means.assertive(fallback),
+            Means::Compliant => means.compliant(fallback),
+            Means::Withdrawn => means.withdrawn(fallback)
         }
     }
-    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+
+    fn kind<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> &'a str
     {
-        let triads = config.borrow();
-        let means = triads.means();
-        means.description()
+        let triads = config.property(fallback);
+        let means = triads.means(fallback);
+        means.description(fallback)
     }
 }

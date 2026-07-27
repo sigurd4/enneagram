@@ -1,6 +1,11 @@
-use core::{borrow::Borrow, f64::consts::TAU};
+use core::{f64::consts::TAU};
 
-use crate::{config::{EdgeConfig, EdgesConfig, EnneagramConfig, TriadsConfig}, personality::Personality, pivot::Pivot, triad::Triad};
+use crate::{
+    config::{EdgeConfig, EdgesConfig, EnneagramConfig, TriadsConfig, Fallback, Property},
+    personality::Personality,
+    pivot::Pivot,
+    triad::Triad
+};
 
 #[repr(u8)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord)]
@@ -23,32 +28,41 @@ impl Enneatype
     {
         assert_ne!(number, 0, "There is no enneatype with the number 0.");
         assert!((1..=9).contains(&number), "Enneagram numbers must be within the range of 1-9.");
-        number.checked_sub(1)
-            .and_then(|i| Self::all()
-                .get(i as usize)
-                .copied()
-            ).expect("Enneagram numbers must be within the range of 1-9.")
+        number
+            .checked_sub(1)
+            .and_then(|i| Self::all().get(i as usize).copied())
+            .expect("Enneagram numbers must be within the range of 1-9.")
     }
 
     pub const fn all() -> &'static [Self; 9]
     {
-        &[Self::Recovery, Self::Association, Self::Repression, Self::Rejection, Self::Catatonia, Self::Paranoia, Self::Disorganization, Self::Action, Self::Rest]
+        &[
+            Self::Recovery,
+            Self::Association,
+            Self::Repression,
+            Self::Rejection,
+            Self::Catatonia,
+            Self::Paranoia,
+            Self::Disorganization,
+            Self::Action,
+            Self::Rest
+        ]
     }
 
-    pub fn config<'a>(&self, config: &'a (impl Borrow<EdgesConfig> + ?Sized)) -> EdgeConfig<'a>
+    pub fn config<'a>(&self, config: &'a (impl Property<EdgesConfig> + ?Sized), fallback: &'a Fallback) -> EdgeConfig<'a>
     {
-        let edges = config.borrow();
+        let edges = config.property(fallback);
         match self
         {
-            Enneatype::Recovery => edges.recovery(),
-            Enneatype::Association => edges.association(),
-            Enneatype::Repression => edges.repression(),
-            Enneatype::Rejection => edges.rejection(),
-            Enneatype::Catatonia => edges.catatonia(),
-            Enneatype::Paranoia => edges.paranoia(),
-            Enneatype::Disorganization => edges.disorganization(),
-            Enneatype::Action => edges.action(),
-            Enneatype::Rest => edges.rest(),
+            Enneatype::Recovery => edges.recovery(fallback),
+            Enneatype::Association => edges.association(fallback),
+            Enneatype::Repression => edges.repression(fallback),
+            Enneatype::Rejection => edges.rejection(fallback),
+            Enneatype::Catatonia => edges.catatonia(fallback),
+            Enneatype::Paranoia => edges.paranoia(fallback),
+            Enneatype::Disorganization => edges.disorganization(fallback),
+            Enneatype::Action => edges.action(fallback),
+            Enneatype::Rest => edges.rest(fallback)
         }
     }
 
@@ -65,9 +79,9 @@ impl Enneatype
             .into_iter()
             .filter(|triad| {
                 let triads_edges = triad.edges();
-                edges.iter()
-                    .all(|edge| triads_edges.contains(edge))
-            }).collect::<Vec<_>>()
+                edges.iter().all(|edge| triads_edges.contains(edge))
+            })
+            .collect::<Vec<_>>()
     }
 
     pub fn triads(&self) -> [Box<dyn Triad>; 4]
@@ -76,6 +90,7 @@ impl Enneatype
             .try_into()
             .expect("Each enneatype must consist of exactly 4 triads.")
     }
+
     pub fn path(&self) -> impl Iterator<Item = Self>
     {
         let mut prev = None;
@@ -88,14 +103,7 @@ impl Enneatype
             let introverted = pivot.introverted();
             assert_ne!(extroverted, introverted);
             let prev = prev.replace(edge);
-            let next = if prev == Some(introverted)
-            {
-                extroverted
-            }
-            else
-            {
-                introverted
-            };
+            let next = if prev == Some(introverted) { extroverted } else { introverted };
             assert!(next.pivot().is_adjacent_to(edge), "Coherence of the enneagram path is wrong");
             if next == first_one
             {
@@ -107,17 +115,13 @@ impl Enneatype
 
     pub fn personality(&self) -> Personality
     {
-        Personality::from_triads(
-            self.triads()
-                .each_ref()
-                .map(|triad| &**triad)
-        )
+        Personality::from_triads(self.triads().each_ref().map(|triad| &**triad))
     }
 
     pub fn angle(&self) -> f64
     {
         let number = self.number();
-        number as f64/9.0*TAU
+        number as f64 / 9.0 * TAU
     }
 
     pub fn position(&self) -> [f64; 2]
@@ -127,40 +131,40 @@ impl Enneatype
         [sine, cosine]
     }
 
-    pub fn info(&self, f: &mut core::fmt::Formatter, config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> core::fmt::Result
+    pub fn info(&self, f: &mut core::fmt::Formatter, config: &(impl Property<EnneagramConfig> + ?Sized), fallback: &Fallback) -> core::fmt::Result
     {
-        Self::common_info(core::slice::from_ref(self), f, config)
+        Self::common_info(core::slice::from_ref(self), f, config, fallback)
     }
 
-    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter, config: &(impl Borrow<EnneagramConfig> + ?Sized)) -> core::fmt::Result
+    pub fn common_info(edges: &[Enneatype], f: &mut core::fmt::Formatter, config: &(impl Property<EnneagramConfig> + ?Sized), fallback: &Fallback) -> core::fmt::Result
     {
-        let config = config.borrow();
+        let config = config.property(fallback);
 
         for edge in edges
         {
             let number = edge.number();
-            let config = edge.config(config);
+            let config = edge.config(config, fallback);
             writeln!(f, "\x1b[1;33mEnneagram {number} {}\x1b[0m", config.name)?;
         }
 
         for triad in Self::common_triads(edges)
         {
-            let numbers = triad.edges()
+            let numbers = triad
+                .edges()
                 .into_iter()
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();
-            let kind = format!("\x1b[3;90m# {}:\x1b[0m", triad.kind(config));
-            let config = triad.config(config);
+            let kind = format!("\x1b[3;90m# {}:\x1b[0m", triad.kind(config, fallback));
+            let config = triad.config(config, fallback);
             write!(f, "\n{kind}\n\x1b[0;97m{numbers} {}\x1b[0m", config.description)?;
         }
         Ok(())
     }
 
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        self.personality()
-            .affirmation(f, config)
+        self.personality().affirmation(f, config, fallback)
     }
 
     pub fn pivot(&self) -> Pivot
@@ -172,7 +176,7 @@ impl Enneatype
 #[cfg(test)]
 mod test
 {
-    use crate::{config::Config, enneatype::Enneatype};
+    use crate::{config::{Config, Fallback}, enneatype::Enneatype};
 
     #[test]
     fn test_pos()
@@ -185,10 +189,11 @@ mod test
     fn test_path1()
     {
         let config = Config::default();
+        let fallback = Fallback::default();
 
         for edge in Enneatype::Action.path()
         {
-            println!("{}", edge.config(&config).name)
+            println!("{}", edge.config(&config, &fallback).name)
         }
     }
 
@@ -196,10 +201,11 @@ mod test
     fn test_path2()
     {
         let config = Config::default();
+        let fallback = Fallback::default();
 
         for edge in Enneatype::Repression.path()
         {
-            println!("{}", edge.config(&config).name)
+            println!("{}", edge.config(&config, &fallback).name)
         }
     }
 

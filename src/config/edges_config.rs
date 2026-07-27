@@ -1,8 +1,8 @@
-use core::borrow::Borrow;
-
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EdgeConfig, EnneagramConfig, PartialEdgeConfig};
+use crate::{
+    config::{Fallback, Property, EdgeConfig, EnneagramConfig, PartialEdgeConfig}
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -31,27 +31,37 @@ pub struct EdgesConfig
 impl EdgesConfig
 {
     crate::config::getter!([_, c.enneagram.edges].recovery |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].association |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].repression |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].rejection |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].catatonia |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].paranoia |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].disorganization |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].action |= -> EdgeConfig<'_>);
+
     crate::config::getter!([_, c.enneagram.edges].rest |= -> EdgeConfig<'_>);
 }
 
-impl Borrow<EdgesConfig> for EnneagramConfig
+impl Property for EdgesConfig
 {
-    fn borrow(&self) -> &EdgesConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self
     {
-        self.edges()
+        self
     }
 }
-impl Borrow<EdgesConfig> for Config
+impl<C> Property<EdgesConfig> for C
+where
+    C: Property<EnneagramConfig>
 {
-    fn borrow(&self) -> &EdgesConfig
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a EdgesConfig
     {
-        self.enneagram().borrow()
+        self.property(fallback).edges(fallback)
     }
 }

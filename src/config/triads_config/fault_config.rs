@@ -1,8 +1,8 @@
-use core::borrow::Borrow;
-
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EnneagramConfig, PartialTriadConfig, TriadConfig, TriadsConfig};
+use crate::{
+    config::{Fallback, Property, PartialTriadConfig, TriadConfig, TriadsConfig}
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -21,30 +21,27 @@ pub struct FaultConfig
 impl FaultConfig
 {
     crate::config::getter!([_, c.enneagram.triads.fault].description.as_str() -> &str);
-    crate::config::getter!([_, c.enneagram.triads.fault].positive |= -> TriadConfig<'_>);
-    crate::config::getter!([_, c.enneagram.triads.fault].competent |= -> TriadConfig<'_>);
-    crate::config::getter!([_, c.enneagram.triads.fault].reactive |= -> TriadConfig<'_>);
 
+    crate::config::getter!([_, c.enneagram.triads.fault].positive |= -> TriadConfig<'a>);
+
+    crate::config::getter!([_, c.enneagram.triads.fault].competent |= -> TriadConfig<'a>);
+
+    crate::config::getter!([_, c.enneagram.triads.fault].reactive |= -> TriadConfig<'a>);
 }
 
-impl Borrow<FaultConfig> for TriadsConfig
+impl Property for FaultConfig
 {
-    fn borrow(&self) -> &FaultConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self 
     {
-        self.fault()
+        self
     }
 }
-impl Borrow<FaultConfig> for EnneagramConfig
+impl<C> Property<FaultConfig> for C
+where
+    C: Property<TriadsConfig>
 {
-    fn borrow(&self) -> &FaultConfig
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a FaultConfig
     {
-        self.triads().borrow()
-    }
-}
-impl Borrow<FaultConfig> for Config
-{
-    fn borrow(&self) -> &FaultConfig
-    {
-        self.enneagram().borrow()
+        self.property(fallback).fault(fallback)
     }
 }

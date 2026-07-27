@@ -1,8 +1,8 @@
-use core::borrow::Borrow;
-
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EnneagramConfig};
+use crate::{
+    config::{Fallback, Property, EnneagramConfig}
+};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -30,22 +30,27 @@ pub struct TriadsConfig
 impl TriadsConfig
 {
     crate::config::getter!([_, c.enneagram.triads].frame -> &FrameConfig);
+
     crate::config::getter!([_, c.enneagram.triads].means -> &MeansConfig);
+
     crate::config::getter!([_, c.enneagram.triads].fault -> &FaultConfig);
+
     crate::config::getter!([_, c.enneagram.triads].need -> &NeedConfig);
 }
 
-impl Borrow<TriadsConfig> for EnneagramConfig
+impl Property for TriadsConfig
 {
-    fn borrow(&self) -> &TriadsConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self
     {
-        self.triads()
+        self
     }
 }
-impl Borrow<TriadsConfig> for Config
+impl<C> Property<TriadsConfig> for C
+where
+    C: Property<EnneagramConfig>
 {
-    fn borrow(&self) -> &TriadsConfig
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a TriadsConfig
     {
-        self.enneagram().borrow()
+        self.property(fallback).triads(fallback)
     }
 }

@@ -1,6 +1,10 @@
-use core::{any::Any, borrow::Borrow};
+use core::{any::Any};
 
-use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
+use crate::{
+    config::{TriadConfig, TriadsConfig, Fallback, Property},
+    enneatype::Enneatype,
+    triad::Triad
+};
 
 /// Homonculus of the self/internalization of self/frame of judgement/meta-objective/"Who am i?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -25,6 +29,7 @@ impl Triad for Frame
     {
         self
     }
+
     fn equals(&self, other: &dyn Triad) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
@@ -34,26 +39,28 @@ impl Triad for Frame
     {
         match self
         {
-            Frame::Gut => &[Enneatype::Action, Enneatype::Rest, Enneatype::Recovery], // 891
+            Frame::Gut => &[Enneatype::Action, Enneatype::Rest, Enneatype::Recovery],                // 891
             Frame::Head => &[Enneatype::Catatonia, Enneatype::Paranoia, Enneatype::Disorganization], // 567
-            Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection], // 234
+            Frame::Heart => &[Enneatype::Association, Enneatype::Repression, Enneatype::Rejection]   // 234
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
+
+    fn config<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> TriadConfig<'a>
     {
-        let triads = config.borrow();
-        let frame = triads.frame();
+        let triads = config.property(fallback);
+        let frame = triads.frame(fallback);
         match self
         {
-            Frame::Gut => frame.gut(),
-            Frame::Head => frame.head(),
-            Frame::Heart => frame.heart()
+            Frame::Gut => frame.gut(fallback),
+            Frame::Head => frame.head(fallback),
+            Frame::Heart => frame.heart(fallback)
         }
     }
-    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+
+    fn kind<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> &'a str
     {
-        let triads = config.borrow();
-        let frame = triads.frame();
-        frame.description()
+        let triads = config.property(fallback);
+        let frame = triads.frame(fallback);
+        frame.description(fallback)
     }
 }

@@ -1,8 +1,8 @@
-use core::{borrow::Borrow, ops::Deref};
+use core::ops::Deref;
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EnneagramConfig};
+use crate::config::{Fallback, Property, EnneagramConfig};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -25,24 +25,31 @@ pub struct DomainConfig
 impl DomainConfig
 {
     crate::config::getter!([_, c.enneagram.domains].introverted_dissonance.deref() -> &str);
+
     crate::config::getter!([_, c.enneagram.domains].introverted_synthesis.deref() -> &str);
+
     crate::config::getter!([_, c.enneagram.domains].desire_machine.deref() -> &str);
+
     crate::config::getter!([_, c.enneagram.domains].body_without_organs.deref() -> &str);
+
     crate::config::getter!([_, c.enneagram.domains].extroverted_synthesis.deref() -> &str);
+
     crate::config::getter!([_, c.enneagram.domains].extroverted_dissonance.deref() -> &str);
 }
- 
-impl Borrow<DomainConfig> for EnneagramConfig
+
+impl Property for DomainConfig
 {
-    fn borrow(&self) -> &DomainConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self
     {
-        self.domains()
+        self
     }
 }
-impl Borrow<DomainConfig> for Config
+impl<C> Property<DomainConfig> for C
+where
+    C: Property<EnneagramConfig>
 {
-    fn borrow(&self) -> &DomainConfig
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a DomainConfig
     {
-        self.enneagram().borrow()
+        self.property(fallback).domains(fallback)
     }
 }

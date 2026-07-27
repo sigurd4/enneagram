@@ -1,8 +1,8 @@
-use core::borrow::Borrow;
-
 use serde::{Deserialize, Serialize};
 
-use crate::config::{Config, EnneagramConfig, PartialTriadConfig, TriadConfig, TriadsConfig};
+use crate::{
+    config::{Fallback, Property, PartialTriadConfig, TriadConfig, TriadsConfig}
+};
 
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -15,35 +15,33 @@ pub struct FrameConfig
     #[serde(rename = "567", skip_serializing_if = "Option::is_none")]
     head: Option<PartialTriadConfig<'static>>,
     #[serde(rename = "234", skip_serializing_if = "Option::is_none")]
-    heart: Option<PartialTriadConfig<'static>>,
+    heart: Option<PartialTriadConfig<'static>>
 }
 
 impl FrameConfig
 {
     crate::config::getter!([_, c.enneagram.triads.frame].description.as_str() -> &str);
-    crate::config::getter!([_, c.enneagram.triads.frame].gut |= -> TriadConfig<'_>);
-    crate::config::getter!([_, c.enneagram.triads.frame].head |= -> TriadConfig<'_>);
-    crate::config::getter!([_, c.enneagram.triads.frame].heart |= -> TriadConfig<'_>);
+
+    crate::config::getter!([_, c.enneagram.triads.frame].gut |= -> TriadConfig<'a>);
+
+    crate::config::getter!([_, c.enneagram.triads.frame].head |= -> TriadConfig<'a>);
+
+    crate::config::getter!([_, c.enneagram.triads.frame].heart |= -> TriadConfig<'a>);
 }
 
-impl Borrow<FrameConfig> for TriadsConfig
+impl Property for FrameConfig
 {
-    fn borrow(&self) -> &FrameConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self 
     {
-        self.frame()
+        self
     }
 }
-impl Borrow<FrameConfig> for EnneagramConfig
+impl<C> Property<FrameConfig> for C
+where
+    C: Property<TriadsConfig>
 {
-    fn borrow(&self) -> &FrameConfig
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a FrameConfig
     {
-        self.triads().borrow()
-    }
-}
-impl Borrow<FrameConfig> for Config
-{
-    fn borrow(&self) -> &FrameConfig
-    {
-        self.enneagram().borrow()
+        self.property(fallback).frame(fallback)
     }
 }

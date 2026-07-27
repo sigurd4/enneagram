@@ -1,6 +1,6 @@
-use core::{any::Any, borrow::Borrow, ops::Add};
+use core::{any::Any, ops::Add};
 
-use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Means, Need, Triad}};
+use crate::{config::{Fallback, Property, DomainConfig, TriadsConfig}, domain::Domain, triad::{Means, Need, Triad}};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ExternalSynthesis
@@ -22,9 +22,9 @@ impl ExternalSynthesis
         ]
     }
 
-    pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
+    pub fn kind<'a>(config: &'a (impl Property<DomainConfig> + ?Sized), fallback: &'a Fallback) -> &'a str
     {
-        config.borrow().extroverted_synthesis()
+        config.property(fallback).extroverted_synthesis(fallback)
     }
 }
 
@@ -64,9 +64,9 @@ impl Domain for ExternalSynthesis
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
     
-    fn kind<'a>(&self, config: &'a dyn Borrow<DomainConfig>) -> &'a str
+    fn kind<'a>(&self, config: &'a dyn Property<DomainConfig>, fallback: &'a Fallback) -> &'a str
     {
-        Self::kind(config)
+        Self::kind(config, fallback)
     }
     fn conscious(&self) -> &dyn Triad
     {
@@ -76,12 +76,12 @@ impl Domain for ExternalSynthesis
     {
         &self.thesis
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        write!(f, "{}, but {}", self.anti_thesis.config(config).expression, self.thesis.config(config).expression)
+        write!(f, "{}, but {}", self.anti_thesis.config(config, fallback).expression, self.thesis.config(config, fallback).expression)
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        write!(f, "{}, because {}", self.anti_thesis.config(config).reflection, self.thesis.config(config).reflection)
+        write!(f, "{}, because {}", self.anti_thesis.config(config, fallback).reflection, self.thesis.config(config, fallback).reflection)
     }
 }

@@ -1,6 +1,9 @@
-use core::{any::Any, borrow::Borrow, fmt::Debug};
+use core::{any::Any, fmt::Debug};
 
-use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype};
+use crate::{
+    config::{TriadConfig, TriadsConfig, Fallback, Property},
+    enneatype::Enneatype
+};
 
 moddef::moddef!(
     flat(pub) mod {
@@ -20,47 +23,39 @@ pub fn triangulate(edges: &[Enneatype; 3]) -> Box<dyn Triad>
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
+        )
+        .chain(
             Frame::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
+        )
+        .chain(
             Need::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
+        )
+        .chain(
             Means::all()
                 .into_iter()
                 .filter(|triad| triad.edges() == edges)
                 .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).collect::<Vec<_>>()
+        )
+        .collect::<Vec<_>>()
         .try_into()
         .expect("Exactly one triad should match the set of three edges.");
     triad
 }
 
-pub fn all() -> [Box<dyn Triad>; 4*3]
+pub fn all() -> [Box<dyn Triad>; 4 * 3]
 {
     core::iter::empty()
-        .chain(
-            Fault::all()
-                .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
-            Frame::all()
-                .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
-            Need::all()
-                .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).chain(
-            Means::all()
-                .into_iter()
-                .map(|triad| Box::new(triad) as Box<dyn Triad>)
-        ).collect::<Vec<_>>()
+        .chain(Fault::all().into_iter().map(|triad| Box::new(triad) as Box<dyn Triad>))
+        .chain(Frame::all().into_iter().map(|triad| Box::new(triad) as Box<dyn Triad>))
+        .chain(Need::all().into_iter().map(|triad| Box::new(triad) as Box<dyn Triad>))
+        .chain(Means::all().into_iter().map(|triad| Box::new(triad) as Box<dyn Triad>))
+        .collect::<Vec<_>>()
         .try_into()
         .expect("The enneagram is defined by 4 triads each consisting of 3 states, 12 in total. Wrong number of states!")
 }
@@ -71,8 +66,8 @@ pub trait Triad: Debug + Any
     fn equals(&self, other: &dyn Triad) -> bool;
 
     fn edges(&self) -> &'static [Enneatype; 3];
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>;
-    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str;
+    fn config<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> TriadConfig<'a>;
+    fn kind<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> &'a str;
 
     fn lines(&self) -> [[Enneatype; 2]; 3]
     {
@@ -84,7 +79,10 @@ pub trait Triad: Debug + Any
 #[cfg(test)]
 mod test
 {
-    use crate::{config::Config, triad::{Fault, Frame, Means, Need, Triad}};
+    use crate::{
+        config::{Config, Fallback},
+        triad::{Fault, Frame, Means, Need, Triad}
+    };
 
     #[test]
     fn test_frame()
@@ -121,7 +119,8 @@ mod test
         T: Triad + ?Sized
     {
         let config = Config::default();
-        let conf = triad.config(&config);
+        let fallback = Fallback::default();
+        let conf = triad.config(&config, &fallback);
         println!("Q: {}\nA: {}\n", conf.expression, conf.reflection);
         let edges = triad.edges();
         let reconstruction = crate::triad::triangulate(edges);

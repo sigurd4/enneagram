@@ -1,5 +1,5 @@
 use core::ops::Deref;
-use std::borrow::Cow;
+use std::{borrow::Cow, boxed::Box, format, string::String, vec::Vec};
 
 use serde::{Deserialize, Deserializer, Serialize, Serializer};
 
@@ -33,11 +33,7 @@ impl Serialize for Digit
     {
         let Self(curve) = self;
 
-        curve.iter()
-            .map(|[x, y]| format!("{x},{y}"))
-            .collect::<Vec<_>>()
-            .join(" ")
-            .serialize(serializer)
+        curve.iter().map(|[x, y]| format!("{x},{y}")).collect::<Vec<_>>().join(" ").serialize(serializer)
     }
 }
 
@@ -49,12 +45,14 @@ impl<'de> Deserialize<'de> for Digit
     {
         let curve = String::deserialize(deserializer)?
             .split(" ")
-            .map(|xy| xy.split(",")
-                .map(|e| i8::from_str_radix(e, 10).expect("Failed parsing 8-bit int coordinate of digit."))
-                .collect::<Vec<_>>()
-                .try_into()
-                .expect("Each point of the digit must contain exactly two coordinates.")
-            ).collect::<Vec<_>>()
+            .map(|xy| {
+                xy.split(",")
+                    .map(|e| e.parse::<i8>().expect("Failed parsing 8-bit int coordinate of digit."))
+                    .collect::<Vec<_>>()
+                    .try_into()
+                    .expect("Each point of the digit must contain exactly two coordinates.")
+            })
+            .collect::<Vec<_>>()
             .into();
 
         Ok(Self(curve))

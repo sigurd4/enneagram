@@ -1,4 +1,5 @@
-use core::{borrow::Borrow, convert::Infallible, ops::Deref, str::FromStr};
+use core::{convert::Infallible, ops::Deref, str::FromStr};
+use std::fmt::Display;
 
 #[cfg(feature = "artwork")]
 use ratatui_3d::Rgb;
@@ -9,7 +10,9 @@ struct Rgb(u8, u8, u8);
 
 use serde::{Deserialize, Serialize};
 
-use crate::config::Config;
+#[cfg(feature = "artwork")]
+use crate::config::Fallback;
+use crate::config::{Config, Property};
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(deny_unknown_fields)]
@@ -35,31 +38,46 @@ pub struct ColorConfig
 impl ColorConfig
 {
     crate::config::getter!([_, c.color].sky.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].surface.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].wire.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].dyed.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].glare.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].sun.deref() -> Rgb);
+
     crate::config::getter!([_, c.color].shine.deref() -> Rgb);
 
-    pub fn line(&self, is_dyed: bool) -> Rgb
+    pub fn line(&self, fallback: &Fallback, is_dyed: bool) -> Rgb
     {
         if is_dyed
         {
-            self.dyed()
+            self.dyed(fallback)
         }
         else
         {
-            self.wire()
+            self.wire(fallback)
         }
     }
 }
 
-impl Borrow<ColorConfig> for Config
+impl Property<ColorConfig> for ColorConfig
 {
-    fn borrow(&self) -> &ColorConfig
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a ColorConfig
     {
-        self.color()
+        self
+    }
+}
+impl<C> Property<ColorConfig> for C
+where
+    C: Property<Config>
+{
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a ColorConfig
+    {
+        self.property(fallback).color(fallback)
     }
 }
 
@@ -77,32 +95,26 @@ impl Deref for Color
     }
 }
 
-impl ToString for Color
+impl Display for Color
 {
-    fn to_string(&self) -> String
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
         let Self(Rgb(r, g, b)) = self;
-
-        format!("{r:02X}{g:02X}{b:02X}")
+        
+        write!(f, "{r:02X}{g:02X}{b:02X}")
     }
 }
-
 impl FromStr for Color
 {
     type Err = Infallible;
 
     fn from_str(src: &str) -> Result<Self, Self::Err>
     {
-        let rgb = u32::from_str_radix(src, 16)
-            .expect(&format!("Unable to parse RBG hexadecimal color '{src}'."));
+        let rgb = u32::from_str_radix(src, 16).expect(&format!("Unable to parse RBG hexadecimal color '{src}'."));
 
         assert!(rgb <= 0xFFFFFF, "RGB color cannot have alpha-channel.");
 
-        Ok(Self(Rgb(
-            (rgb >> 16) as u8,
-            (rgb >> 8) as u8,
-            rgb as u8
-        )))
+        Ok(Self(Rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)))
     }
 }
 
@@ -122,8 +134,7 @@ impl<'de> Deserialize<'de> for Color
     where
         D: serde::Deserializer<'de>
     {
-        Self::from_str(&String::deserialize(deserializer)?)
-            .map_err(|err| match err {})
+        Self::from_str(&String::deserialize(deserializer)?).map_err(|err| match err {})
     }
 }
 

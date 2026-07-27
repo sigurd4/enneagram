@@ -1,14 +1,14 @@
 use core::{
     fmt::{Debug, Display},
-    ops::BitOrAssign,
-    str::FromStr
+    ops::BitOrAssign
 };
 use std::{
     borrow::Cow,
     env::VarError,
     fs::File,
     path::{Path, PathBuf},
-    sync::{Arc, LazyLock, Mutex}
+    str::FromStr,
+    string::ToString
 };
 
 use serde::{Deserialize, Serialize};
@@ -30,15 +30,15 @@ moddef::moddef!(
 );
 
 macro_rules! member {
-    ([$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident) => {
-        Config::fallback($this.$member.as_ref(), |$conf| (|| {
+    ($fallback:expr, [$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident) => {
+        $fallback.fallback($this.$member.as_ref(), |$conf| (|| {
             $(let $conf = $conf.$subconf.as_ref()?;)*
 
             $conf.$member.as_ref()
         })())
     };
-    ([$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident |=) => {
-        Config::fallback_fold($this.$member.as_ref(), |$conf| (|| {
+    ($fallback:expr, [$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident |=) => {
+        $fallback.fallback_fold($this.$member.as_ref(), |$conf| (|| {
             $(let $conf = $conf.$subconf.as_ref()?;)*
 
             $conf.$member.as_ref()
@@ -49,21 +49,21 @@ use member;
 
 macro_rules! getter {
     ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> &$ty:ty) => {
-        pub fn $member(&self) -> &$ty
+        pub fn $member<'a>(&'a self, fallback: &'a crate::config::Fallback) -> &'a $ty
         {
-            crate::config::member!([self, $conf$(.$subconf)*].$member)$(.$deref())*
+            crate::config::member!(fallback, [self, $conf$(.$subconf)*].$member)$(.$deref())*
         }
     };
     ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* -> $ty:ty) => {
-        pub fn $member(&self) -> $ty
+        pub fn $member(&self, fallback: &'_ crate::config::Fallback) -> $ty
         {
-            *crate::config::member!([self, $conf$(.$subconf)*].$member)$(.$deref())*
+            *crate::config::member!(fallback, [self, $conf$(.$subconf)*].$member)$(.$deref())*
         }
     };
     ([_, $conf:ident$(.$subconf:ident)*].$member:ident$(.$deref:ident())* |= -> $ty:ty) => {
-        pub fn $member(&self) -> $ty
+        pub fn $member<'a>(&'a self, fallback: &'a crate::config::Fallback) -> $ty
         {
-            crate::config::member!([self, $conf$(.$subconf)*].$member |=)$(.$deref())*
+            crate::config::member!(fallback, [self, $conf$(.$subconf)*].$member |=)$(.$deref())*
         }
     };
 }
@@ -95,7 +95,7 @@ macro_rules! def_unitary {
             )+
         }
 
-        impl<'a> std::ops::BitOrAssign<&'a $partial<'a>> for $partial<'a>
+        impl<'a> core::ops::BitOrAssign<&'a $partial<'a>> for $partial<'a>
         {
             fn bitor_assign(&mut self, rhs: &'a $partial<'a>)
             {
@@ -176,51 +176,72 @@ impl Config
     crate::config::getter!([_, c].enneagram -> &EnneagramConfig);
 }
 
+impl Property for Config
+{
+    fn property<'a>(&'a self, _fallback: &'a Fallback) -> &'a Self
+    {
+        self
+    }
+}
+
 const DEFAULT_CONFIG_FILENAME: &str = "default.yaml";
 const DEFAULT_CONFIG_DATA: &str = include_str!("../../presets/default.yaml");
-
-static DEFAULT_CONFIG_PATH: LazyLock<Cow<Path>> = LazyLock::new(|| Config::config_path(DEFAULT_CONFIG_FILENAME));
-
-static DEFAULT_CONFIG: LazyLock<Config> = LazyLock::new(|| {
-    static DEFAULT_CONFIG_PRESET: LazyLock<Config> = LazyLock::new(|| serde_saphyr::from_str(DEFAULT_CONFIG_DATA).expect("Failed to parse original default config."));
-
-    if !DEFAULT_CONFIG_PATH.exists()
-    {
-        DEFAULT_CONFIG_PRESET.write_config(DEFAULT_CONFIG_FILENAME);
-    }
-
-    Config::read_config(DEFAULT_CONFIG_FILENAME)
-});
-
-/// Fallback configurations.
-static FALLBACK_FIFO: LazyLock<Arc<Mutex<Vec<&'static Config>>>> = LazyLock::new(|| Arc::new(Mutex::new(Vec::new())));
-
 const HOME_DIRECTORY_ENV_VARIABLE: &str = "HOME";
 const CONFIG_SUBDIRECTORY_UNIX: &str = ".config";
 const XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE: &str = "XDG_CONFIG_HOME";
 
-impl Config
+pub trait Property<T: Property = Self>
 {
-    fn fallback<T>(initial: Option<&T>, getter: impl Fn(&Self) -> Option<&T>) -> &T
+    fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a T;
+}
+
+#[derive(Clone)]
+pub struct Fallback
+{
+    default: Config,
+    fallback: Vec<Config>
+}
+impl Default for Fallback
+{
+    fn default() -> Self
     {
-        let fallback = FALLBACK_FIFO.lock().expect("Failed to lock fallback queue.");
+        let default_path = Config::config_path(DEFAULT_CONFIG_FILENAME);
+        let default_preset = serde_saphyr::from_str::<Config>(DEFAULT_CONFIG_DATA).expect("Failed to parse original default config.");
+
+        if !default_path.exists()
+        {
+            default_preset.write_config(DEFAULT_CONFIG_FILENAME);
+        }
+
+        Self {
+            default: Config::read_config(DEFAULT_CONFIG_FILENAME),
+            fallback: Vec::new()
+        }
+    }
+}
+impl Fallback
+{
+    fn iter(&self) -> core::iter::Chain<core::slice::Iter<'_, Config>, core::iter::Once<&'_ Config>>
+    {
+        self.fallback.iter().chain(core::iter::once(&self.default))
+    }
+
+    fn fallback<'a, T>(&'a self, initial: Option<&'a T>, getter: impl Fn(&'a Config) -> Option<&'a T>) -> &'a T
+    {
         initial
             .into_iter()
-            .chain(fallback.iter().copied().chain(core::iter::once(&*DEFAULT_CONFIG)).filter_map(|config| getter(config)))
+            .chain(self.iter().filter_map(|config| getter(config)))
             .next()
             .expect("No configuration contained the requested value.")
     }
 
-    fn fallback_fold<'a, T, V>(initial: Option<&'a V>, getter: impl Fn(&'a Self) -> Option<&'a V>) -> T
+    fn fallback_fold<'a, T, V>(&'a self, initial: Option<&'a V>, getter: impl Fn(&'a Config) -> Option<&'a V>) -> T
     where
         &'a V: TryInto<T, Error = &'a V> + Into<V>,
         V: TryInto<T, Error = V> + BitOrAssign<&'a V> + Debug + 'a
     {
-        let fallback = FALLBACK_FIFO.lock().expect("Failed to lock fallback queue.");
         let mut fold = None;
-        for value in initial
-            .into_iter()
-            .chain(fallback.iter().copied().chain(core::iter::once(&*DEFAULT_CONFIG)).filter_map(|config| getter(config)))
+        for value in initial.into_iter().chain(self.iter().filter_map(|config| getter(config)))
         {
             let fold_taken = match fold.take()
             {
@@ -240,12 +261,14 @@ impl Config
         fold.expect("No configuration contained the requested value.").try_into().expect("Item incomplete.")
     }
 
-    pub fn add_fallback(fallback_config: Config)
+    pub fn add_fallback(&mut self, fallback_config: Config)
     {
-        let mut fallback = FALLBACK_FIFO.lock().expect(&format!("Failed to lock fallback queue."));
-        fallback.push(Box::leak(Box::new(fallback_config)));
+        self.fallback.push(fallback_config);
     }
+}
 
+impl Config
+{
     fn find_directory<'a>(dir: impl Into<Cow<'a, Path>>) -> Result<Cow<'a, Path>, FindDirectoryError>
     {
         let dir = dir.into();
@@ -320,7 +343,7 @@ impl Config
                 {
                     FindDirectoryError::Nonexistant { path } =>
                     {
-                        std::fs::create_dir(&path).map_err(|error| CreateDirectoryError::Failed { path: path, error })?;
+                        std::fs::create_dir(&path).map_err(|error| CreateDirectoryError::Failed { path, error })?;
                         upon_creation()
                     }
                     FindDirectoryError::NotADirectory { path } => return Err(CreateDirectoryError::NotADirectory { path }.into())
@@ -384,9 +407,9 @@ impl Config
         config_path
     }
 
-    pub fn default_config_path() -> &'static Path
+    pub fn default_config_path() -> Cow<'static, Path>
     {
-        &DEFAULT_CONFIG_PATH
+        Config::config_path(DEFAULT_CONFIG_FILENAME)
     }
 
     fn write_config_path(&self, config_path: &Path)

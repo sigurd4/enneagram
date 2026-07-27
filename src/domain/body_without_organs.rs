@@ -1,12 +1,16 @@
-use core::{any::Any, borrow::Borrow, ops::Add};
+use core::{any::Any, ops::Add};
 
-use crate::{config::{DomainConfig, TriadsConfig}, domain::Domain, triad::{Fault, Means, Triad}};
+use crate::{
+    config::{DomainConfig, TriadsConfig, Fallback, Property},
+    domain::Domain,
+    triad::{Fault, Means, Triad}
+};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct BodyWithoutOrgans
 {
     pub introverted: Fault,
-    pub extroverted: Means,
+    pub extroverted: Means
 }
 
 impl BodyWithoutOrgans
@@ -16,15 +20,21 @@ impl BodyWithoutOrgans
         use {Fault::*, Means::*};
 
         [
-            Positive + Assertive, Competent + Assertive, Reactive + Assertive,
-            Positive + Compliant, Competent + Compliant, Reactive + Compliant,
-            Positive + Withdrawn, Competent + Withdrawn, Reactive + Withdrawn
+            Positive + Assertive,
+            Competent + Assertive,
+            Reactive + Assertive,
+            Positive + Compliant,
+            Competent + Compliant,
+            Reactive + Compliant,
+            Positive + Withdrawn,
+            Competent + Withdrawn,
+            Reactive + Withdrawn
         ]
     }
 
-    pub fn kind<'a>(config: &'a (impl Borrow<DomainConfig> + ?Sized)) -> &'a str
+    pub fn kind<'a>(config: &'a (impl Property<DomainConfig> + ?Sized), fallback: &'a Fallback) -> &'a str
     {
-        config.borrow().body_without_organs()
+        config.property(fallback).body_without_organs(fallback)
     }
 }
 
@@ -59,29 +69,44 @@ impl Domain for BodyWithoutOrgans
     {
         self
     }
+
     fn equals(&self, other: &dyn Domain) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
     }
-    
-    fn kind<'a>(&self, config: &'a dyn Borrow<DomainConfig>) -> &'a str
+
+    fn kind<'a>(&self, config: &'a dyn Property<DomainConfig>, fallback: &'a Fallback) -> &'a str
     {
-        Self::kind(config)
+        Self::kind(config, fallback)
     }
+
     fn conscious(&self) -> &dyn Triad
     {
         &self.extroverted
     }
+
     fn subconscious(&self) -> &dyn Triad
     {
         &self.introverted
     }
-    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+
+    fn question(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        write!(f, "{} and {}", self.extroverted.config(config).expression, self.introverted.config(config).expression)
+        write!(
+            f,
+            "{} and {}",
+            self.extroverted.config(config, fallback).expression,
+            self.introverted.config(config, fallback).expression
+        )
     }
-    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+
+    fn trivial(&self, f: &mut core::fmt::Formatter<'_>, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        write!(f, "{} and {}", self.extroverted.config(config).reflection, self.introverted.config(config).reflection)
+        write!(
+            f,
+            "{} and {}",
+            self.extroverted.config(config, fallback).reflection,
+            self.introverted.config(config, fallback).reflection
+        )
     }
 }

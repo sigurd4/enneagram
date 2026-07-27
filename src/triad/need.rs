@@ -1,6 +1,10 @@
-use core::{any::Any, borrow::Borrow};
+use core::{any::Any};
 
-use crate::{config::{TriadConfig, TriadsConfig}, enneatype::Enneatype, triad::Triad};
+use crate::{
+    config::{TriadConfig, TriadsConfig, Fallback, Property},
+    enneatype::Enneatype,
+    triad::Triad
+};
 
 /// Need/object of desire/"what hole do you have in your soul?"
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -24,6 +28,7 @@ impl Triad for Need
     {
         self
     }
+
     fn equals(&self, other: &dyn Triad) -> bool
     {
         other.as_any().downcast_ref().is_some_and(|other| self == other)
@@ -35,24 +40,26 @@ impl Triad for Need
         {
             Need::Attachment => &[Enneatype::Repression, Enneatype::Paranoia, Enneatype::Rest], // 369
             Need::Frustration => &[Enneatype::Recovery, Enneatype::Rejection, Enneatype::Disorganization], // 147
-            Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action], // 258
+            Need::Rejection => &[Enneatype::Association, Enneatype::Catatonia, Enneatype::Action] // 258
         }
     }
-    fn config<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> TriadConfig<'a>
+
+    fn config<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> TriadConfig<'a>
     {
-        let triads = config.borrow();
-        let need = triads.need();
+        let triads = config.property(fallback);
+        let need = triads.need(fallback);
         match self
         {
-            Need::Attachment => need.attachment(),
-            Need::Frustration => need.frustration(),
-            Need::Rejection => need.rejection()
+            Need::Attachment => need.attachment(fallback),
+            Need::Frustration => need.frustration(fallback),
+            Need::Rejection => need.rejection(fallback)
         }
     }
-    fn kind<'a>(&self, config: &'a dyn Borrow<TriadsConfig>) -> &'a str
+
+    fn kind<'a>(&self, config: &'a dyn Property<TriadsConfig>, fallback: &'a Fallback) -> &'a str
     {
-        let triads = config.borrow();
-        let need = triads.need();
-        need.description()
+        let triads = config.property(fallback);
+        let need = triads.need(fallback);
+        need.description(fallback)
     }
 }

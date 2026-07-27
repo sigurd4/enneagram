@@ -1,6 +1,7 @@
-use core::borrow::Borrow;
-
-use crate::{config::TriadsConfig, triad::{Fault, Frame, Means, Need, Triad}};
+use crate::{
+    config::{TriadsConfig, Fallback, Property},
+    triad::{Fault, Frame, Means, Need, Triad}
+};
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct Personality
@@ -13,15 +14,15 @@ pub struct Personality
 
 impl Personality
 {
-    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Borrow<TriadsConfig>) -> core::fmt::Result
+    pub fn affirmation(&self, f: &mut core::fmt::Formatter, config: &dyn Property<TriadsConfig>, fallback: &Fallback) -> core::fmt::Result
     {
-        let frame = self.frame.config(config);
+        let frame = self.frame.config(config, fallback);
         let frame = frame.affirmation.as_ref();
 
-        let fault = self.fault.config(config);
+        let fault = self.fault.config(config, fallback);
         let fault = fault.affirmation.as_ref();
 
-        let strategy = self.strategy.config(config);
+        let strategy = self.strategy.config(config, fallback);
         let strategy = strategy.affirmation.as_ref();
 
         write!(f, "i will {frame}, {fault}, and {strategy}.")
@@ -29,24 +30,38 @@ impl Personality
 
     pub fn from_triads(triads: [&dyn Triad; 4]) -> Self
     {
-        let (frame, strategy, fault, need) = triads.into_iter()
+        let (frame, strategy, fault, need) = triads
+            .into_iter()
             .map(|triad| {
                 let any = triad.as_any();
                 any.downcast_ref()
                     .map(|frame| (Some(frame), None, None, None))
-                    .or_else(|| any.downcast_ref()
-                        .map(|strategy| (None, Some(strategy), None, None))
-                    ).or_else(|| any.downcast_ref()
-                        .map(|fault| (None, None, Some(fault), None))
-                    ).or_else(|| any.downcast_ref()
-                        .map(|need| (None, None, None, Some(need)))
-                    ).expect("The triad type is not r{ecognized. Something must have gone horribly wrong!")
-            }).reduce(|lhs, rhs| (
-                lhs.0.map(Some).xor(rhs.0.map(Some)).map(|inner| inner.expect("Unsound personality. Conflicting personality frame")),
-                lhs.1.map(Some).xor(rhs.1.map(Some)).map(|inner| inner.expect("Unsound personality. Conflicting personality strategy")),
-                lhs.2.map(Some).xor(rhs.2.map(Some)).map(|inner| inner.expect("Unsound personality. Conflicting personality fault")),
-                lhs.3.map(Some).xor(rhs.3.map(Some)).map(|inner| inner.expect("Unsound personality. Conflicting personality need")),
-            )).expect("Unsound personality, No triads given. Impossible!");
+                    .or_else(|| any.downcast_ref().map(|strategy| (None, Some(strategy), None, None)))
+                    .or_else(|| any.downcast_ref().map(|fault| (None, None, Some(fault), None)))
+                    .or_else(|| any.downcast_ref().map(|need| (None, None, None, Some(need))))
+                    .expect("The triad type is not r{ecognized. Something must have gone horribly wrong!")
+            })
+            .reduce(|lhs, rhs| {
+                (
+                    lhs.0
+                        .map(Some)
+                        .xor(rhs.0.map(Some))
+                        .map(|inner| inner.expect("Unsound personality. Conflicting personality frame")),
+                    lhs.1
+                        .map(Some)
+                        .xor(rhs.1.map(Some))
+                        .map(|inner| inner.expect("Unsound personality. Conflicting personality strategy")),
+                    lhs.2
+                        .map(Some)
+                        .xor(rhs.2.map(Some))
+                        .map(|inner| inner.expect("Unsound personality. Conflicting personality fault")),
+                    lhs.3
+                        .map(Some)
+                        .xor(rhs.3.map(Some))
+                        .map(|inner| inner.expect("Unsound personality. Conflicting personality need"))
+                )
+            })
+            .expect("Unsound personality, No triads given. Impossible!");
         Personality {
             frame: *frame.expect("Unsound personality. Undefined personality frame"),
             strategy: *strategy.expect("Unsound personality. Undefined personality strategy"),
