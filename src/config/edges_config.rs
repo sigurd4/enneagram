@@ -30,23 +30,23 @@ pub struct EdgesConfig
 
 impl EdgesConfig
 {
-    crate::config::getter!([_, c.enneagram.edges].recovery |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].recovery |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].association |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].association |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].repression |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].repression |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].rejection |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].rejection |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].catatonia |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].catatonia |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].paranoia |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].paranoia |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].disorganization |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].disorganization |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].action |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].action |= -> EdgeConfig<'a>);
 
-    crate::config::getter!([_, c.enneagram.edges].rest |= -> EdgeConfig<'_>);
+    crate::config::getter!([_, c.enneagram.edges].rest |= -> EdgeConfig<'a>);
 }
 
 impl Property for EdgesConfig

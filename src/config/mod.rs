@@ -31,11 +31,11 @@ moddef::moddef!(
 
 macro_rules! member {
     ($fallback:expr, [$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident) => {
-        $fallback.fallback($this.$member.as_ref(), |$conf| (|| {
+        $fallback.fallback($this.$member.as_ref(), |$conf| {
             $(let $conf = $conf.$subconf.as_ref()?;)*
 
             $conf.$member.as_ref()
-        })())
+        })
     };
     ($fallback:expr, [$this:expr, $conf:ident$(.$subconf:ident)*].$member:ident |=) => {
         $fallback.fallback_fold($this.$member.as_ref(), |$conf| (|| {
@@ -230,7 +230,7 @@ impl Fallback
     {
         initial
             .into_iter()
-            .chain(self.iter().filter_map(|config| getter(config)))
+            .chain(self.iter().filter_map(getter))
             .next()
             .expect("No configuration contained the requested value.")
     }
@@ -241,7 +241,7 @@ impl Fallback
         V: TryInto<T, Error = V> + BitOrAssign<&'a V> + Debug + 'a
     {
         let mut fold = None;
-        for value in initial.into_iter().chain(self.iter().filter_map(|config| getter(config)))
+        for value in initial.into_iter().chain(self.iter().filter_map(getter))
         {
             let fold_taken = match fold.take()
             {
@@ -332,7 +332,9 @@ impl Config
         }
     }
 
-    fn create_directory(dir: &Path, upon_creation: impl Fn()) -> Result<Cow<'_, Path>, CreateDirectoryError>
+    fn create_directory<E>(dir: &Path, upon_creation: impl Fn() -> Result<(), E>) -> Result<Cow<'_, Path>, E>
+    where
+        E: From<CreateDirectoryError>
     {
         loop
         {
@@ -344,7 +346,7 @@ impl Config
                     FindDirectoryError::Nonexistant { path } =>
                     {
                         std::fs::create_dir(&path).map_err(|error| CreateDirectoryError::Failed { path, error })?;
-                        upon_creation()
+                        upon_creation()?
                     }
                     FindDirectoryError::NotADirectory { path } => return Err(CreateDirectoryError::NotADirectory { path }.into())
                 }
@@ -364,8 +366,13 @@ impl Config
             {
                 let config_path = Self::config_path(config_name);
 
-                std::fs::write(&config_path, yaml).expect(&format!("Failed to write preset '{config_name}' to '{}'", config_path.to_string_lossy()))
+                std::fs::write(&config_path, yaml).map_err(|error| FindUserConfigDirectoryError::Population {
+                    config_name: config_name.to_string(),
+                    config_path: config_path.to_path_buf(),
+                    error
+                })?
             }
+            Ok(()) as Result<(), FindUserConfigDirectoryError>
         })?
         .into_owned();
 
@@ -384,7 +391,7 @@ impl Config
         }
 
         // Search in directories if only filename is provided.
-        if config_path.components().last().is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
+        if config_path.components().next_back().is_some_and(|last| last.as_os_str().to_string_lossy() == config_path)
         {
             let user_config_dir = match Self::config_dir()
             {
@@ -603,7 +610,12 @@ impl Display for CreateDirectoryError
 enum FindUserConfigDirectoryError
 {
     Unavailable(FindXdgConfigHomeDirectoryError),
-    Creation(CreateDirectoryError)
+    Creation(CreateDirectoryError),
+    Population {
+        config_name: String,
+        config_path: PathBuf,
+        error: std::io::Error
+    }
 }
 
 impl From<FindXdgConfigHomeDirectoryError> for FindUserConfigDirectoryError
@@ -627,7 +639,12 @@ impl Display for FindUserConfigDirectoryError
         match self
         {
             Self::Unavailable(error) => write!(f, "Configuration directory unavailable. {error}"),
-            Self::Creation(error) => write!(f, "Unable to create configuration directory. {error}")
+            Self::Creation(error) => write!(f, "Unable to create configuration directory. {error}"),
+            Self::Population {
+                config_name,
+                config_path,
+                error
+            } => write!(f, "Failed to write preset '{config_name}' to '{}'. {error}", config_path.to_string_lossy())
         }
     }
 }

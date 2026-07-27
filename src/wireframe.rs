@@ -91,7 +91,7 @@ impl<P> Wireframe<P>
     where
         P: Copy + PartialEq
     {
-        *self = Self::from_lines(core::mem::replace(self, Self::default()).into_lines());
+        *self = Self::from_lines(core::mem::take(self).into_lines());
     }
 
     pub fn into_lines<'a>(self) -> impl Iterator<Item = [P; 2]> + 'a
@@ -140,7 +140,7 @@ impl Wireframe<[f64; 3]>
         use ratatui_3d::{Mesh, Vertex, math::Vec3};
 
         let vertices = self.corners()
-            .map(|[a, p, b]| {
+            .flat_map(|[a, p, b]| {
 
                 let as_vec = |[x, y, z]: [f64; 3]| {
                     Vec3::new(x as f32, y as f32, z as f32)
@@ -163,7 +163,7 @@ impl Wireframe<[f64; 3]>
                     Vertex::new(p, normal).with_uv(0.5, 1.0),
                     Vertex::new(b, normal).with_uv(1.0, 0.0)
                 ]
-            }).flatten()
+            })
             .collect::<Vec<_>>();
         assert_eq!(vertices.len() % 3, 0);
         let indices = (0..vertices.len() as u32).collect();
@@ -204,7 +204,8 @@ impl Wireframe<[f64; 2]>
         'lp1:
         while i < self.lines.len()
         {
-            for j in 0..i
+            let mut j = 0;
+            while j < i
             {
                 let l1 @ [a1, b1] = self.lines[i];
                 let l2 @ [a2, b2] = self.lines[j];
@@ -219,6 +220,7 @@ impl Wireframe<[f64; 2]>
                 // Skip lines meeting at a single shared point
                 if crate::line::corner(l1, l2).is_some()
                 {
+                    j += 1;
                     continue
                 }
 
@@ -261,6 +263,7 @@ impl Wireframe<[f64; 2]>
                     i = i.min(j);
                     continue 'lp1
                 }
+                j += 1
             }
             i += 1
         }

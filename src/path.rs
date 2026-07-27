@@ -18,8 +18,7 @@ where
 {
     let mut path = path.into_iter();
     path.next()
-        .map(|mut prev| path.into_iter()
-            .map(move |edge| [core::mem::replace(&mut prev, edge), edge])
-        ).into_iter()
+        .map(|mut prev| path.map(move |edge| [core::mem::replace(&mut prev, edge), edge]))
+        .into_iter()
         .flatten()
 }

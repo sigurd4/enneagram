@@ -13,9 +13,5 @@ pub fn equals<P>(l1: &[P; 2], l2: &[P; 2]) -> bool
 where
     P: PartialEq
 {
-    match (l1, l2)
-    {
-        ([a1, b1], [a2, b2] | [b2, a2]) if a1 == a2 && b1 == b2 => true,
-        _ => false
-    }
+    matches!((l1, l2), ([a1, b1], [a2, b2] | [b2, a2]) if a1 == a2 && b1 == b2)
 }

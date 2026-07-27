@@ -2,7 +2,6 @@ use std::{io::Write, ops::Add};
 
 #[cfg(feature = "blasphemy")]
 use rand::distr::Distribution;
-use serde_saphyr::options;
 #[cfg(feature = "blasphemy")]
 use std::io::Read;
 
@@ -110,7 +109,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     let mut sep = "";
                     for edges in enneagram.edges()
                     {
-                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(&edges, f, enneagram.config(), enneagram.fallback()));
+                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(edges, f, enneagram.config(), enneagram.fallback()));
                         println!("{sep}{edge_info}");
                         sep = "\n"
                     }
@@ -159,7 +158,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                         let _ = args.next() // Ignore ':'-operator
                             .expect("Wasn't there supposed to be a ':'-operator there? Confused.");
                         let config_fallback = args.next()
-                            .expect(&format!(
+                            .unwrap_or_else(|| panic!(
                                 "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
                                 Config::default_config_path().to_string_lossy()
                             ));
@@ -174,12 +173,11 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
             }
         };
         let mut invert = false;
-        if argument.starts_with("--")
+        if let Some(mut flag_str) = argument.strip_prefix("--")
         {
-            let mut flag_str = &argument["--".len()..];
-            while flag_str.starts_with("!")
+            while let Some(flag_str_stripped) = flag_str.strip_prefix("!")
             {
-                flag_str = &flag_str["!".len()..];
+                flag_str = flag_str_stripped;
                 invert = !invert
             }
             if flag_str.is_empty()
@@ -201,9 +199,9 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
             );
             continue
         }
-        else if argument.starts_with("-")
+        else if let Some(flag_str) = argument.strip_prefix("-")
         {
-            for flag_char in argument["-".len()..].chars()
+            for flag_char in flag_str.chars()
             {
                 let flag = match flag_char
                 {
@@ -242,7 +240,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                         }
                         Some(digit)
                     })
-                    .map(|digit| Enneatype::new(digit))
+                    .map(Enneatype::new)
                     .collect::<Vec<_>>()
                     .into_iter()
                     .rev()
@@ -266,7 +264,7 @@ fn select<T>(
     options: &[(&str, &dyn Fn() -> T)]
 ) -> T
 {
-    assert!(options.len() > 0, "No options have been provided. Why ask a question when you provide only the illusion of choice. That's not allowed.");
+    assert!(!options.is_empty(), "No options have been provided. Why ask a question when you provide only the illusion of choice. That's not allowed.");
     let numer_of_options = u8::try_from(options.len())
         .expect("Amount of options cannot exceed 255, due to technical limitations. Because we store the keys of each choice as a byte.");
     match clause
@@ -391,9 +389,9 @@ pub fn select_domain(config: &(impl Property<EnneagramConfig> + ?Sized), fallbac
             Clause::Question,
             &core::iter::chain(
                 polymorphic_trivial_choices.each_ref()
-                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>)),
+                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>)),
                 polymorphic_nontrivial_choices.each_ref()
-                    .map(|(choice, generator)| (choice.as_ref(), generator as &dyn Fn() -> Triviality<T, N>))
+                    .map(|(choice, generator)| (*choice, generator as &dyn Fn() -> Triviality<T, N>))
             ).collect::<Vec<_>>()
         );
         let (trivial_triad, nontrivial_triad) = match first_triad

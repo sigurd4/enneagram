@@ -16,7 +16,7 @@ impl Artwork
     {
         // Build a scene
         let mut scene = Scene::new()
-            .with_background(self.enneagram.config().color(&self.enneagram.fallback()).sky(&self.enneagram.fallback()));
+            .with_background(self.enneagram.config().color(self.enneagram.fallback()).sky(self.enneagram.fallback()));
 
         const RADIUS: f32 = 1.4;
         const LINE_THICKNESS: f64 = 0.02;
@@ -35,7 +35,7 @@ impl Artwork
             let [x, y] = edge.position()
                 .map(|p| p*DIGIT_RADIUS);
             for line in path::lines_disconnected(
-                    edge.config(self.enneagram.config(), &self.enneagram.fallback())
+                    edge.config(self.enneagram.config(), self.enneagram.fallback())
                         .digit
                         .iter()
                         .copied()
@@ -50,9 +50,9 @@ impl Artwork
                             .mesh()
                     )
                     .with_material(Material::default()
-                        .with_color(self.enneagram.config().color(&self.enneagram.fallback())
+                        .with_color(self.enneagram.config().color(self.enneagram.fallback())
                             .line(
-                                &self.enneagram.fallback(),
+                                self.enneagram.fallback(),
                                 self.enneagram.edges()
                                     .flatten()
                                     .any(|e| e == edge)
@@ -81,9 +81,9 @@ impl Artwork
                         .mesh()
                 )
                 .with_material(Material::default()
-                    .with_color(self.enneagram.config().color(&self.enneagram.fallback())
+                    .with_color(self.enneagram.config().color(self.enneagram.fallback())
                         .line(
-                            &self.enneagram.fallback(),
+                            self.enneagram.fallback(),
                             dyed_lines.iter()
                                 .any(|dyed_line| line::equals(dyed_line, &line))
                         )
@@ -100,13 +100,13 @@ impl Artwork
                     .extrude(-1.0)
                     .mesh()
             )
-            .with_material(Material::default().with_color(self.enneagram.config().color(&self.enneagram.fallback()).surface(&self.enneagram.fallback())))
+            .with_material(Material::default().with_color(self.enneagram.config().color(self.enneagram.fallback()).surface(self.enneagram.fallback())))
             .with_transform(transform),
         );
         
-        scene.add_light(Light::ambient(self.enneagram.config().color(&self.enneagram.fallback()).glare(&self.enneagram.fallback()), 1.0));
-        scene.add_light(Light::directional(Vec3::new(-0.2, -0.2, 1.0),  self.enneagram.config().color(&self.enneagram.fallback()).sun(&self.enneagram.fallback())));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0),  self.enneagram.config().color(&self.enneagram.fallback()).shine(&self.enneagram.fallback())));
+        scene.add_light(Light::ambient(self.enneagram.config().color(self.enneagram.fallback()).glare(self.enneagram.fallback()), 1.0));
+        scene.add_light(Light::directional(Vec3::new(-0.2, -0.2, 1.0),  self.enneagram.config().color(self.enneagram.fallback()).sun(self.enneagram.fallback())));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0),  self.enneagram.config().color(self.enneagram.fallback()).shine(self.enneagram.fallback())));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();

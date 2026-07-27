@@ -149,9 +149,8 @@ impl Enneatype
 
         for triad in Self::common_triads(edges)
         {
-            let numbers = triad
-                .edges()
-                .into_iter()
+            let numbers = triad.edges()
+                .iter()
                 .map(|edge| edge.number())
                 .map(|number| format!("{number}"))
                 .collect::<String>();

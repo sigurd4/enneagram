@@ -1,5 +1,5 @@
-use core::{convert::Infallible, ops::Deref, str::FromStr};
-use std::fmt::Display;
+use core::{ops::Deref, str::FromStr};
+use std::{fmt::Display, num::ParseIntError};
 
 #[cfg(feature = "artwork")]
 use ratatui_3d::Rgb;
@@ -104,15 +104,42 @@ impl Display for Color
         write!(f, "{r:02X}{g:02X}{b:02X}")
     }
 }
+
+#[derive(Debug)]
+pub enum ParseColorError {
+    ParseInt {
+        data: String,
+        error: ParseIntError
+    },
+    Transparent {
+        data: String,
+        rgba: u32
+    }
+}
+impl Display for ParseColorError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        match self
+        {
+            Self::ParseInt { data, error } => write!(f, "Unable to parse RBG hexadecimal color '{data}'. {error}"),
+            Self::Transparent { data, rgba } => write!(f, "RGB color '{data}' a.k.a. #{rgba:#010x} cannot have alpha-channel.")
+        }
+    }
+}
+
 impl FromStr for Color
 {
-    type Err = Infallible;
+    type Err = ParseColorError;
 
     fn from_str(src: &str) -> Result<Self, Self::Err>
     {
-        let rgb = u32::from_str_radix(src, 16).expect(&format!("Unable to parse RBG hexadecimal color '{src}'."));
+        let rgb = u32::from_str_radix(src, 16).map_err(|error| ParseColorError::ParseInt { data: src.to_string(), error })?;
 
-        assert!(rgb <= 0xFFFFFF, "RGB color cannot have alpha-channel.");
+        if rgb > 0xFFFFFF
+        {
+            return Err(ParseColorError::Transparent { data: src.to_string(), rgba: rgb })
+        }
 
         Ok(Self(Rgb((rgb >> 16) as u8, (rgb >> 8) as u8, rgb as u8)))
     }
@@ -134,7 +161,7 @@ impl<'de> Deserialize<'de> for Color
     where
         D: serde::Deserializer<'de>
     {
-        Self::from_str(&String::deserialize(deserializer)?).map_err(|err| match err {})
+        Self::from_str(&String::deserialize(deserializer)?).map_err(|err| serde::de::Error::custom(err.to_string()))
     }
 }
 

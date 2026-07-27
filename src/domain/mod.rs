@@ -46,7 +46,7 @@ pub trait Domain: Debug + Any + 'static
         let triads = self.triads();
         let mut edges = triads
             .into_iter()
-            .map(|triad| triad.edges().map(|edge| Some(edge)))
+            .map(|triad| triad.edges().map(Some))
             .reduce(|mut triad, other_triad| {
                 for edge in triad.iter_mut().filter(|edge| edge.is_some() && !other_triad.contains(edge))
                 {
@@ -56,7 +56,7 @@ pub trait Domain: Debug + Any + 'static
             })
             .into_iter()
             .flatten()
-            .filter_map(|edge| edge);
+            .flatten();
         let edge = edges
             .next()
             .expect("The conscious and the subconscious must agree on a single common personality! No agreement");
