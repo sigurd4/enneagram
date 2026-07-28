@@ -9,7 +9,7 @@ The enneagram is a nine-sided graph, with interconnections in the shape of a lot
 
 The sides, or points of the graph are called enneatypes, or edges.
 
-An inherent property of the enneagram is its triads, which are discussed in further detail below. Each enneatype belongs to a combination of four triads. These triads are combinatorically linked, correlated, in the sense that the full space of possibilities is fully defined by two of them. This means if two of the triads are defined, an enneatype can be determined, and the two other corresponding triads as well.
+An inherent property of the enneagram are its triads, which are discussed in further detail below. Each enneatype belongs to a combination of four triads. These triads are combinatorically linked, correlated, in the sense that the full space of possibilities is fully defined by two of them. This means if two of the triads are defined, an enneatype can be determined, and the two other corresponding triads as well.
 
 Whether this provides a true insight into the human psyché is not for me to decide. Ultimately, this program was an experiment to test the validity of the model. You can try it, and decide for yourself.
 
