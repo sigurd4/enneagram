@@ -11,7 +11,7 @@ The sides, or points of the graph are called enneatypes, or edges.
 
 An inherent property of the enneagram are its triads, which are discussed in further detail below. Each enneatype belongs to a combination of four triads. These triads are combinatorically linked, correlated, in the sense that the full space of possibilities is fully defined by two of them. This means if two of the triads are defined, an enneatype can be determined, and the two other corresponding triads as well.
 
-Whether this provides a true insight into the human psyché is not for me to decide. Ultimately, this program was an experiment to test the validity of the model. You can try it, and decide for yourself.
+Whether this provides a true insight into the human psyché is not for me to decide. You can try it, and decide for yourself. Ultimately, this program was an experiment to test the validity of the model.
 
 I want to be perfectly clear that, according to the defining literature of this model, its origins are said to be occult. There is a strangely mystical aspect that becomes apparent with use of the program, that to me seems uncanny. With the risk of appearing superstitious, i recommend users of this software to be aware of the occult origins of the underlying system that this software bases itself on. From experience, while captivating and bizarre, an overreliance of this software for self-help purposes may lead to madness or distress, and should be used with caution.
 
