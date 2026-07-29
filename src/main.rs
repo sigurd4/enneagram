@@ -1,4 +1,4 @@
-use std::{io::Write, ops::Add};
+use std::{fmt::Display, io::Write, ops::Add};
 
 #[cfg(feature = "blasphemy")]
 use rand::distr::Distribution;
@@ -7,171 +7,258 @@ use std::io::Read;
 
 use enneagram::{Enneagram, Enneatype, config::{Config, EnneagramConfig, Fallback, Property}, domain::{BodyWithoutOrgans, DesireMachine, Domain, ExternalDissonance, ExternalSynthesis, InternalDissonance, InternalSynthesis}, pivot::Pivot, triad::{Fault, Frame, Means, Need, Triad}};
 
+use crate::artwork::Artwork;
+
 moddef::moddef!(
     mod {
         artwork for cfg(feature = "artwork")
     }
 );
 
-fn main()
+fn main() -> Result<(), ProgramError>
 {
-    run(std::env::args())
+    match (|| {
+        Program::from_args(std::env::args().skip(1))?.run()?;
+
+        Ok(())
+    })()
+    {
+        Ok(()) => Ok(()),
+        Err(error) => {
+            println!("{error}");
+            Err(error)
+        }
+    }
 }
 
-fn run(args: impl IntoIterator<Item: Into<String>>)
+#[derive(Debug)]
+enum ProgramError
 {
-    let mut args = args.into_iter()
-        .map(Into::into)
-        .peekable();
-
-    let _executeable = args.next()
-        .unwrap_or_else(|| "enneagram".to_string());
-
-    #[cfg(feature = "pivot")]
-    let mut enable_pivot = true;
-    #[cfg(feature = "artwork")]
-    let mut enable_artwork = false;
-    let mut enneagram = Enneagram::default();
-
-    let mut configs = Vec::<(String, Vec<Config>)>::new();
-
-    loop
+    Argument(ArgumentError),
+    Expectation(ExpectationError)
+}
+impl Display for ProgramError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
     {
-        let argument = match args.next()
+        match self
         {
-            Some(number) => number,
-            None => {
-                match configs.len()
-                {
-                    0 => (),
-                    1 => {
-                        let [(_, config)] = configs.try_into()
-                            .expect("Config should now be unambiguous.");
-                        enneagram.overlay_configs(config);
-                    },
-                    2.. => {
-                        let options = configs.into_iter()
-                            .map(|config| (config.0, move || config.1.clone()))
-                            .collect::<Vec<(String, _)>>();
+            Self::Argument(error) => error.fmt(f),
+            Self::Expectation(error) => error.fmt(f) 
+        }
+    }
+}
+impl From<ArgumentError> for ProgramError
+{
+    fn from(error: ArgumentError) -> Self
+    {
+        Self::Argument(error)
+    }
+}
+impl From<ExpectationError> for ProgramError
+{
+    fn from(error: ExpectationError) -> Self
+    {
+        Self::Expectation(error)
+    }
+}
 
-                        enneagram.overlay_configs(crate::select::<Vec<Config>>(
-                            Clause::Answer("please select one config"),
-                            &options.iter()
-                                .map(|config| (config.0.as_str(), &config.1 as &dyn Fn() -> _))
-                                .collect::<Vec<_>>()
-                        ).into_iter().rev());
-                    }
-                }
+#[derive(Debug)]
+enum ArgumentError
+{
+    #[cfg(feature = "pivot")]
+    PivotAlreadyEnabled,
+    #[cfg(feature = "pivot")]
+    PivotAlreadyDisabled,
+    #[cfg(feature = "artwork")]
+    ArtworkAlreadyEnabled,
+    #[cfg(feature = "artwork")]
+    ArtworkAlreadyDisabled,
+    ExpectedFlag,
+    InvalidArgument {
+        argument: String
+    },
+    UnrecognizedFlag {
+        flag: String
+    },
+    UnrecognizedSingleCharacterFlag {
+        flag: char
+    }
+}
 
-                #[cfg(feature = "artwork")]
-                if enable_artwork
-                {
-                    let mut terminal = ratatui::init();
-
-                    use crate::artwork::Artwork;
-
-                    Artwork {
-                        enneagram
-                    }.draw(&mut terminal);
-
-                    return
-                }
-                if enneagram.is_empty()
-                {
-                    let domain = select_domain(enneagram.config(), enneagram.fallback());
-                    let mut edge = domain.edge();
-
-                    let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config(), enneagram.fallback()));
-                    println!("\n{edge_info}");
-
-                    #[cfg(feature = "pivot")]
-                    if enable_pivot
-                    {
-                        loop
-                        {
-                            println!();
-                            let pivot = edge.pivot();
-                            let origin = core::mem::replace(&mut edge, select_pivot(pivot, enneagram.config(), enneagram.fallback()));
-                            if edge == origin
-                            {
-                                break
-                            }
-
-                            let edge_info = core::fmt::from_fn(|f| edge.info(f, enneagram.config(), enneagram.fallback()));
-                            println!("\n{edge_info}");
-                        }
-                    }
-
-                    return
-                }
-                else
-                {
-                    let mut sep = "";
-                    for edges in enneagram.edges()
-                    {
-                        let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(edges, f, enneagram.config(), enneagram.fallback()));
-                        println!("{sep}{edge_info}");
-                        sep = "\n"
-                    }
-                    return
-                }
-            }
-        };
-
-        enum Flag
+impl Display for ArgumentError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        match self
         {
-            #[cfg(feature = "pivot")]
-            Pivot,
-            #[cfg(feature = "artwork")]
-            Artwork,
-            Config
+            Self::PivotAlreadyEnabled => write!(f, "Pivot is already enabled"),
+            Self::PivotAlreadyDisabled => write!(f, "Pivot is already disabled"),
+            Self::ArtworkAlreadyEnabled => write!(f, "Artwork is already enabled"),
+            Self::ArtworkAlreadyDisabled => write!(f, "Artwork is already disabled"),
+            Self::ExpectedFlag => write!(f, "Invalid argument: Expected flag"),
+            Self::InvalidArgument { argument } => write!(f, "Invalid arguments. Didn't expect '{argument}'."),
+            Self::UnrecognizedFlag { flag } => write!(f, "Invalid argument: Unrecognized flag '{flag}'"),
+            Self::UnrecognizedSingleCharacterFlag { flag } => write!(f, "Invalid argument: Unrecognized single-character flag '{flag}'")
+        }
+    }
+}
+
+#[derive(Debug)]
+enum ExpectationError
+{
+    ExpectedConfig,
+    ExpectedFallbackConfig,
+}
+
+impl Display for ExpectationError
+{
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result
+    {
+        match self
+        {
+            Self::ExpectedConfig => write!(f, "Expected argument: config-file (yaml, see {}).", Config::default_config_path().to_string_lossy()),
+            Self::ExpectedFallbackConfig => write!(f,
+                "Expected argument. Implied additional fallback config-file (yaml, see '{}'), due to preceding ':'-operator.",
+                Config::default_config_path().to_string_lossy()
+            )
+        }
+    }
+}
+
+enum Expectation
+{
+    Config,
+    MaybeColon,
+    FallbackConfig
+}
+
+enum Flag
+{
+    #[cfg(feature = "pivot")]
+    Pivot,
+    #[cfg(feature = "artwork")]
+    Artwork,
+    Config
+}
+
+#[derive(Default)]
+struct Program
+{
+    #[cfg(feature = "pivot")]
+    enable_pivot: bool,
+    #[cfg(feature = "artwork")]
+    enable_artwork: bool,
+    configs: Vec<(String, Vec<Config>)>,
+    enneagram: Enneagram,
+    expectation: Option<Expectation>
+}
+
+impl Program
+{
+    pub fn run(self) -> Result<(), ExpectationError>
+    {
+        match self.expectation
+        {
+            Some(Expectation::Config) => return Err(ExpectationError::ExpectedConfig),
+            None | Some(Expectation::MaybeColon) => (),
+            Some(Expectation::FallbackConfig) => return Err(ExpectationError::ExpectedFallbackConfig)
         }
 
-        let mut take_flag = |flag, invert| {
-            match flag
+        let (config, fallback) = self.configuration();
+        
+        #[cfg(feature = "artwork")]
+        if self.enable_artwork
+        { 
+            let artwork = Artwork {
+                enneagram: &self.enneagram,
+                config: &config,
+                fallback: &fallback
+            };
+
+            let mut terminal = ratatui::init();
+            artwork.draw(&mut terminal);
+
+            return Ok(())
+        }
+
+     
+        if !self.enneagram.is_empty()
+        {
+            let mut sep = "";
+            for edges in self.enneagram.edges()
             {
-                #[cfg(feature = "pivot")]
-                Flag::Pivot => match (enable_pivot, invert)
-                {
-                    (true, true) => enable_pivot = false,
-                    (true, false) => panic!("Pivot is already enabled"),
-                    (false, true) => panic!("Pivot is already disabled"),
-                    (false, false) => enable_pivot = true
-                },
-                #[cfg(feature = "artwork")]
-                Flag::Artwork => match (enable_artwork, invert)
-                {
-                    (true, true) => enable_artwork = false,
-                    (true, false) => panic!("Artwork is already enabled"),
-                    (false, true) => panic!("Artwork is already disabled"),
-                    (false, false) => enable_artwork = true
-                },
-                Flag::Config => if invert
-                {
-                    configs.clear()
-                }
-                else if let Some(config_path) = args.next()
-                {
-                    let mut config_grouping = vec![Config::read_config(&config_path)];
-                    while let Some(next_arg) = args.peek() && next_arg == ":"
-                    {
-                        let _ = args.next() // Ignore ':'-operator
-                            .expect("Wasn't there supposed to be a ':'-operator there? Confused.");
-                        let config_fallback = args.next()
-                            .unwrap_or_else(|| panic!(
-                                "Expected argument: additional fallback config-file (yaml, see {}), due to preceding ':'-operator.",
-                                Config::default_config_path().to_string_lossy()
-                            ));
-                        config_grouping.push(Config::read_config(&config_fallback));
-                    }
-                    configs.push((config_path, config_grouping))
-                }
-                else
-                {
-                    panic!("Expected argument: config-file (yaml, see {}).", Config::default_config_path().to_string_lossy())
-                }
+                let edge_info = core::fmt::from_fn(|f| Enneatype::common_info(edges, f, &config, &fallback));
+                println!("{sep}{edge_info}");
+                sep = "\n"
             }
-        };
+            return Ok(())
+        }
+
+        let domain = select_domain(&config, &fallback);
+        let mut edge = domain.edge();
+
+        let edge_info = core::fmt::from_fn(|f| edge.info(f, &config, &fallback));
+        println!("\n{edge_info}");
+
+        #[cfg(feature = "pivot")]
+        if self.enable_pivot
+        {
+            loop
+            {
+                println!();
+                let pivot = edge.pivot();
+                let origin = core::mem::replace(&mut edge, select_pivot(pivot, &config, &fallback));
+                if edge == origin
+                {
+                    break
+                }
+
+                let edge_info = core::fmt::from_fn(|f| edge.info(f, &config, &fallback));
+                println!("\n{edge_info}");
+            }
+        }
+
+        Ok(())
+    }
+    
+    pub fn from_args(arguments: impl IntoIterator<Item: Into<String>>) -> Result<Self, ArgumentError>
+    {
+        let mut program = Self::default();
+        for argument in arguments
+        {
+            program.take_arg(argument.into())?
+        }
+        Ok(program)
+    }
+
+    fn take_arg(&mut self, argument: String) -> Result<(), ArgumentError>
+    {
+        match self.expectation.take()
+        {
+            Some(Expectation::Config) => {
+                let config = Config::read_config(&argument);
+                self.configs.push((argument, vec![config]));
+                self.expectation = Some(Expectation::MaybeColon);
+                return Ok(())
+            },
+            Some(Expectation::MaybeColon) => {
+                if argument.trim() == ":"
+                {
+                    self.expectation = Some(Expectation::FallbackConfig);
+                    return Ok(())
+                }
+            },
+            Some(Expectation::FallbackConfig) => {
+                self.configs.last_mut()
+                    .expect("There should already be a configuration to override.")
+                    .1
+                    .push(Config::read_config(&argument));
+                return Ok(())
+            },
+            None => ()
+        }
+
         let mut invert = false;
         if let Some(mut flag_str) = argument.strip_prefix("--")
         {
@@ -182,7 +269,7 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
             }
             if flag_str.is_empty()
             {
-                panic!("Invalid argument: Expected flag")
+                return Err(ArgumentError::ExpectedFlag)
             }
             let flag = match flag_str
             {
@@ -191,13 +278,15 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                 #[cfg(feature = "artwork")]
                 "artwork" => Flag::Artwork,
                 "config" => Flag::Config,
-                _ => panic!("Invalid argument: Unrecognized flag '{flag_str}'")
+                _ => return Err(ArgumentError::UnrecognizedFlag {
+                    flag: flag_str.to_string()
+                })
             };
-            take_flag(
+            self.take_flag(
                 flag,
                 std::mem::replace(&mut invert, false)
-            );
-            continue
+            )?;
+            return Ok(())
         }
         else if let Some(flag_str) = argument.strip_prefix("-")
         {
@@ -214,22 +303,24 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     #[cfg(feature = "artwork")]
                     'a' => Flag::Artwork,
                     'c' => Flag::Config,
-                    _ => panic!("Invalid argument: Unrecognized single-character flag '{flag_char}'")
+                    _ => return Err(ArgumentError::UnrecognizedSingleCharacterFlag {
+                        flag: flag_char
+                    })
                 };
-                take_flag(
+                self.take_flag(
                     flag,
                     std::mem::replace(&mut invert, false)
-                );
+                )?;
             }
             if invert
             {
-                panic!("Invalid argument: Expected flag")
+                return Err(ArgumentError::ExpectedFlag)
             }
-            continue
+            return Ok(())
         }
         else if let Ok(mut number) = argument.parse::<u128>().map(Some)
         {
-            enneagram.push_edges(
+            self.enneagram.push_edges(
                 core::iter::repeat(())
                     .map_while(|()| {
                         let n = number.take()?;
@@ -245,9 +336,80 @@ fn run(args: impl IntoIterator<Item: Into<String>>)
                     .into_iter()
                     .rev()
             );
-            continue
+            return Ok(())
         }
-        panic!("Invalid arguments.")
+        Err(ArgumentError::InvalidArgument { argument })
+    }
+
+    fn take_flag(&mut self, flag: Flag, invert: bool) -> Result<(), ArgumentError>
+    {
+        match flag
+        {
+            #[cfg(feature = "pivot")]
+            Flag::Pivot => match (self.enable_pivot, invert)
+            {
+                (true, true) => self.enable_pivot = false,
+                (true, false) => return Err(ArgumentError::PivotAlreadyEnabled),
+                (false, true) => return Err(ArgumentError::PivotAlreadyDisabled),
+                (false, false) => self.enable_pivot = true
+            },
+            #[cfg(feature = "artwork")]
+            Flag::Artwork => match (self.enable_artwork, invert)
+            {
+                (true, true) => self.enable_artwork = false,
+                (true, false) => return Err(ArgumentError::ArtworkAlreadyEnabled),
+                (false, true) => return Err(ArgumentError::ArtworkAlreadyDisabled),
+                (false, false) => self.enable_artwork = true
+            },
+            Flag::Config => if invert
+            {
+                self.configs.clear()
+            }
+            else
+            {
+                assert!(self.expectation.is_none(), "There should be no expectations!");
+                self.expectation = Some(Expectation::Config)
+            }
+        }
+        Ok(())
+    }
+
+    pub fn configuration(&self) -> (Config, Fallback)
+    {
+        let mut fallback = Fallback::default();
+
+        let configs = match self.configs.len()
+        {
+            0 => return (Default::default(), fallback),
+            1 => {
+                let [(_, config)] = self.configs.as_slice()
+                    .as_array()
+                    .expect("Config should now be unambiguous.");
+                config.as_slice()
+            },
+            2.. => {
+                let options = self.configs.iter()
+                    .map(|config| (config.0.as_str(), move || config.1.as_slice()))
+                    .collect::<Vec<_>>();
+
+                crate::select::<&[Config]>(
+                    Clause::Answer("please select one config"),
+                    &options.iter()
+                        .map(|config| (config.0, &config.1 as &dyn Fn() -> _))
+                        .collect::<Vec<_>>()
+                )
+            }
+        };
+
+        let config = configs.iter()
+            .rev()
+            .cloned()
+            .reduce(|mut a, b| {
+                a.overlay_config(b, &mut fallback);
+                a
+            }).unwrap_or_default();
+
+        (config, fallback)
     }
 }
 
@@ -463,25 +625,31 @@ mod test
 {
     use std::path::Path;
 
+    use crate::{Program, ProgramError};
+
     #[cfg(feature = "artwork")]
     #[test]
     #[ignore] // It fucks up the keyboard input, because i'm not fluent in ratatui
-    fn test_color_override()
+    fn test_color_override() -> Result<(), ProgramError>
     {
         const YAML: &str = "/tmp/test_color_override_enneagram.yaml";
 
         std::fs::write(Path::new(YAML), "color:\n  glare: FF00FF\n  sun: FFFF00").unwrap();
 
-        crate::run(["enneagram", "-ac", YAML])
+        Program::from_args(["-ac", YAML])?.run()?;
+
+        Ok(())
     }
 
     #[test]
-    fn test_christ_enneagram()
+    fn test_christ_enneagram() -> Result<(), ProgramError>
     {
         const YAML: &str = "/tmp/chist_enneagram.yaml";
 
         std::fs::write(Path::new(YAML), include_str!("../presets/christ.yaml")).unwrap();
 
-        crate::run(["enneagram", "-c", YAML, "1"])
+        Program::from_args(["-c", YAML, "1"])?.run()?;
+
+        Ok(())
     }
 }

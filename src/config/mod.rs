@@ -190,7 +190,7 @@ const HOME_DIRECTORY_ENV_VARIABLE: &str = "HOME";
 const CONFIG_SUBDIRECTORY_UNIX: &str = ".config";
 const XDG_CONFIG_HOME_DIRECTORY_ENV_VARIABLE: &str = "XDG_CONFIG_HOME";
 
-pub trait Property<T: Property = Self>
+pub trait Property<T: Property + ?Sized = Self>
 {
     fn property<'a>(&'a self, fallback: &'a Fallback) -> &'a T;
 }
@@ -269,6 +269,18 @@ impl Fallback
 
 impl Config
 {
+    pub fn overlay_config(&mut self, config: Config, fallback: &mut Fallback)
+    {
+        fallback.add_fallback(core::mem::replace(self, config));
+    }
+    pub fn overlay_configs(&mut self, configs: impl IntoIterator<Item = Config>, fallback: &mut Fallback)
+    {
+        for config in configs
+        {
+            self.overlay_config(config, fallback);
+        }
+    }
+    
     fn find_directory<'a>(dir: impl Into<Cow<'a, Path>>) -> Result<Cow<'a, Path>, FindDirectoryError>
     {
         let dir = dir.into();

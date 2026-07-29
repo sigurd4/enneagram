@@ -1,22 +1,19 @@
 use std::borrow::Borrow;
 
-use crate::{config::{Fallback, Config}, enneatype::Enneatype, triad::Triad};
+use crate::{config::{Config, Fallback}, enneatype::Enneatype, triad::Triad};
 
 #[derive(Clone, Default)]
 pub struct Enneagram
 {
-    edges: Vec<Vec<Enneatype>>,
-    config: Config,
-    fallback: Fallback
+    edges: Vec<Vec<Enneatype>>
 }
 
 impl Enneagram
 {
-    pub fn all(original: Enneagram) -> Self
+    pub fn all() -> Self
     {
         Self {
-            edges: vec![Enneatype::all().to_vec()],
-            ..original
+            edges: vec![Enneatype::all().to_vec()]
         }
     }
 
@@ -54,37 +51,18 @@ impl Enneagram
         self.edges.iter()
             .map(Borrow::borrow)
     }
-    pub fn config(&self) -> &Config
-    {
-        &self.config
-    }
-    pub fn fallback(&self) -> &Fallback
-    {
-        &self.fallback
-    }
-    pub fn overlay_config(&mut self, config: Config)
-    {
-        self.fallback.add_fallback(core::mem::replace(&mut self.config, config));
-    }
-    pub fn overlay_configs(&mut self, configs: impl IntoIterator<Item = Config>)
-    {
-        for config in configs
-        {
-            self.overlay_config(config);
-        }
-    }
 
-    pub fn lines(&self) -> Vec<[Enneatype; 2]>
+    pub fn lines(&self, config: &Config, fallback: &Fallback) -> Vec<[Enneatype; 2]>
     {
         let mut lines = core::iter::empty()
-            .chain(if self.config.show(&self.fallback).path_lines(&self.fallback) { Some(self.path_lines()) } else { None }.into_iter().flatten())
+            .chain(if config.show(fallback).path_lines(fallback) { Some(self.path_lines()) } else { None }.into_iter().flatten())
             .chain(
-                if self.config.show(&self.fallback).boundary_lines(&self.fallback) { Some(self.boundary_lines()) } else { None }
+                if config.show(fallback).boundary_lines(fallback) { Some(self.boundary_lines()) } else { None }
                     .into_iter()
                     .flatten()
             )
-            .chain(if self.config.show(&self.fallback).pivot_lines(&self.fallback) { Some(self.pivot_lines()) } else { None }.into_iter().flatten())
-            .chain(if self.config.show(&self.fallback).triad_lines(&self.fallback) { Some(self.triad_lines()) } else { None }.into_iter().flatten())
+            .chain(if config.show(fallback).pivot_lines(fallback) { Some(self.pivot_lines()) } else { None }.into_iter().flatten())
+            .chain(if config.show(fallback).triad_lines(fallback) { Some(self.triad_lines()) } else { None }.into_iter().flatten())
             .collect::<Vec<_>>();
         lines.dedup_by(|a, b| crate::line::equals(a, b));
         lines
@@ -126,17 +104,13 @@ impl Enneagram
 #[cfg(test)]
 mod test
 {
-    use crate::{config::Fallback, Enneagram};
+    use crate::Enneagram;
 
     #[test]
     fn test_paths()
     {
-        let paths = Enneagram::all(Enneagram {
-            edges: Vec::new(),
-            config: Default::default(),
-            fallback: Fallback::default()
-        })
-        .paths();
+        let paths = Enneagram::all().paths();
+
         println!("{paths:?}")
     }
 }

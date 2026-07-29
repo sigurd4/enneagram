@@ -3,20 +3,22 @@ use core::f32::consts::PI;
 use ratatui::{Terminal, layout::Rect, prelude::Backend};
 use ratatui_3d::{Light, Material, Scene, SceneObject, Transform, Viewport3D, Viewport3DState, math::{Quat, Vec3}};
 
-use enneagram::{Enneagram, line, path, wireframe::Wireframe};
+use enneagram::{Enneagram, config::{Config, Fallback}, line, path, wireframe::Wireframe};
 
-pub struct Artwork
+pub struct Artwork<'a>
 {
-    pub enneagram: Enneagram
+    pub enneagram: &'a Enneagram,
+    pub config: &'a Config,
+    pub fallback: &'a Fallback
 }
 
-impl Artwork
+impl Artwork<'_>
 {
     pub fn draw(&self, terminal: &mut Terminal<impl Backend>)
     {
         // Build a scene
         let mut scene = Scene::new()
-            .with_background(self.enneagram.config().color(self.enneagram.fallback()).sky(self.enneagram.fallback()));
+            .with_background(self.config.color(self.fallback).sky(self.fallback));
 
         const RADIUS: f32 = 1.4;
         const LINE_THICKNESS: f64 = 0.02;
@@ -28,14 +30,14 @@ impl Artwork
             scale: Vec3 { x: RADIUS, y: RADIUS, z: RADIUS },
             position: Vec3 { x: 0.0, y: -0.15, z: -0.0 }
         };
-        let all = Enneagram::all(self.enneagram.clone());
+        let all = Enneagram::all();
 
         for edge in all.edges().flatten()
         {
             let [x, y] = edge.position()
                 .map(|p| p*DIGIT_RADIUS);
             for line in path::lines_disconnected(
-                    edge.config(self.enneagram.config(), self.enneagram.fallback())
+                    edge.config(self.config, self.fallback)
                         .digit
                         .iter()
                         .copied()
@@ -50,9 +52,9 @@ impl Artwork
                             .mesh()
                     )
                     .with_material(Material::default()
-                        .with_color(self.enneagram.config().color(self.enneagram.fallback())
+                        .with_color(self.config.color(self.fallback)
                             .line(
-                                self.enneagram.fallback(),
+                                self.fallback,
                                 self.enneagram.edges()
                                     .flatten()
                                     .any(|e| e == edge)
@@ -64,12 +66,12 @@ impl Artwork
             }
         }
 
-        let dyed_lines = Wireframe::from_lines(self.enneagram.lines())
+        let dyed_lines = Wireframe::from_lines(self.enneagram.lines(self.config, self.fallback))
             .map(|edge| edge.position())
             .into_lines()
             .collect::<Vec<_>>();
 
-        for line in Wireframe::from_lines(all.lines())
+        for line in Wireframe::from_lines(all.lines(self.config, self.fallback))
             .map(|edge| edge.position())
             .with_lines(dyed_lines.iter().copied())
             .into_lines()
@@ -81,9 +83,9 @@ impl Artwork
                         .mesh()
                 )
                 .with_material(Material::default()
-                    .with_color(self.enneagram.config().color(self.enneagram.fallback())
+                    .with_color(self.config.color(self.fallback)
                         .line(
-                            self.enneagram.fallback(),
+                            self.fallback,
                             dyed_lines.iter()
                                 .any(|dyed_line| line::equals(dyed_line, &line))
                         )
@@ -100,13 +102,13 @@ impl Artwork
                     .extrude(-1.0)
                     .mesh()
             )
-            .with_material(Material::default().with_color(self.enneagram.config().color(self.enneagram.fallback()).surface(self.enneagram.fallback())))
+            .with_material(Material::default().with_color(self.config.color(self.fallback).surface(self.fallback)))
             .with_transform(transform),
         );
         
-        scene.add_light(Light::ambient(self.enneagram.config().color(self.enneagram.fallback()).glare(self.enneagram.fallback()), 1.0));
-        scene.add_light(Light::directional(Vec3::new(-0.2, -0.2, 1.0),  self.enneagram.config().color(self.enneagram.fallback()).sun(self.enneagram.fallback())));
-        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0),  self.enneagram.config().color(self.enneagram.fallback()).shine(self.enneagram.fallback())));
+        scene.add_light(Light::ambient(self.config.color(self.fallback).glare(self.fallback), 1.0));
+        scene.add_light(Light::directional(Vec3::new(-0.2, -0.2, 1.0),  self.config.color(self.fallback).sun(self.fallback)));
+        scene.add_light(Light::directional(Vec3::new(0.2, 0.2, 1.0),  self.config.color(self.fallback).shine(self.fallback)));
 
         // Render as a ratatui widget
         let mut state = Viewport3DState::default();
@@ -135,14 +137,18 @@ impl Artwork
 #[cfg(test)]
 mod test
 {
-    use crate::{artwork::Artwork, Enneagram};
+    use enneagram::config::{Config, Fallback};
+
+use crate::{artwork::Artwork, Enneagram};
 
     #[test]
     #[ignore] // It fucks up the keyboard input, because i'm not fluent in ratatui
     fn test_graphics()
     {
         let artwork = Artwork {
-            enneagram: Enneagram::all(Enneagram::default())
+            enneagram: &Enneagram::all(),
+            config: &Config::default(),
+            fallback: &Fallback::default()
         };
 
         let mut terminal = ratatui::init();
