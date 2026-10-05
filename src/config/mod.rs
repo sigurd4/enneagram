@@ -3,12 +3,7 @@ use core::{
     ops::BitOrAssign
 };
 use std::{
-    borrow::Cow,
-    env::VarError,
-    fs::File,
-    path::{Path, PathBuf},
-    str::FromStr,
-    string::ToString
+    borrow::Cow, env::VarError, fs::File, io::ErrorKind, path::{Path, PathBuf}, str::FromStr, string::ToString
 };
 
 use serde::{Deserialize, Serialize};
@@ -357,7 +352,15 @@ impl Config
                 {
                     FindDirectoryError::Nonexistant { path } =>
                     {
-                        std::fs::create_dir(&path).map_err(|error| CreateDirectoryError::Failed { path, error })?;
+                        match std::fs::create_dir(&path)
+                        {
+                            Err(error) => match error.kind()
+                            {
+                                ErrorKind::AlreadyExists /*| ErrorKind::IsADirectory | ErrorKind::DirectoryNotEmpty*/ => (),
+                                _ => return Err(CreateDirectoryError::Failed { path, error }.into())
+                            },
+                            Ok(()) => ()
+                        }
                         upon_creation()?
                     }
                     FindDirectoryError::NotADirectory { path } => return Err(CreateDirectoryError::NotADirectory { path }.into())
